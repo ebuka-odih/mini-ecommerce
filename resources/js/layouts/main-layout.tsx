@@ -1,0 +1,343 @@
+import React from 'react';
+import { Head, Link } from '@inertiajs/react';
+import { Heart, ShoppingBag, Menu, X, Plus, Minus, Trash2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { NavigationItem } from '@/types';
+
+interface MainLayoutProps {
+    children: React.ReactNode;
+    title?: string;
+}
+
+// Cart Sidebar Component
+const CartSidebar: React.FC = () => {
+    const [cartItems, setCartItems] = React.useState([
+        {
+            id: 1,
+            name: 'Premium Sunglasses',
+            price: 15000,
+            quantity: 1,
+            image: '/assets/images/products/sunglasses-1.jpg',
+            size: 'One Size'
+        },
+        {
+            id: 2,
+            name: 'Designer T-Shirt',
+            price: 8000,
+            quantity: 2,
+            image: '/assets/images/products/tshirt-1.jpg',
+            size: 'L'
+        }
+    ]);
+
+    const updateQuantity = (id: number, change: number) => {
+        setCartItems(prev => prev.map(item => 
+            item.id === id 
+                ? { ...item, quantity: Math.max(0, item.quantity + change) }
+                : item
+        ).filter(item => item.quantity > 0));
+    };
+
+    const removeItem = (id: number) => {
+        setCartItems(prev => prev.filter(item => item.id !== id));
+    };
+
+    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+
+    const formatCurrency = (amount: number) => {
+        return new Intl.NumberFormat('en-NG', {
+            style: 'currency',
+            currency: 'NGN',
+            minimumFractionDigits: 0,
+        }).format(amount);
+    };
+
+    return (
+        <Sheet>
+            <SheetTrigger asChild>
+                <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-colors overflow-visible">
+                    <ShoppingBag className="h-6 w-6" />
+                    {totalItems > 0 && (
+                        <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center min-w-[20px] shadow-lg border-2 border-white z-10">
+                            {totalItems}
+                        </span>
+                    )}
+                </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-96 bg-white border-l">
+                <SheetHeader>
+                    <SheetTitle className="sr-only">Shopping Cart</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col h-full">
+                    {/* Header */}
+                    <div className="flex items-center justify-between p-6 border-b">
+                        <h2 className="text-lg font-semibold">Shopping Cart</h2>
+                        <span className="text-sm text-gray-500">{totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+                    </div>
+
+                    {/* Cart Items */}
+                    <div className="flex-1 overflow-y-auto p-6">
+                        {cartItems.length > 0 ? (
+                            <div className="space-y-4">
+                                {cartItems.map((item) => (
+                                    <div key={item.id} className="flex gap-4 p-4 border border-gray-100 rounded-lg">
+                                        <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center">
+                                            <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <h3 className="font-medium text-sm truncate">{item.name}</h3>
+                                            <p className="text-xs text-gray-500">Size: {item.size}</p>
+                                            <p className="font-semibold text-sm mt-1">{formatCurrency(item.price)}</p>
+                                            
+                                            {/* Quantity Controls */}
+                                            <div className="flex items-center gap-2 mt-3">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => updateQuantity(item.id, -1)}
+                                                    className="h-6 w-6 p-0"
+                                                >
+                                                    <Minus className="h-3 w-3" />
+                                                </Button>
+                                                <span className="text-sm w-8 text-center">{item.quantity}</span>
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => updateQuantity(item.id, 1)}
+                                                    className="h-6 w-6 p-0"
+                                                >
+                                                    <Plus className="h-3 w-3" />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => removeItem(item.id)}
+                                                    className="h-6 w-6 p-0 ml-auto text-red-500 hover:text-red-700"
+                                                >
+                                                    <Trash2 className="h-3 w-3" />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center justify-center h-64 text-center">
+                                <ShoppingBag className="h-12 w-12 text-gray-300 mb-4" />
+                                <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
+                                <p className="text-gray-500 mb-6">Add some items to get started</p>
+                                <Button asChild>
+                                    <Link href="/shop">Continue Shopping</Link>
+                                </Button>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Footer */}
+                    {cartItems.length > 0 && (
+                        <div className="p-6 border-t bg-gray-50">
+                            <div className="flex justify-between items-center mb-4">
+                                <span className="text-lg font-semibold">Total:</span>
+                                <span className="text-lg font-bold">{formatCurrency(totalPrice)}</span>
+                            </div>
+                            <div className="space-y-3">
+                                <Button className="w-full" size="lg">
+                                    Checkout
+                                </Button>
+                                <Button variant="outline" className="w-full" asChild>
+                                    <Link href="/cart">View Cart</Link>
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            </SheetContent>
+        </Sheet>
+    );
+};
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND' }) => {
+
+    const navigationItems: NavigationItem[] = [
+        { name: 'DEMOS', href: '#', hasDropdown: true },
+        { name: 'PAGES', href: '#', hasDropdown: true },
+        { name: 'COLLECTION', href: '/shop' },
+        { name: 'SHOP', href: '/shop' },
+    ];
+
+    return (
+        <>
+            <Head title={title} />
+            <div className="min-h-screen bg-white">
+                {/* Header */}
+                <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+                    <div className="container mx-auto px-4">
+                        <div className="flex h-16 items-center justify-between">
+                            {/* Mobile Menu */}
+                            <div className="flex items-center lg:hidden">
+                                <Sheet>
+                                    <SheetTrigger asChild>
+                                        <Button variant="ghost" size="sm" className="p-2 hover:bg-gray-100 rounded-md">
+                                            <Menu className="h-6 w-6 text-gray-700" />
+                                        </Button>
+                                    </SheetTrigger>
+                                    <SheetContent side="left" className="w-80 bg-white border-r">
+                                        <SheetHeader>
+                                            <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
+                                        </SheetHeader>
+                                        <div className="flex flex-col h-full">
+                                            {/* Mobile Menu Header */}
+                                            <div className="flex items-center justify-between p-6 border-b">
+                                                <img 
+                                                    src="/brand/GNOSIS3.png" 
+                                                    alt="GNOSIS" 
+                                                    className="h-6 w-auto"
+                                                />
+                                            </div>
+                                            
+                                            {/* Navigation Items */}
+                                            <nav className="flex-1 px-6 py-8">
+                                                <div className="flex flex-col space-y-6">
+                                                    {navigationItems.map((item) => (
+                                                        <Link
+                                                            key={item.name}
+                                                            href={item.href}
+                                                            className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors py-2 border-b border-gray-100 last:border-b-0"
+                                                        >
+                                                            <div className="flex items-center justify-between">
+                                                                <span>{item.name}</span>
+                                                                {item.hasDropdown && (
+                                                                    <span className="text-gray-400">→</span>
+                                                                )}
+                                                            </div>
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            </nav>
+                                            
+                                            {/* Mobile Menu Footer */}
+                                            <div className="p-6 border-t bg-gray-50">
+                                                <div className="flex flex-col space-y-3">
+                                                    <Link href="/account" className="text-sm text-gray-600 hover:text-black">
+                                                        My Account
+                                                    </Link>
+                                                    <Link href="/contact" className="text-sm text-gray-600 hover:text-black">
+                                                        Contact Us
+                                                    </Link>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </SheetContent>
+                                </Sheet>
+                            </div>
+
+                            {/* Desktop Navigation */}
+                            <nav className="hidden lg:flex items-center space-x-8">
+                                {navigationItems.slice(0, 3).map((item) => (
+                                    <Link
+                                        key={item.name}
+                                        href={item.href}
+                                        className="text-sm font-medium text-gray-700 hover:text-black transition-colors relative group"
+                                    >
+                                        {item.name}
+                                        {item.hasDropdown && (
+                                            <span className="ml-1 text-xs">▼</span>
+                                        )}
+                                        <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-black transition-all duration-300 group-hover:w-full"></span>
+                                    </Link>
+                                ))}
+                            </nav>
+
+                            {/* Logo */}
+                            <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
+                                <Link href="/" className="flex items-center">
+                                    <img 
+                                        src="/brand/GNOSIS3.png" 
+                                        alt="GNOSIS" 
+                                        className="h-8 lg:h-10 w-auto"
+                                    />
+                                </Link>
+                            </div>
+
+                            {/* Desktop Navigation (Right) */}
+                            
+
+                            {/* Right Actions */}
+                            <div className="flex items-center gap-1">
+                                {/* Wishlist */}
+                                <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-colors">
+                                    <Heart className="h-6 w-6" />
+                                </Button>
+
+                                {/* Cart */}
+                                <CartSidebar />
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                {/* Main Content */}
+                <main className="flex-1">
+                    {children}
+                </main>
+
+                {/* Footer */}
+                <footer className="bg-gray-50 border-t">
+                    <div className="container mx-auto px-4 py-12">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                            <div>
+                                <div className="mb-4">
+                                    <img 
+                                        src="/brand/GNOSIS3.png" 
+                                        alt="GNOSIS" 
+                                        className="h-8 w-auto"
+                                    />
+                                </div>
+                                <p className="text-gray-600 text-sm">
+                                    Premium fashion brand delivering quality and style.
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-4">Shop</h4>
+                                <ul className="space-y-2 text-sm text-gray-600">
+                                    <li><Link href="/shop" className="hover:text-black">All Products</Link></li>
+                                    <li><Link href="/shop" className="hover:text-black">New Arrivals</Link></li>
+                                    <li><Link href="/shop" className="hover:text-black">Sale</Link></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-4">Support</h4>
+                                <ul className="space-y-2 text-sm text-gray-600">
+                                    <li><Link href="#" className="hover:text-black">Contact Us</Link></li>
+                                    <li><Link href="#" className="hover:text-black">Size Guide</Link></li>
+                                    <li><Link href="#" className="hover:text-black">Returns</Link></li>
+                                </ul>
+                            </div>
+                            <div>
+                                <h4 className="font-semibold mb-4">Follow Us</h4>
+                                <div className="flex space-x-4">
+                                    <a href="#" className="text-gray-600 hover:text-black">
+                                        Instagram
+                                    </a>
+                                    <a href="#" className="text-gray-600 hover:text-black">
+                                        Twitter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
+                            <p>&copy; 2025 GNOSIS. All rights reserved.</p>
+                        </div>
+                    </div>
+                </footer>
+            </div>
+        </>
+    );
+};
+
+export default MainLayout;
