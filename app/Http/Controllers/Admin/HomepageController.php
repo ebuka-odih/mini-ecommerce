@@ -16,10 +16,20 @@ class HomepageController extends Controller
      */
     public function index()
     {
-        $layouts = HomepageLayout::with(['category', 'coverImage'])
+        $layouts = HomepageLayout::with(['category'])
             ->orderBy('sort_order')
             ->orderBy('grid_position')
-            ->get();
+            ->get()
+            ->map(function ($layout) {
+                // Manually load cover image due to UUID relationship issues
+                if ($layout->cover_image_id) {
+                    $coverImage = \App\Models\Image::find($layout->cover_image_id);
+                    if ($coverImage) {
+                        $layout->setRelation('cover_image', $coverImage);
+                    }
+                }
+                return $layout;
+            });
 
         $categories = Category::where('is_active', true)
             ->with('image')

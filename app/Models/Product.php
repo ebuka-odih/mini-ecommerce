@@ -29,6 +29,12 @@ class Product extends Model
         'dimensions',
         'specifications',
         'views',
+        'external_id',
+        'source_url',
+        'source_platform',
+        'meta_title',
+        'meta_description',
+        'stock_quantity',
     ];
 
     protected $casts = [
@@ -50,6 +56,21 @@ class Product extends Model
             }
             if (empty($product->sku)) {
                 $product->sku = 'SKU-' . strtoupper(Str::random(8));
+            }
+            // Sync stock fields
+            if (isset($product->stock_quantity) && !isset($product->stock)) {
+                $product->stock = $product->stock_quantity;
+            } elseif (isset($product->stock) && !isset($product->stock_quantity)) {
+                $product->stock_quantity = $product->stock;
+            }
+        });
+
+        static::updating(function ($product) {
+            // Sync stock fields on update
+            if (isset($product->stock_quantity) && !isset($product->stock)) {
+                $product->stock = $product->stock_quantity;
+            } elseif (isset($product->stock) && !isset($product->stock_quantity)) {
+                $product->stock_quantity = $product->stock;
             }
         });
     }

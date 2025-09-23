@@ -20,8 +20,49 @@ class HomeController extends Controller
         
         // Normal index page
         $products = Product::with('category')->latest()->take(4)->get();
+        
+        // Load featured products for hero slider
+        $featuredProducts = Product::with('category')
+        ->where('is_featured', true)
+        ->where('is_active', true)
+        ->orderBy('created_at', 'desc')
+        ->take(6) // Limit to 6 featured products for the slider
+        ->get()
+        ->map(function ($product) {
+            // Manually load images for each product
+            $images = \App\Models\Image::where('imageable_type', 'App\Models\Product')
+                ->where('imageable_id', $product->id)
+                ->orderBy('sort_order')
+                ->take(2) // Only get first 2 images
+                ->get();
+            // Add images as a custom attribute
+            $product->images_data = $images;
+            return $product;
+        });
+        
+        // Load homepage layouts with their relationships
+        $homepageLayouts = \App\Models\HomepageLayout::with(['category'])
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function ($layout) {
+                // Manually load cover image due to UUID relationship issues
+                if ($layout->cover_image_id) {
+                    $coverImage = \App\Models\Image::find($layout->cover_image_id);
+                    if ($coverImage) {
+                        $layout->setRelation('cover_image', $coverImage);
+                    }
+                }
+                
+                // Add computed cover image URL
+                $layout->cover_image_url_computed = $layout->cover_image_url;
+                return $layout;
+            });
+        
         return Inertia::render('index', [
-            'products' => $products
+            'products' => $products,
+            'featuredProducts' => $featuredProducts,
+            'homepageLayouts' => $homepageLayouts
         ]);
     }
 

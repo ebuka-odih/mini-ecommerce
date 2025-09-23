@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\HomepageController;
 use App\Http\Controllers\Admin\VariationController;
+use App\Http\Controllers\Admin\ProductImportController;
 use App\Http\Controllers\Admin\ComingSoonController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -20,8 +21,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     // Old Admin Dashboard (Backup)
     Route::get('/old-dashboard', [AdminController::class, 'index'])->name('old-dashboard');
     
+    // Product Import (must be before resource route to avoid conflicts)
+    Route::prefix('products')->name('products.')->group(function () {
+        Route::get('import', [ProductImportController::class, 'index'])->name('import');
+        Route::get('import/preview', [ProductImportController::class, 'index'])->name('import.preview.get'); // Redirect GET requests to import page
+        Route::post('import/preview', [ProductImportController::class, 'preview'])->name('import.preview');
+        Route::post('import', [ProductImportController::class, 'import'])->name('import.store');
+    });
+    
     // New Products Management
     Route::resource('products', NewProductController::class);
+    Route::post('products/{product}/toggle-featured', [NewProductController::class, 'toggleFeatured'])->name('products.toggle-featured');
     
     // Old Products (Backup)
     Route::prefix('old')->name('old.')->group(function () {
@@ -54,6 +64,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('media-picker', [MediaController::class, 'picker'])->name('media.picker');
     Route::post('media/{medium}/attach', [MediaController::class, 'attach'])->name('media.attach');
     Route::post('media/{medium}/detach', [MediaController::class, 'detach'])->name('media.detach');
+    Route::post('media/import-urls', [MediaController::class, 'importFromUrls'])->name('media.import-urls');
     
     // Homepage Layout
     Route::get('homepage-layout', [HomepageController::class, 'index'])->name('homepage.index');

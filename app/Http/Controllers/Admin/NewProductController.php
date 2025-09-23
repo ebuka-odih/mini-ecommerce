@@ -109,10 +109,10 @@ class NewProductController extends Controller
             $counter++;
         }
 
-        // Map stock_quantity to stock for database
+        // Map stock_quantity to stock for database (keep both fields in sync)
         if (isset($validated['stock_quantity'])) {
             $validated['stock'] = $validated['stock_quantity'];
-            unset($validated['stock_quantity']);
+            // Keep stock_quantity as well for consistency
         }
 
         // Create product
@@ -275,10 +275,10 @@ class NewProductController extends Controller
             }
         }
 
-        // Map stock_quantity to stock for database
+        // Map stock_quantity to stock for database (keep both fields in sync)
         if (isset($validated['stock_quantity'])) {
             $validated['stock'] = $validated['stock_quantity'];
-            unset($validated['stock_quantity']);
+            // Keep stock_quantity as well for consistency
         }
 
         $product->update($validated);
@@ -390,5 +390,17 @@ class NewProductController extends Controller
 
         return redirect()->route('admin.products.index')
             ->with('success', 'Product deleted successfully!');
+    }
+
+    public function toggleFeatured(Product $product)
+    {
+        $product->update(['is_featured' => !$product->is_featured]);
+        
+        // Return JSON response for AJAX requests
+        return response()->json([
+            'success' => true,
+            'is_featured' => $product->is_featured,
+            'message' => $product->is_featured ? 'Product marked as featured' : 'Product unmarked as featured'
+        ]);
     }
 }

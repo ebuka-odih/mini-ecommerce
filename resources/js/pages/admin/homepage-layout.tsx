@@ -122,7 +122,8 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                 setIsAddModalOpen(false);
                 setSelectedCoverImage(null);
                 resetAdd();
-                alert('Homepage layout created successfully!');
+                // Reload the page to refresh layout data
+                window.location.reload();
             },
             onError: (errors) => {
                 console.error('Validation errors:', errors);
@@ -142,7 +143,8 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                 setEditingLayout(null);
                 setSelectedEditCoverImage(null);
                 resetEdit();
-                alert('Homepage layout updated successfully!');
+                // Reload the page to refresh layout data with updated cover images
+                window.location.reload();
             },
             onError: (errors) => {
                 console.error('Validation errors:', errors);
@@ -218,7 +220,8 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
         if (confirm('Are you sure you want to delete this layout? This will affect your homepage.')) {
             router.delete(`/admin/homepage-layout/${layoutId}`, {
                 onSuccess: () => {
-                    alert('Layout deleted successfully!');
+                    // Reload the page to refresh layout data
+                    window.location.reload();
                 },
             });
         }
@@ -242,8 +245,8 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
     };
 
     const getLayoutBackground = (layout: HomepageLayout) => {
-        // If custom cover is enabled and cover image exists, use it
-        if (layout.use_custom_cover && layout.cover_image) {
+        // Priority 1: Always try to show cover image if available (regardless of use_custom_cover setting)
+        if (layout.cover_image) {
             return {
                 backgroundImage: `url(${layout.cover_image.url || `/storage/${layout.cover_image.path}`})`,
                 backgroundSize: 'cover',
@@ -252,28 +255,29 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
             };
         }
 
-        // If custom cover is enabled but no image, or fallback to gradient
+        // Priority 2: Fallback to gradient if no cover image
         if (layout.gradient_from && layout.gradient_to) {
             return {
                 background: `linear-gradient(to bottom right, var(--tw-gradient-from), var(--tw-gradient-to))`
             };
         }
 
-        // Default fallback
+        // Priority 3: Default fallback
         return { backgroundColor: '#4B5563' };
     };
 
     const getLayoutBackgroundClass = (layout: HomepageLayout) => {
-        // If custom cover is enabled and cover image exists, return empty class
-        if (layout.use_custom_cover && layout.cover_image) {
+        // Priority 1: If cover image exists, return empty class (background will be set via inline style)
+        if (layout.cover_image) {
             return '';
         }
 
-        // Otherwise use gradient class
+        // Priority 2: Use gradient class if no cover image
         if (layout.gradient_from && layout.gradient_to) {
             return `bg-gradient-to-br from-${layout.gradient_from} to-${layout.gradient_to}`;
         }
 
+        // Priority 3: Default gray background
         return 'bg-gray-600';
     };
 
@@ -609,7 +613,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                                             style={getLayoutBackground(heroLayout)}
                                         >
                                             {/* Overlay for better text readability when image is used */}
-                                            {heroLayout.use_custom_cover && heroLayout.cover_image && (
+                                            {heroLayout.cover_image && (
                                                 <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg"></div>
                                             )}
                                             <div className="text-center relative z-10">
@@ -647,7 +651,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                                                 style={getLayoutBackground(layout)}
                                             >
                                                 {/* Overlay for better text readability when image is used */}
-                                                {layout.use_custom_cover && layout.cover_image && (
+                                                {layout.cover_image && (
                                                     <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg"></div>
                                                 )}
                                                 <div className="text-center relative z-10">
@@ -677,7 +681,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                                                 style={getLayoutBackground(layout)}
                                             >
                                                 {/* Overlay for better text readability when image is used */}
-                                                {layout.use_custom_cover && layout.cover_image && (
+                                                {layout.cover_image && (
                                                     <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg"></div>
                                                 )}
                                                 <div className="text-center relative z-10">
@@ -714,7 +718,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                                                 style={getLayoutBackground(layout)}
                                             >
                                                 {/* Overlay for better text readability when image is used */}
-                                                {layout.use_custom_cover && layout.cover_image && (
+                                                {layout.cover_image && (
                                                     <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg"></div>
                                                 )}
                                                 <div className="text-center relative z-10">
@@ -760,7 +764,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
                                                     style={getLayoutBackground(layout)}
                                                 >
                                                     {/* Overlay for better icon visibility when image is used */}
-                                                    {layout.use_custom_cover && layout.cover_image && (
+                                                    {layout.cover_image && (
                                                         <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
                                                     )}
                                                     <Grid3X3 className="h-6 w-6 relative z-10" />

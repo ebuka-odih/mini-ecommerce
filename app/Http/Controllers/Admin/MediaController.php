@@ -63,7 +63,20 @@ class MediaController extends Controller
             $options['subfolder'] = $request->subfolder;
         }
 
-        $uploadedFiles = $this->mediaLibraryService->storeMultipleImages($request->file('files'), $options);
+        // Get files from request - Laravel handles files[] automatically
+        $files = $request->file('files');
+        
+        if (!$files) {
+            return redirect()->route('admin.media.index')
+                ->with('error', 'No files were uploaded.');
+        }
+        
+        // Ensure files is an array
+        if (!is_array($files)) {
+            $files = [$files];
+        }
+        
+        $uploadedFiles = $this->mediaLibraryService->storeMultipleImages($files, $options);
 
         return redirect()->route('admin.media.index')
             ->with('success', count($uploadedFiles) . ' file(s) uploaded successfully!');
@@ -212,5 +225,107 @@ class MediaController extends Controller
             'success' => true,
             'message' => 'Image detached successfully!',
         ]);
+    }
+
+    /**
+     * Import images from URLs.
+     */
+    public function importFromUrls(Request $request)
+    {
+        $request->validate([
+            'urls' => 'required|array|min:1',
+            'urls.*' => 'required|url',
+            'folder' => 'nullable|string|max:255',
+            'tags' => 'nullable|string',
+            'alt_text' => 'nullable|string|max:255',
+            'caption' => 'nullable|string|max:500',
+        ]);
+
+        $importedCount = 0;
+        $errors = [];
+
+        foreach ($request->urls as $url) {
+            try {
+                // Download and save the image
+                $imageData = $this->downloadImageFromUrl($url);
+                
+                if ($imageData) {
+                    $options = [
+                        'folder' => $request->folder ?: 'media-library',
+                        'tags' => $request->tags ?? '',
+                        'alt_text' => $request->alt_text ?? '',
+                        'caption' => $request->caption ?? '',
+                        'original_url' => $url,
+                    ];
+
+                    $this->mediaLibraryService->storeImageFromData($imageData, $options);
+                    $importedCount++;
+                } else {
+                    $errors[] = "Failed to download image from: {$url}";
+                }
+            } catch (\Exception $e) {
+                $errors[] = "Error importing {$url}: " . $e->getMessage();
+            }
+        }
+
+        if ($importedCount > 0) {
+            $message = "Successfully imported {$importedCount} image(s)";
+            if (!empty($errors)) {
+                $message .= ". " . count($errors) . " failed.";
+            }
+            
+            return redirect()->route('admin.media.index')
+                ->with('success', $message)
+                ->with('import_errors', $errors);
+        } else {
+            return redirect()->route('admin.media.index')
+                ->with('error', 'Failed to import any images. Please check the URLs and try again.')
+                ->with('import_errors', $errors);
+        }
+    }
+
+    /**
+     * Download image from URL.
+     */
+    private function downloadImageFromUrl(string $url): ?array
+    {
+        try {
+            $context = stream_context_create([
+                'http' => [
+                    'timeout' => 30,
+                    'user_agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                ],
+            ]);
+
+            $imageData = file_get_contents($url, false, $context);
+            
+            if ($imageData === false) {
+                return null;
+            }
+
+            // Get content type
+            $headers = get_headers($url, 1);
+            $contentType = $headers['Content-Type'] ?? 'image/jpeg';
+            
+            // Determine file extension
+            $extension = 'jpg';
+            if (strpos($contentType, 'png') !== false) {
+                $extension = 'png';
+            } elseif (strpos($contentType, 'gif') !== false) {
+                $extension = 'gif';
+            } elseif (strpos($contentType, 'webp') !== false) {
+                $extension = 'webp';
+            }
+
+            return [
+                'data' => $imageData,
+                'extension' => $extension,
+                'content_type' => $contentType,
+                'size' => strlen($imageData),
+            ];
+        } catch (\Exception $e) {
+            \Log::error('Error downloading image from URL: ' . $url . ' - ' . $e->getMessage());
+            return null;
+        }
     }
 }

@@ -112,7 +112,7 @@ export default function ProductShow({ product }: ProductShowProps) {
         setSelectedImageAlt(altText);
     };
 
-    const stockInfo = getStockStatus(product.stock);
+    const stockInfo = getStockStatus(product.stock_quantity);
 
     return (
         <AdminLayout>
@@ -375,7 +375,7 @@ export default function ProductShow({ product }: ProductShowProps) {
                                         Stock
                                     </span>
                                     <Badge className={stockInfo.color}>
-                                        {product.stock} units
+                                        {product.stock_quantity} units
                                     </Badge>
                                 </div>
 

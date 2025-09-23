@@ -50,6 +50,57 @@ class ImageService
         return $image;
     }
 
+    /**
+     * Save imported image from external source
+     */
+    public function saveImportedImage(array $imageData, $imageable = null, $options = [])
+    {
+        $defaultOptions = [
+            'disk' => 'public',
+            'folder' => 'imported-products',
+            'is_featured' => false,
+            'alt_text' => null,
+            'caption' => null,
+            'sort_order' => 0,
+            'metadata' => [],
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+
+        try {
+            // Store the image content
+            $path = $options['folder'] . '/' . $imageData['filename'];
+            Storage::disk($options['disk'])->put($path, $imageData['content']);
+            
+            // Create image record
+            $image = Image::create([
+                'filename' => $imageData['filename'],
+                'original_name' => $imageData['original_name'],
+                'mime_type' => $imageData['mime_type'],
+                'extension' => $imageData['extension'],
+                'path' => $path,
+                'disk' => $options['disk'],
+                'size' => $imageData['size'],
+                'imageable_type' => $imageable ? get_class($imageable) : null,
+                'imageable_id' => $imageable ? $imageable->id : null,
+                'alt_text' => $options['alt_text'],
+                'caption' => $options['caption'],
+                'is_featured' => $options['is_featured'],
+                'sort_order' => $options['sort_order'],
+                'metadata' => array_merge($options['metadata'], [
+                    'imported' => true,
+                    'imported_at' => now()->toISOString()
+                ]),
+            ]);
+
+            return $image;
+
+        } catch (\Exception $e) {
+            \Log::error('Failed to save imported image: ' . $e->getMessage());
+            return null;
+        }
+    }
+
     public function storeMultipleImages(array $files, $imageable, $options = [])
     {
         $images = [];

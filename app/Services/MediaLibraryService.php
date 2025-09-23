@@ -95,6 +95,77 @@ class MediaLibraryService
     }
 
     /**
+     * Store image from data (for URL imports)
+     */
+    public function storeImageFromData(array $imageData, $options = [])
+    {
+        $defaultOptions = [
+            'disk' => 'public',
+            'folder' => 'media-library',
+            'tags' => '',
+            'alt_text' => '',
+            'caption' => '',
+            'imageable_type' => null,
+            'imageable_id' => null,
+        ];
+
+        $options = array_merge($defaultOptions, $options);
+
+        // Generate unique filename
+        $filename = time() . '_' . Str::random(10) . '.' . $imageData['extension'];
+        
+        // Create folder path
+        $folderPath = $options['folder'];
+        if (!empty($options['subfolder'])) {
+            $folderPath .= '/' . $options['subfolder'];
+        }
+        
+        // Store the image data
+        $path = $folderPath . '/' . $filename;
+        Storage::disk($options['disk'])->put($path, $imageData['data']);
+        
+        // Get image dimensions from data
+        $dimensions = $this->getImageDimensionsFromData($imageData['data']);
+        
+        // Extract dominant colors (simplified version)
+        $colorPalette = $this->extractColorPaletteFromData($imageData['data']);
+        
+        // Create image record
+        $image = Image::create([
+            'filename' => $filename,
+            'original_name' => 'imported_' . $filename,
+            'mime_type' => $imageData['content_type'],
+            'extension' => $imageData['extension'],
+            'path' => $path,
+            'disk' => $options['disk'],
+            'folder' => $folderPath,
+            'size' => $imageData['size'],
+            'width' => $dimensions['width'] ?? null,
+            'height' => $dimensions['height'] ?? null,
+            'imageable_type' => $options['imageable_type'],
+            'imageable_id' => $options['imageable_id'],
+            'alt_text' => $options['alt_text'],
+            'caption' => $options['caption'],
+            'is_featured' => false,
+            'is_optimized' => false,
+            'sort_order' => 0,
+            'metadata' => ['original_url' => $options['original_url'] ?? null],
+            'tags' => $options['tags'],
+            'uploaded_at' => now(),
+            'uploaded_by' => Auth::id(),
+            'color_palette' => $colorPalette,
+            'download_count' => 0,
+            'last_used_at' => null,
+            'usage_context' => null,
+        ]);
+
+        // Generate thumbnails
+        $this->generateThumbnails($image);
+
+        return $image;
+    }
+
+    /**
      * Get images from media library with filters
      */
     public function getImages($filters = [])
@@ -277,6 +348,40 @@ class MediaLibraryService
      * Extract dominant colors from image (simplified)
      */
     private function extractColorPalette(UploadedFile $file)
+    {
+        try {
+            // This is a simplified version
+            // In production, you might want to use a proper image processing library
+            return [
+                'primary' => '#666666',
+                'secondary' => '#999999',
+                'accent' => '#cccccc'
+            ];
+        } catch (\Exception $e) {
+            return [];
+        }
+    }
+
+    /**
+     * Get image dimensions from data
+     */
+    private function getImageDimensionsFromData(string $imageData)
+    {
+        try {
+            $imageInfo = getimagesizefromstring($imageData);
+            return [
+                'width' => $imageInfo[0] ?? null,
+                'height' => $imageInfo[1] ?? null,
+            ];
+        } catch (\Exception $e) {
+            return ['width' => null, 'height' => null];
+        }
+    }
+
+    /**
+     * Extract dominant colors from image data (simplified)
+     */
+    private function extractColorPaletteFromData(string $imageData)
     {
         try {
             // This is a simplified version

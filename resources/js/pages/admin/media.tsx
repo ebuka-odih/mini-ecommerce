@@ -24,7 +24,9 @@ import {
     Move,
     Calendar,
     FileImage,
-    HardDrive
+    HardDrive,
+    Plus,
+    X
 } from 'lucide-react';
 import AdminLayout from '@/layouts/admin-layout';
 import PageHeader from '@/components/admin/page-header';
@@ -108,6 +110,19 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
         caption: '',
     });
 
+    // URL import form
+    const { data: urlData, setData: setUrlData, post: urlPost, processing: urlProcessing, errors: urlErrors, reset: resetUrl } = useForm({
+        urls: [''],
+        folder: 'root',
+        tags: '',
+        alt_text: '',
+        caption: '',
+    });
+
+    const [uploadMode, setUploadMode] = React.useState<'file' | 'url' | 'paste'>('file');
+    const [pastePreviews, setPastePreviews] = React.useState<string[]>([]);
+    const [pasteFiles, setPasteFiles] = React.useState<File[]>([]);
+
     // Handle file upload
     const handleUpload = (e: React.FormEvent) => {
         e.preventDefault();
@@ -140,6 +155,145 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         setUploadData('files', files);
+    };
+
+    // Handle URL import
+    const handleUrlImport = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        const validUrls = urlData.urls.filter(url => url.trim() !== '');
+        if (validUrls.length === 0) {
+            alert('Please enter at least one valid URL');
+            return;
+        }
+
+        urlPost('/admin/media/import-urls', {
+            data: {
+                urls: validUrls,
+                folder: urlData.folder === 'root' ? '' : urlData.folder,
+                tags: urlData.tags,
+                alt_text: urlData.alt_text,
+                caption: urlData.caption,
+            },
+            onSuccess: () => {
+                setIsUploadModalOpen(false);
+                resetUrl();
+                alert(`${validUrls.length} image(s) imported successfully!`);
+            },
+            onError: (errors) => {
+                console.error('URL import errors:', errors);
+                alert('Error importing images. Please check the URLs and try again.');
+            },
+        });
+    };
+
+    // Handle URL input changes
+    const handleUrlChange = (index: number, value: string) => {
+        const newUrls = [...urlData.urls];
+        newUrls[index] = value;
+        setUrlData('urls', newUrls);
+    };
+
+    // Add new URL input
+    const addUrlInput = () => {
+        setUrlData('urls', [...urlData.urls, '']);
+    };
+
+    // Remove URL input
+    const removeUrlInput = (index: number) => {
+        if (urlData.urls.length > 1) {
+            const newUrls = urlData.urls.filter((_, i) => i !== index);
+            setUrlData('urls', newUrls);
+        }
+    };
+
+    // Handle paste events
+    const handlePaste = async (e: React.ClipboardEvent) => {
+        e.preventDefault();
+        const items = e.clipboardData.items;
+        const newFiles: File[] = [];
+        const newPreviews: string[] = [];
+        
+        console.log('Paste event triggered', { itemsCount: items.length });
+        
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            console.log(`Item ${i}:`, item.type, item.kind);
+            if (item.type.indexOf('image') !== -1) {
+                const file = item.getAsFile();
+                if (file) {
+                    console.log('Found image file:', file.name, file.type, file.size);
+                    newFiles.push(file);
+                    
+                    // Create preview
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        newPreviews.push(e.target?.result as string);
+                        console.log('Preview created, total previews:', newPreviews.length, 'total files:', newFiles.length);
+                        if (newPreviews.length === newFiles.length) {
+                            console.log('Setting paste files and previews');
+                            setPasteFiles(prev => [...prev, ...newFiles]);
+                            setPastePreviews(prev => [...prev, ...newPreviews]);
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+        
+        console.log('Paste processing complete', { newFilesCount: newFiles.length });
+    };
+
+    // Handle paste upload
+    const handlePasteUpload = (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        console.log('Paste upload triggered', { pasteFilesCount: pasteFiles.length, pasteFiles });
+        
+        if (pasteFiles.length === 0) {
+            alert('No images to upload. Please paste images first.');
+            return;
+        }
+
+        const formData = new FormData();
+        pasteFiles.forEach((file, index) => {
+            console.log(`Adding file ${index}:`, file.name, file.type, file.size);
+            formData.append('files[]', file);
+        });
+        formData.append('folder', uploadData.folder === 'root' ? '' : uploadData.folder);
+        formData.append('tags', uploadData.tags);
+        formData.append('alt_text', uploadData.alt_text);
+        formData.append('caption', uploadData.caption);
+
+        console.log('FormData contents:', Array.from(formData.entries()));
+
+        uploadPost('/admin/media', {
+            data: formData,
+            forceFormData: true,
+            onSuccess: () => {
+                setIsUploadModalOpen(false);
+                resetUpload();
+                setPasteFiles([]);
+                setPastePreviews([]);
+                alert(`${pasteFiles.length} image(s) uploaded successfully!`);
+            },
+            onError: (errors) => {
+                console.error('Upload errors:', errors);
+                alert('Error uploading images. Please try again.');
+            },
+        });
+    };
+
+    // Clear paste data
+    const clearPasteData = () => {
+        setPasteFiles([]);
+        setPastePreviews([]);
+    };
+
+    // Remove individual pasted image
+    const removePastedImage = (index: number) => {
+        setPasteFiles(prev => prev.filter((_, i) => i !== index));
+        setPastePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
     // Handle search
@@ -239,7 +393,7 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                             Upload Files
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[500px] bg-gray-800 border-gray-700 text-white">
+                    <DialogContent className="sm:max-w-[600px] bg-gray-800 border-gray-700 text-white">
                         <DialogHeader>
                             <DialogTitle className="text-white">Upload Media Files</DialogTitle>
                             <DialogDescription className="text-gray-400">
@@ -247,7 +401,45 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                             </DialogDescription>
                         </DialogHeader>
                         
-                        <form onSubmit={handleUpload} className="space-y-4">
+                        {/* Upload Mode Toggle */}
+                        <div className="flex space-x-1 bg-gray-700 p-1 rounded-lg">
+                            <button
+                                type="button"
+                                onClick={() => setUploadMode('file')}
+                                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                                    uploadMode === 'file'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-300 hover:text-white'
+                                }`}
+                            >
+                                File Upload
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setUploadMode('url')}
+                                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                                    uploadMode === 'url'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-300 hover:text-white'
+                                }`}
+                            >
+                                Import from URL
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => setUploadMode('paste')}
+                                className={`flex-1 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
+                                    uploadMode === 'paste'
+                                        ? 'bg-blue-600 text-white'
+                                        : 'text-gray-300 hover:text-white'
+                                }`}
+                            >
+                                Paste Image
+                            </button>
+                        </div>
+
+                        {uploadMode === 'file' ? (
+                            <form onSubmit={handleUpload} className="space-y-4">
                             {/* File Input */}
                             <div className="space-y-2">
                                 <Label className="text-gray-300">Files</Label>
@@ -274,7 +466,7 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                                         <SelectValue placeholder="Select or create folder" />
                                     </SelectTrigger>
                                     <SelectContent className="bg-gray-700 border-gray-600">
-                                        <SelectItem value="root" className="text-white hover:bg-gray-600">Root Folder</SelectItem>
+                                        <SelectItem key="file-root" value="root" className="text-white hover:bg-gray-600">Root Folder</SelectItem>
                                         {folders.map((folder) => (
                                             <SelectItem key={folder} value={folder} className="text-white hover:bg-gray-600">
                                                 {folder}
@@ -321,6 +513,214 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                                 </Button>
                             </div>
                         </form>
+                        ) : uploadMode === 'url' ? (
+                            <form onSubmit={handleUrlImport} className="space-y-4">
+                                {/* URL Inputs */}
+                                <div className="space-y-2">
+                                    <Label className="text-gray-300">Image URLs</Label>
+                                    {urlData.urls.map((url, index) => (
+                                        <div key={index} className="flex gap-2">
+                                            <Input
+                                                type="url"
+                                                value={url}
+                                                onChange={(e) => handleUrlChange(index, e.target.value)}
+                                                placeholder="https://example.com/image.jpg"
+                                                className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                                required={index === 0}
+                                            />
+                                            {urlData.urls.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => removeUrlInput(index)}
+                                                    className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 px-3"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    ))}
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={addUrlInput}
+                                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+                                    >
+                                        <Plus className="mr-2 h-4 w-4" />
+                                        Add Another URL
+                                    </Button>
+                                    <p className="text-xs text-gray-400">
+                                        Enter image URLs from Temu, AliExpress, or other sources
+                                    </p>
+                                </div>
+
+                                {/* Folder */}
+                                <div className="space-y-2">
+                                    <Label className="text-gray-300">Folder (Optional)</Label>
+                                    <Select value={urlData.folder} onValueChange={(value) => setUrlData('folder', value)}>
+                                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                            <SelectValue placeholder="Select or create folder" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-gray-700 border-gray-600">
+                                            <SelectItem key="url-root" value="root" className="text-white hover:bg-gray-600">Root Folder</SelectItem>
+                                            {folders.map((folder) => (
+                                                <SelectItem key={folder} value={folder} className="text-white hover:bg-gray-600">
+                                                    {folder}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        value={urlData.folder}
+                                        onChange={(e) => setUrlData('folder', e.target.value)}
+                                        placeholder="Or type new folder name"
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                    />
+                                </div>
+
+                                {/* Tags */}
+                                <div className="space-y-2">
+                                    <Label className="text-gray-300">Tags (Optional)</Label>
+                                    <Input
+                                        value={urlData.tags}
+                                        onChange={(e) => setUrlData('tags', e.target.value)}
+                                        placeholder="e.g., product, banner, logo"
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                    />
+                                    <p className="text-xs text-gray-400">Separate tags with commas</p>
+                                </div>
+
+                                {/* Form Actions */}
+                                <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        onClick={() => setIsUploadModalOpen(false)}
+                                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        type="submit" 
+                                        disabled={urlProcessing || urlData.urls.filter(url => url.trim() !== '').length === 0}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                        {urlProcessing ? 'Importing...' : 'Import Images'}
+                                    </Button>
+                                </div>
+                            </form>
+                        ) : (
+                            <form onSubmit={handlePasteUpload} className="space-y-4">
+                                {/* Paste Image Area */}
+                                <div 
+                                    className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-gray-500 transition-colors min-h-[200px] flex flex-col items-center justify-center"
+                                    onPaste={handlePaste}
+                                    tabIndex={0}
+                                >
+                                    {pastePreviews.length > 0 ? (
+                                        <div className="space-y-4 w-full">
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                                {pastePreviews.map((preview, index) => (
+                                                    <div key={index} className="relative group">
+                                                        <img
+                                                            src={preview}
+                                                            alt={`Pasted image ${index + 1}`}
+                                                            className="w-full h-24 object-cover rounded border border-gray-600"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removePastedImage(index)}
+                                                            className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        >
+                                                            <X className="h-3 w-3" />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-sm text-green-400">✓ {pastePreviews.length} image(s) ready to upload</p>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    onClick={clearPasteData}
+                                                    className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+                                                >
+                                                    <X className="mr-2 h-4 w-4" />
+                                                    Clear All
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-2">
+                                            <div className="text-4xl text-gray-400">📋</div>
+                                            <p className="text-sm text-gray-300">Paste images here</p>
+                                            <p className="text-xs text-gray-500">
+                                                Take screenshots (Ctrl+Shift+S) or copy images, then paste (Ctrl+V)
+                                            </p>
+                                            <p className="text-xs text-gray-500">
+                                                You can paste multiple images at once
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Folder */}
+                                <div className="space-y-2">
+                                    <Label className="text-gray-300">Folder (Optional)</Label>
+                                    <Select value={uploadData.folder} onValueChange={(value) => setUploadData('folder', value)}>
+                                        <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
+                                            <SelectValue placeholder="Select or create folder" />
+                                        </SelectTrigger>
+                                        <SelectContent className="bg-gray-700 border-gray-600">
+                                            <SelectItem key="paste-root" value="root" className="text-white hover:bg-gray-600">Root Folder</SelectItem>
+                                            {folders.map((folder) => (
+                                                <SelectItem key={folder} value={folder} className="text-white hover:bg-gray-600">
+                                                    {folder}
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                    <Input
+                                        value={uploadData.folder}
+                                        onChange={(e) => setUploadData('folder', e.target.value)}
+                                        placeholder="Or type new folder name"
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                    />
+                                </div>
+
+                                {/* Tags */}
+                                <div className="space-y-2">
+                                    <Label className="text-gray-300">Tags (Optional)</Label>
+                                    <Input
+                                        value={uploadData.tags}
+                                        onChange={(e) => setUploadData('tags', e.target.value)}
+                                        placeholder="e.g., product, banner, logo"
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                    />
+                                    <p className="text-xs text-gray-400">Separate tags with commas</p>
+                                </div>
+
+                                {/* Form Actions */}
+                                <div className="flex justify-end gap-3 pt-4 border-t border-gray-700">
+                                    <Button 
+                                        type="button" 
+                                        variant="outline" 
+                                        onClick={() => setIsUploadModalOpen(false)}
+                                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+                                    >
+                                        Cancel
+                                    </Button>
+                                    <Button 
+                                        type="submit" 
+                                        disabled={pasteFiles.length === 0}
+                                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                                    >
+                                        Upload {pasteFiles.length} Image{pasteFiles.length !== 1 ? 's' : ''}
+                                    </Button>
+                                </div>
+                            </form>
+                        )}
                     </DialogContent>
                 </Dialog>
             </PageHeader>

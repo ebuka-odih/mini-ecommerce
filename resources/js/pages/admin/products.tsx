@@ -13,7 +13,9 @@ import {
     DollarSign,
     Image as ImageIcon,
     Upload,
-    X
+    X,
+    ExternalLink,
+    Star
 } from 'lucide-react';
 import AdminLayout from '@/layouts/admin-layout';
 import PageHeader from '@/components/admin/page-header';
@@ -46,6 +48,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import { useToast } from '@/components/ui/toast';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -97,6 +100,7 @@ interface Product {
     price: number;
     sale_price?: number;
     stock: number;
+    stock_quantity: number;
     sku: string;
     category_id: number;
     category: Category;
@@ -144,8 +148,11 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
     });
     const [variations, setVariations] = React.useState<ProductVariation[]>([]);
     const [productImages, setProductImages] = React.useState<File[]>([]);
+    const { addToast } = useToast();
     const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
     const [selectedLibraryImages, setSelectedLibraryImages] = React.useState<any[]>([]);
+    const [imageUploadMode, setImageUploadMode] = React.useState<'file' | 'url'>('file');
+    const [imageUrls, setImageUrls] = React.useState<string[]>(['']);
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -184,6 +191,69 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
 
     const handleLibraryImageSelection = (images: any[]) => {
         setSelectedLibraryImages(images);
+    };
+
+    // Handle URL input changes
+    const handleUrlChange = (index: number, value: string) => {
+        const newUrls = [...imageUrls];
+        newUrls[index] = value;
+        setImageUrls(newUrls);
+    };
+
+    // Add new URL input
+    const addUrlInput = () => {
+        setImageUrls([...imageUrls, '']);
+    };
+
+    // Remove URL input
+    const removeUrlInput = (index: number) => {
+        if (imageUrls.length > 1) {
+            const newUrls = imageUrls.filter((_, i) => i !== index);
+            setImageUrls(newUrls);
+        }
+    };
+
+    // Import images from URLs
+    const importImagesFromUrls = async () => {
+        const validUrls = imageUrls.filter(url => url.trim() !== '');
+        if (validUrls.length === 0) {
+            alert('Please enter at least one valid URL');
+            return;
+        }
+
+        try {
+            // Import images to media library first
+            const response = await fetch('/admin/media/import-urls', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+                body: JSON.stringify({
+                    urls: validUrls,
+                    folder: 'products',
+                    tags: 'product,imported',
+                }),
+            });
+
+            if (response.ok) {
+                // Get the imported images and add them to selected library images
+                const result = await response.json();
+                alert(`${validUrls.length} image(s) imported successfully!`);
+                
+                // Clear URL inputs
+                setImageUrls(['']);
+                setImageUploadMode('file');
+                
+                // Refresh the page to show new images in media library
+                window.location.reload();
+            } else {
+                alert('Error importing images. Please check the URLs and try again.');
+            }
+        } catch (error) {
+            console.error('Error importing images:', error);
+            alert('Error importing images. Please try again.');
+        }
     };
 
     const handleAddProduct = (e: React.FormEvent) => {
@@ -284,6 +354,48 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
         }
     };
 
+    const handleToggleFeatured = async (productId: string, currentStatus: boolean) => {
+        try {
+            const response = await fetch(`/admin/products/${productId}/toggle-featured`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+                },
+            });
+
+            if (response.ok) {
+                const result = await response.json();
+                
+                // Show success toast
+                addToast({
+                    title: result.is_featured ? 'Product Featured' : 'Product Unfeatured',
+                    description: result.message,
+                    type: 'success',
+                    duration: 3000
+                });
+                
+                // Refresh the page to show updated data
+                router.reload();
+            } else {
+                addToast({
+                    title: 'Error',
+                    description: 'Failed to update featured status',
+                    type: 'error',
+                    duration: 5000
+                });
+            }
+        } catch (error) {
+            console.error('Error toggling featured status:', error);
+            addToast({
+                title: 'Error',
+                description: 'Error updating featured status',
+                type: 'error',
+                duration: 5000
+            });
+        }
+    };
+
     const addVariation = () => {
         setVariations(prev => [...prev, {
             id: Date.now(), // Temporary ID
@@ -332,13 +444,14 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                 title="Products" 
                 description="Manage your product inventory and catalog"
             >
-                <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-                    <DialogTrigger asChild>
-                        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Add Product
-                        </Button>
-                    </DialogTrigger>
+                <div className="flex gap-3">
+                    <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+                        <DialogTrigger asChild>
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                                <Plus className="mr-2 h-4 w-4" />
+                                Add Product
+                            </Button>
+                        </DialogTrigger>
                     <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-y-auto bg-gray-800 border-gray-700 text-white">
                         <DialogHeader>
                             <DialogTitle className="text-white">Add New Product</DialogTitle>
@@ -540,22 +653,102 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                     )}
                                 </div>
 
-                                {/* Traditional Image Upload Area */}
-                                <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center hover:border-gray-500 transition-colors">
-                                    <input
-                                        type="file"
-                                        id="images"
-                                        multiple
-                                        accept="image/*"
-                                        onChange={handleImageUpload}
-                                        className="hidden"
-                                    />
-                                    <label htmlFor="images" className="cursor-pointer">
-                                        <Upload className="h-6 w-6 text-gray-400 mx-auto mb-1" />
-                                        <p className="text-sm text-gray-300">Upload New Images</p>
-                                        <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 10MB</p>
-                                    </label>
+                                {/* Image Upload Mode Toggle */}
+                                <div className="flex space-x-1 bg-gray-700 p-1 rounded-lg mb-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageUploadMode('file')}
+                                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                                            imageUploadMode === 'file'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'text-gray-300 hover:text-white'
+                                        }`}
+                                    >
+                                        File Upload
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setImageUploadMode('url')}
+                                        className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                                            imageUploadMode === 'url'
+                                                ? 'bg-blue-600 text-white'
+                                                : 'text-gray-300 hover:text-white'
+                                        }`}
+                                    >
+                                        Import from URL
+                                    </button>
                                 </div>
+
+                                {imageUploadMode === 'file' ? (
+                                    /* Traditional Image Upload Area */
+                                    <div className="border-2 border-dashed border-gray-600 rounded-lg p-4 text-center hover:border-gray-500 transition-colors">
+                                        <input
+                                            type="file"
+                                            id="images"
+                                            multiple
+                                            accept="image/*"
+                                            onChange={handleImageUpload}
+                                            className="hidden"
+                                        />
+                                        <label htmlFor="images" className="cursor-pointer">
+                                            <Upload className="h-6 w-6 text-gray-400 mx-auto mb-1" />
+                                            <p className="text-sm text-gray-300">Upload New Images</p>
+                                            <p className="text-xs text-gray-500">PNG, JPG, WEBP up to 10MB</p>
+                                        </label>
+                                    </div>
+                                ) : (
+                                    /* URL Import Area */
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label className="text-gray-300">Image URLs</Label>
+                                            {imageUrls.map((url, index) => (
+                                                <div key={index} className="flex gap-2">
+                                                    <Input
+                                                        type="url"
+                                                        value={url}
+                                                        onChange={(e) => handleUrlChange(index, e.target.value)}
+                                                        placeholder="https://example.com/image.jpg"
+                                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                                        required={index === 0}
+                                                    />
+                                                    {imageUrls.length > 1 && (
+                                                        <Button
+                                                            type="button"
+                                                            variant="outline"
+                                                            size="sm"
+                                                            onClick={() => removeUrlInput(index)}
+                                                            className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 px-3"
+                                                        >
+                                                            <X className="h-4 w-4" />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            ))}
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={addUrlInput}
+                                                className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700"
+                                            >
+                                                <Plus className="mr-2 h-4 w-4" />
+                                                Add Another URL
+                                            </Button>
+                                            <p className="text-xs text-gray-400">
+                                                Enter image URLs from Temu, AliExpress, or other sources
+                                            </p>
+                                        </div>
+
+                                        <Button
+                                            type="button"
+                                            onClick={importImagesFromUrls}
+                                            disabled={imageUrls.filter(url => url.trim() !== '').length === 0}
+                                            className="w-full bg-green-600 hover:bg-green-700 text-white"
+                                        >
+                                            <Upload className="mr-2 h-4 w-4" />
+                                            Import Images from URLs
+                                        </Button>
+                                    </div>
+                                )}
 
                                 {/* Image Previews */}
                                 {imagePreviews.length > 0 && (
@@ -777,8 +970,74 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                             </div>
                         </form>
                     </DialogContent>
-                </Dialog>
+                    </Dialog>
+                    
+                    <Link href="/admin/products/import">
+                        <Button className="bg-green-600 hover:bg-green-700 text-white">
+                            <ExternalLink className="mr-2 h-4 w-4" />
+                            Import from URL
+                        </Button>
+                    </Link>
+                </div>
             </PageHeader>
+
+            {/* Quick Stats */}
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-300">Total Products</CardTitle>
+                        <Package className="h-4 w-4 text-blue-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-white">{products.length}</div>
+                        <p className="text-xs text-gray-400">Active products in catalog</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-300">Low Stock</CardTitle>
+                        <Tag className="h-4 w-4 text-orange-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-white">
+                            {products.filter(p => p.stock_quantity <= 5).length}
+                        </div>
+                        <p className="text-xs text-gray-400">Products need restocking</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-300">Total Stock</CardTitle>
+                        <Package className="h-4 w-4 text-green-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-white">
+                            {products.reduce((sum, p) => sum + (p.stock_quantity || 0), 0)}
+                        </div>
+                        <p className="text-xs text-gray-400">Items in inventory</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="bg-gray-800 border-gray-700">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-sm font-medium text-gray-300">Total Value</CardTitle>
+                        <DollarSign className="h-4 w-4 text-green-400" />
+                    </CardHeader>
+                    <CardContent>
+                        <div className="text-2xl font-bold text-white">
+                            {products.length > 0 
+                                ? formatPrice(products
+                                    .filter(p => p.stock_quantity > 0)
+                                    .reduce((sum, p) => sum + parseFloat(p.price), 0))
+                                : '₦0'
+                            }
+                        </div>
+                        <p className="text-xs text-gray-400">Sum of products with stock</p>
+                    </CardContent>
+                </Card>
+            </div>
 
             {/* Filters & Search */}
             <Card className="bg-gray-800 border-gray-700">
@@ -832,6 +1091,12 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                 Manage your product inventory ({products.length} products)
                             </CardDescription>
                         </div>
+                        <Link href="/admin/products/import">
+                            <Button size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                                <ExternalLink className="mr-2 h-4 w-4" />
+                                Import
+                            </Button>
+                        </Link>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0 sm:p-6">
@@ -848,13 +1113,14 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                         <TableHead className="text-gray-300">Price</TableHead>
                                         <TableHead className="text-gray-300">Stock</TableHead>
                                         <TableHead className="text-gray-300">Variations</TableHead>
+                                        <TableHead className="text-gray-300">Featured</TableHead>
                                         <TableHead className="text-gray-300">Status</TableHead>
                                         <TableHead className="text-gray-300 text-right">Actions</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {products.map((product) => {
-                                        const stockStatus = getStockStatus(product.stock);
+                                        const stockStatus = getStockStatus(product.stock_quantity);
                                         return (
                                             <TableRow key={product.id} className="border-gray-700 hover:bg-gray-700/30">
                                                 {/* Product Info */}
@@ -915,7 +1181,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                 <TableCell>
                                                     <div className="space-y-1">
                                                         <Badge className={stockStatus.color}>
-                                                            {stockStatus.label} ({product.stock})
+                                                            {stockStatus.label} ({product.stock_quantity})
                                                         </Badge>
                                                     </div>
                                                 </TableCell>
@@ -943,6 +1209,24 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                             <span className="text-gray-400 text-sm">No variations</span>
                                                         )}
                                                     </div>
+                                                </TableCell>
+
+                                                {/* Featured Toggle */}
+                                                <TableCell>
+                                                    <button
+                                                        onClick={() => handleToggleFeatured(product.id, product.is_featured)}
+                                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                                            product.is_featured 
+                                                                ? 'bg-blue-600' 
+                                                                : 'bg-gray-600'
+                                                        }`}
+                                                    >
+                                                        <span
+                                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                                product.is_featured ? 'translate-x-6' : 'translate-x-1'
+                                                            }`}
+                                                        />
+                                                    </button>
                                                 </TableCell>
 
                                                 {/* Status */}
@@ -981,6 +1265,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                                     <Edit className="mr-2 h-4 w-4" />
                                                                     Edit
                                                                 </Link>
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem 
+                                                                onClick={() => handleToggleFeatured(product.id, product.is_featured)}
+                                                                className="text-gray-300 hover:text-white hover:bg-gray-700 cursor-pointer"
+                                                            >
+                                                                <Star className={`mr-2 h-4 w-4 ${product.is_featured ? 'text-yellow-400' : 'text-gray-400'}`} />
+                                                                {product.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator className="bg-gray-700" />
                                                             <DropdownMenuItem 
@@ -1062,22 +1353,34 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                         <div>
                                                             <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Stock</p>
                                                             <Badge className={stockStatus.color + " text-xs"}>
-                                                                {stockStatus.label} ({product.stock})
+                                                                {stockStatus.label} ({product.stock_quantity})
                                                             </Badge>
                                                         </div>
                                                     </div>
 
                                                     {/* Status & Actions */}
                                                     <div className="flex items-center justify-between pt-2 border-t border-gray-600">
-                                                        <div className="flex flex-wrap items-center gap-1">
+                                                        <div className="flex flex-wrap items-center gap-2">
                                                             <Badge className={product.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
                                                                 {product.is_active ? 'Active' : 'Inactive'}
                                                             </Badge>
-                                                            {product.is_featured && (
-                                                                <Badge className="bg-purple-100 text-purple-800">
-                                                                    Featured
-                                                                </Badge>
-                                                            )}
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-xs text-gray-400">Featured:</span>
+                                                                <button
+                                                                    onClick={() => handleToggleFeatured(product.id, product.is_featured)}
+                                                                    className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                                                                        product.is_featured 
+                                                                            ? 'bg-blue-600' 
+                                                                            : 'bg-gray-600'
+                                                                    }`}
+                                                                >
+                                                                    <span
+                                                                        className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                                                                            product.is_featured ? 'translate-x-5' : 'translate-x-1'
+                                                                        }`}
+                                                                    />
+                                                                </button>
+                                                            </div>
                                                         </div>
                                                         <div className="flex items-center">
                                                             <DropdownMenu>
@@ -1100,6 +1403,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                                             <Edit className="mr-2 h-4 w-4" />
                                                                             Edit
                                                                         </Link>
+                                                                    </DropdownMenuItem>
+                                                                    <DropdownMenuItem 
+                                                                        onClick={() => handleToggleFeatured(product.id, product.is_featured)}
+                                                                        className="text-gray-300 hover:text-white hover:bg-gray-700 cursor-pointer"
+                                                                    >
+                                                                        <Star className={`mr-2 h-4 w-4 ${product.is_featured ? 'text-yellow-400' : 'text-gray-400'}`} />
+                                                                        {product.is_featured ? 'Remove from Featured' : 'Mark as Featured'}
                                                                     </DropdownMenuItem>
                                                                     <DropdownMenuSeparator className="bg-gray-700" />
                                                                     <DropdownMenuItem 
@@ -1128,60 +1438,26 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                             <p className="text-gray-400 mb-6">
                                 {searchQuery ? 'Try adjusting your search criteria' : 'Get started by adding your first product'}
                             </p>
-                            <Button 
-                                onClick={() => setIsAddModalOpen(true)}
-                                className="bg-blue-600 hover:bg-blue-700 text-white"
-                            >
-                                <Plus className="mr-2 h-4 w-4" />
-                                Add Your First Product
-                            </Button>
+                            <div className="flex gap-3 justify-center">
+                                <Button 
+                                    onClick={() => setIsAddModalOpen(true)}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    Add Your First Product
+                                </Button>
+                                <Link href="/admin/products/import">
+                                    <Button className="bg-green-600 hover:bg-green-700 text-white">
+                                        <ExternalLink className="mr-2 h-4 w-4" />
+                                        Import from URL
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
                     )}
                 </CardContent>
             </Card>
 
-            {/* Quick Stats */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-300">Total Products</CardTitle>
-                        <Package className="h-4 w-4 text-blue-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">{products.length}</div>
-                        <p className="text-xs text-gray-400">Active products in catalog</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-300">Low Stock</CardTitle>
-                        <Tag className="h-4 w-4 text-orange-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">
-                            {products.filter(p => p.stock <= 5).length}
-                        </div>
-                        <p className="text-xs text-gray-400">Products need restocking</p>
-                    </CardContent>
-                </Card>
-
-                <Card className="bg-gray-800 border-gray-700">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                        <CardTitle className="text-sm font-medium text-gray-300">Average Price</CardTitle>
-                        <DollarSign className="h-4 w-4 text-green-400" />
-                    </CardHeader>
-                    <CardContent>
-                        <div className="text-2xl font-bold text-white">
-                            {products.length > 0 
-                                ? formatPrice(products.reduce((sum, p) => sum + p.price, 0) / products.length)
-                                : '₦0'
-                            }
-                        </div>
-                        <p className="text-xs text-gray-400">Across all products</p>
-                    </CardContent>
-                </Card>
-            </div>
         </AdminLayout>
     );
 };

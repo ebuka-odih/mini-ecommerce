@@ -80,7 +80,7 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         price: product.price?.toString() || '',
         sale_price: product.sale_price?.toString() || '',
         sku: product.sku || '',
-        stock_quantity: product.stock?.toString() || '',
+        stock_quantity: product.stock_quantity?.toString() || '',
         category_id: product.category_id?.toString() || '',
         is_active: product.is_active ?? true,
         is_featured: product.is_featured ?? false,
