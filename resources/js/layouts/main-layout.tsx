@@ -1,12 +1,13 @@
 import React from 'react';
-import { Head, Link } from '@inertiajs/react';
-import { Heart, ShoppingBag, Menu, X, Plus, Minus, Trash2 } from 'lucide-react';
+import { Head, Link, router } from '@inertiajs/react';
+import { Heart, ShoppingBag, Menu, X, Plus, Minus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { NavigationItem } from '@/types';
+import { useCart } from '@/contexts/cart-context';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -15,39 +16,8 @@ interface MainLayoutProps {
 
 // Cart Sidebar Component
 const CartSidebar: React.FC = () => {
-    const [cartItems, setCartItems] = React.useState([
-        {
-            id: 1,
-            name: 'Premium Sunglasses',
-            price: 15000,
-            quantity: 1,
-            image: '/assets/images/products/sunglasses-1.jpg',
-            size: 'One Size'
-        },
-        {
-            id: 2,
-            name: 'Designer T-Shirt',
-            price: 8000,
-            quantity: 2,
-            image: '/assets/images/products/tshirt-1.jpg',
-            size: 'L'
-        }
-    ]);
-
-    const updateQuantity = (id: number, change: number) => {
-        setCartItems(prev => prev.map(item => 
-            item.id === id 
-                ? { ...item, quantity: Math.max(0, item.quantity + change) }
-                : item
-        ).filter(item => item.quantity > 0));
-    };
-
-    const removeItem = (id: number) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
-    };
-
-    const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
-    const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const { cartItems, cartCount, cartTotal, isLoading, updateQuantity, removeFromCart, clearCart } = useCart();
+    const [isUpdating, setIsUpdating] = React.useState<string | null>(null);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-NG', {
@@ -57,14 +27,42 @@ const CartSidebar: React.FC = () => {
         }).format(amount);
     };
 
+    const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
+        if (newQuantity <= 0) {
+            await removeFromCart(itemId);
+        } else {
+            setIsUpdating(itemId);
+            await updateQuantity(itemId, newQuantity);
+            setIsUpdating(null);
+        }
+    };
+
+    const handleRemoveItem = async (itemId: string) => {
+        setIsUpdating(itemId);
+        await removeFromCart(itemId);
+        setIsUpdating(null);
+    };
+
+    const handleClearCart = async () => {
+        await clearCart();
+    };
+
+    const getProductImage = (item: any) => {
+        if (item.product?.images?.length > 0) {
+            const featuredImage = item.product.images.find((img: any) => img.is_featured) || item.product.images[0];
+            return featuredImage.url || featuredImage.thumbnail_url || `/storage/${featuredImage.path}`;
+        }
+        return '/images/placeholder-product.jpg';
+    };
+
     return (
         <Sheet>
             <SheetTrigger asChild>
                 <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-colors overflow-visible">
                     <ShoppingBag className="h-6 w-6" />
-                    {totalItems > 0 && (
+                    {cartCount > 0 && (
                         <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 text-white text-xs font-bold rounded-full flex items-center justify-center min-w-[20px] shadow-lg border-2 border-white z-10">
-                            {totalItems}
+                            {cartCount}
                         </span>
                     )}
                 </Button>
@@ -77,7 +75,10 @@ const CartSidebar: React.FC = () => {
                     {/* Header */}
                     <div className="flex items-center justify-between p-6 border-b">
                         <h2 className="text-lg font-semibold">Shopping Cart</h2>
-                        <span className="text-sm text-gray-500">{totalItems} item{totalItems !== 1 ? 's' : ''}</span>
+                        <div className="flex items-center gap-2">
+                            {isLoading && <Loader2 className="h-4 w-4 animate-spin" />}
+                            <span className="text-sm text-gray-500">{cartCount} item{cartCount !== 1 ? 's' : ''}</span>
+                        </div>
                     </div>
 
                     {/* Cart Items */}
@@ -86,12 +87,19 @@ const CartSidebar: React.FC = () => {
                             <div className="space-y-4">
                                 {cartItems.map((item) => (
                                     <div key={item.id} className="flex gap-4 p-4 border border-gray-100 rounded-lg">
-                                        <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 flex items-center justify-center">
-                                            <div className="w-12 h-12 bg-gray-200 rounded"></div>
+                                        <div className="w-16 h-16 bg-gray-100 rounded-md flex-shrink-0 overflow-hidden">
+                                            <img 
+                                                src={getProductImage(item)} 
+                                                alt={item.product?.name || 'Product'} 
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    (e.target as HTMLImageElement).src = '/images/placeholder-product.jpg';
+                                                }}
+                                            />
                                         </div>
                                         <div className="flex-1 min-w-0">
-                                            <h3 className="font-medium text-sm truncate">{item.name}</h3>
-                                            <p className="text-xs text-gray-500">Size: {item.size}</p>
+                                            <h3 className="font-medium text-sm truncate">{item.product?.name || 'Product'}</h3>
+                                            <p className="text-xs text-gray-500">SKU: {item.product?.sku}</p>
                                             <p className="font-semibold text-sm mt-1">{formatCurrency(item.price)}</p>
                                             
                                             {/* Quantity Controls */}
@@ -99,27 +107,42 @@ const CartSidebar: React.FC = () => {
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => updateQuantity(item.id, -1)}
+                                                    onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
+                                                    disabled={isUpdating === item.id}
                                                     className="h-6 w-6 p-0"
                                                 >
-                                                    <Minus className="h-3 w-3" />
+                                                    {isUpdating === item.id ? (
+                                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                                    ) : (
+                                                        <Minus className="h-3 w-3" />
+                                                    )}
                                                 </Button>
                                                 <span className="text-sm w-8 text-center">{item.quantity}</span>
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
-                                                    onClick={() => updateQuantity(item.id, 1)}
+                                                    onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
+                                                    disabled={isUpdating === item.id}
                                                     className="h-6 w-6 p-0"
                                                 >
-                                                    <Plus className="h-3 w-3" />
+                                                    {isUpdating === item.id ? (
+                                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                                    ) : (
+                                                        <Plus className="h-3 w-3" />
+                                                    )}
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    onClick={() => removeItem(item.id)}
+                                                    onClick={() => handleRemoveItem(item.id)}
+                                                    disabled={isUpdating === item.id}
                                                     className="h-6 w-6 p-0 ml-auto text-red-500 hover:text-red-700"
                                                 >
-                                                    <Trash2 className="h-3 w-3" />
+                                                    {isUpdating === item.id ? (
+                                                        <Loader2 className="h-3 w-3 animate-spin" />
+                                                    ) : (
+                                                        <Trash2 className="h-3 w-3" />
+                                                    )}
                                                 </Button>
                                             </div>
                                         </div>
@@ -143,14 +166,25 @@ const CartSidebar: React.FC = () => {
                         <div className="p-6 border-t bg-gray-50">
                             <div className="flex justify-between items-center mb-4">
                                 <span className="text-lg font-semibold">Total:</span>
-                                <span className="text-lg font-bold">{formatCurrency(totalPrice)}</span>
+                                <span className="text-lg font-bold">{formatCurrency(cartTotal)}</span>
                             </div>
                             <div className="space-y-3">
-                                <Button className="w-full" size="lg">
+                                <Button 
+                                    className="w-full" 
+                                    size="lg"
+                                    onClick={() => router.visit('/checkout')}
+                                >
                                     Checkout
                                 </Button>
                                 <Button variant="outline" className="w-full" asChild>
                                     <Link href="/cart">View Cart</Link>
+                                </Button>
+                                <Button 
+                                    variant="ghost" 
+                                    className="w-full text-red-600 hover:text-red-700"
+                                    onClick={handleClearCart}
+                                >
+                                    Clear Cart
                                 </Button>
                             </div>
                         </div>

@@ -68,18 +68,64 @@ class HomeController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['images' => function($query) {
-            $query->orderBy('sort_order');
-        }, 'category']);
+        $product->load([
+            'images' => function($query) {
+                $query->orderBy('sort_order');
+            }, 
+            'category',
+            'variations.size',
+            'variations.color'
+        ]);
         
-        return view('pages.product-show', compact('product'));
+        // Ensure images have url attribute appended
+        $images = $product->getRelation('images');
+        if ($images && $images->count() > 0) {
+            $images->each(function($image) {
+                $image->append(['url', 'thumbnail_url']);
+            });
+        }
+        
+        return Inertia::render('product', [
+            'product' => $product
+        ]);
+    }
+
+    public function getProduct($id)
+    {
+        $product = Product::with([
+            'images' => function($query) {
+                $query->orderBy('sort_order');
+            }, 
+            'category',
+            'variations.size',
+            'variations.color'
+        ])->find($id);
+        
+        if (!$product) {
+            return response()->json(['error' => 'Product not found'], 404);
+        }
+        
+        // Ensure images have url attribute appended
+        $images = $product->getRelation('images');
+        if ($images && $images->count() > 0) {
+            $images->each(function($image) {
+                $image->append(['url', 'thumbnail_url']);
+            });
+        }
+        
+        return response()->json($product);
     }
 
     public function shop(Request $request)
     {
-        $query = Product::with(['images' => function($query) {
-            $query->orderBy('sort_order');
-        }, 'category'])
+        $query = Product::with([
+            'images' => function($query) {
+                $query->orderBy('sort_order');
+            }, 
+            'category',
+            'variations.size',
+            'variations.color'
+        ])
         ->where('is_active', true);
 
         // Category filter
@@ -102,16 +148,6 @@ class HomeController extends Controller
             });
         }
 
-        // Price range filter
-        if ($request->filled('price')) {
-            $priceRanges = is_array($request->price) ? $request->price : [$request->price];
-            $query->where(function($q) use ($priceRanges) {
-                foreach ($priceRanges as $range) {
-                    [$min, $max] = explode('-', $range);
-                    $q->orWhereBetween('price', [(float)$min, (float)$max]);
-                }
-            });
-        }
 
         // Sorting
         $sortBy = $request->get('sort', 'newest');
@@ -143,12 +179,20 @@ class HomeController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'slug']);
 
+        // Ensure all product images have url attributes appended
+        $products->getCollection()->each(function($product) {
+            if ($product->images && $product->images->count() > 0) {
+                $product->images->each(function($image) {
+                    $image->append(['url', 'thumbnail_url']);
+                });
+            }
+        });
+
         return Inertia::render('shop', [
             'products' => $products->items(),
             'categories' => $categories,
             'current_filters' => [
                 'category' => $request->get('category', []),
-                'price' => $request->get('price', []),
                 'size' => $request->get('size', []),
             ],
             'current_sort' => $sortBy,

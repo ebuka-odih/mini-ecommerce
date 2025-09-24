@@ -28,7 +28,7 @@ export const calculateDiscount = (originalPrice: number, salePrice: number): num
 };
 
 export const isOnSale = (product: Product): boolean => {
-    return product.sale_price !== undefined && product.sale_price < product.price;
+    return product.sale_price !== undefined && product.sale_price !== null && product.sale_price > 0 && product.sale_price < product.price;
 };
 
 export const getProductPrice = (product: Product, variant?: ProductVariant): number => {
@@ -38,27 +38,40 @@ export const getProductPrice = (product: Product, variant?: ProductVariant): num
 };
 
 export const getProductImages = (product: Product): string[] => {
+    if (!product.images || !Array.isArray(product.images)) {
+        return [];
+    }
     return product.images
         .sort((a, b) => a.sort_order - b.sort_order)
         .map(img => img.url);
 };
 
 export const getPrimaryImage = (product: Product): string | null => {
+    if (!product.images || !Array.isArray(product.images) || product.images.length === 0) {
+        return null;
+    }
     const primaryImage = product.images.find(img => img.is_primary);
     return primaryImage?.url || product.images[0]?.url || null;
 };
 
-// Variant Utilities
-export const getVariantsByType = (product: Product, type: ProductVariant['type']): ProductVariant[] => {
-    return product.variants.filter(variant => variant.type === type);
+// Variation Utilities
+export const getVariationsByType = (product: Product, type: 'size' | 'color'): ProductVariant[] => {
+    if (!product.variations || !Array.isArray(product.variations)) {
+        return [];
+    }
+    return product.variations.filter(variation => {
+        if (type === 'size') return variation.size;
+        if (type === 'color') return variation.color;
+        return false;
+    });
 };
 
 export const getAvailableSizes = (product: Product): ProductVariant[] => {
-    return getVariantsByType(product, 'size').filter(variant => variant.stock_quantity > 0);
+    return getVariationsByType(product, 'size').filter(variation => variation.stock_quantity > 0);
 };
 
 export const getAvailableColors = (product: Product): ProductVariant[] => {
-    return getVariantsByType(product, 'color').filter(variant => variant.stock_quantity > 0);
+    return getVariationsByType(product, 'color').filter(variation => variation.stock_quantity > 0);
 };
 
 export const isVariantInStock = (variant: ProductVariant): boolean => {

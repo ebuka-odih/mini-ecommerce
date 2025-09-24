@@ -3,18 +3,32 @@
 export interface ProductImage {
     id: string;
     url: string;
-    alt: string;
+    thumbnail_url: string;
+    alt_text: string;
     sort_order: number;
-    is_primary: boolean;
+    is_featured: boolean;
+    path: string;
 }
 
 export interface ProductVariant {
     id: string;
-    name: string;
-    value: string;
-    type: 'size' | 'color' | 'material';
+    size_id?: string;
+    color_id?: string;
+    price?: number;
     stock_quantity: number;
-    price_adjustment: number;
+    sku?: string;
+    is_active: boolean;
+    size?: {
+        id: string;
+        name: string;
+        display_name: string;
+    };
+    color?: {
+        id: string;
+        name: string;
+        display_name: string;
+        hex_code: string;
+    };
 }
 
 export interface Category {
@@ -50,7 +64,7 @@ export interface Product {
     };
     category: Category;
     images: ProductImage[];
-    variants: ProductVariant[];
+    variations: ProductVariant[];
     tags: string[];
     created_at: string;
     updated_at: string;

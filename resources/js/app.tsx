@@ -5,6 +5,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
+import { CartProvider } from './contexts/cart-context';
 
 const appName = import.meta.env.VITE_APP_NAME || 'GNOSIS';
 
@@ -29,7 +30,9 @@ createInertiaApp({
 
         root.render(
             <ToastProvider>
-                <App {...props} />
+                <CartProvider>
+                    <App {...props} />
+                </CartProvider>
             </ToastProvider>
         );
     },

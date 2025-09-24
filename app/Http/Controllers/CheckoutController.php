@@ -21,17 +21,58 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Your cart is empty.');
         }
 
-        $cartTotal = collect($cart)->sum(function($item) {
-            return $item['price'] * $item['quantity'];
-        });
+        // Transform cart data to match React component expectations
+        $cartItems = [];
+        $subtotal = 0;
+        
+        foreach ($cart as $productId => $item) {
+            $product = Product::with(['images', 'variations.size', 'variations.color'])->find($productId);
+            if ($product) {
+                $cartItems[] = [
+                    'id' => $productId,
+                    'product_id' => $product->id,
+                    'quantity' => $item['quantity'],
+                    'price' => $item['price'],
+                    'product' => [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'sku' => $product->sku,
+                        'images' => (($images = $product->getRelation('images')) && $images->count() > 0) ? $images->map(function($image) {
+                            $image->append(['url', 'thumbnail_url']);
+                            return [
+                                'id' => $image->id,
+                                'url' => $image->url,
+                                'thumbnail_url' => $image->thumbnail_url,
+                                'alt_text' => $image->alt_text,
+                                'is_featured' => $image->is_featured,
+                            ];
+                        }) : [],
+                    ],
+                    'variation' => null, // TODO: Implement variation support
+                ];
+                $subtotal += $item['price'] * $item['quantity'];
+            }
+        }
 
         // Calculate basic totals (tax and shipping will be calculated in process)
-        $subtotal = $cartTotal;
         $tax = 0; // Will be calculated based on location
         $shipping = 0; // Will be calculated based on shipping method
-        $total = $subtotal + $tax + $shipping;
+        $discount = 0; // Will be applied if coupon is used
+        $total = $subtotal + $tax + $shipping - $discount;
 
-        return view('pages.checkout', compact('cart', 'cartTotal', 'subtotal', 'tax', 'shipping', 'total'));
+        $checkoutData = [
+            'items' => $cartItems,
+            'subtotal' => $subtotal,
+            'tax' => $tax,
+            'shipping' => $shipping,
+            'discount' => $discount,
+            'total' => $total,
+        ];
+
+        return \Inertia\Inertia::render('checkout', [
+            'cart' => $checkoutData
+        ]);
     }
 
     // Process the checkout form

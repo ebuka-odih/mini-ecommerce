@@ -23,6 +23,8 @@ const Shop: React.FC<ShopPageProps> = ({
     const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+    const [isSearchOpen, setIsSearchOpen] = React.useState(false);
+    const [isSortOpen, setIsSortOpen] = React.useState(false);
 
     const handleSortChange = (value: string) => {
         router.get('/shop', { 
@@ -37,6 +39,7 @@ const Shop: React.FC<ShopPageProps> = ({
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
+        setIsSearchOpen(false); // Close mobile search modal
         router.get('/shop', { 
             ...current_filters, 
             search: searchQuery || undefined,
@@ -89,38 +92,207 @@ const Shop: React.FC<ShopPageProps> = ({
                 </div>
             </section>
 
-            {/* Filters & Controls */}
-            <section className="border-b bg-white sticky top-16 z-40">
+            {/* Mobile Compact Controls */}
+            <section className="border-b bg-white sticky top-16 z-40 lg:hidden">
+                <div className="container mx-auto px-4 py-3">
+                    <div className="flex items-center justify-between gap-3">
+                        {/* Mobile Filter Button */}
+                        <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                    <SlidersHorizontal className="h-4 w-4" />
+                                    {activeFilterCount > 0 && (
+                                        <Badge className="bg-black text-white text-xs">
+                                            {activeFilterCount}
+                                        </Badge>
+                                    )}
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="left" className="w-80 bg-white border-0 shadow-lg">
+                                <SheetHeader className="pb-2">
+                                    <SheetTitle className="text-lg font-semibold text-gray-900">Filters</SheetTitle>
+                                </SheetHeader>
+                                {/* Mobile filters content will go here */}
+                                <div className="mt-4">
+                                    <p className="text-gray-500 text-sm">Filter options coming soon...</p>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+
+                        {/* Mobile Search Icon */}
+                        <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                    <Search className="h-4 w-4" />
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="top" className="h-auto bg-white border-0 shadow-lg">
+                                <SheetHeader className="pb-2">
+                                    <SheetTitle className="text-lg font-semibold text-gray-900">Search Products</SheetTitle>
+                                </SheetHeader>
+                                <form onSubmit={handleSearch} className="mt-2">
+                                    <div className="relative">
+                                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
+                                        <Input
+                                            type="search"
+                                            placeholder="Search products..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="pl-10 w-full h-12 text-base border-gray-200 focus:border-gray-400 focus:ring-0 rounded-lg"
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="flex gap-3 mt-4">
+                                        <Button 
+                                            type="submit" 
+                                            className="flex-1 h-10 bg-black hover:bg-gray-800 text-white rounded-lg font-medium"
+                                        >
+                                            Search
+                                        </Button>
+                                        <Button 
+                                            type="button" 
+                                            variant="outline" 
+                                            onClick={() => setIsSearchOpen(false)}
+                                            className="px-6 h-10 border-gray-200 hover:border-gray-300 text-gray-700 rounded-lg font-medium"
+                                        >
+                                            Cancel
+                                        </Button>
+                                    </div>
+                                </form>
+                            </SheetContent>
+                        </Sheet>
+
+                        {/* Mobile Sort Icon */}
+                        <Sheet open={isSortOpen} onOpenChange={setIsSortOpen}>
+                            <SheetTrigger asChild>
+                                <Button variant="outline" size="sm" className="flex items-center gap-2">
+                                    <span className="text-sm">Sort</span>
+                                </Button>
+                            </SheetTrigger>
+                            <SheetContent side="top" className="h-auto bg-white border-0 shadow-lg">
+                                <SheetHeader className="pb-2">
+                                    <SheetTitle className="text-lg font-semibold text-gray-900">Sort Products</SheetTitle>
+                                </SheetHeader>
+                                <div className="mt-2 space-y-1">
+                                    <Button
+                                        variant={current_sort === 'newest' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'newest' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('newest');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Newest
+                                    </Button>
+                                    <Button
+                                        variant={current_sort === 'featured' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'featured' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('featured');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Featured
+                                    </Button>
+                                    <Button
+                                        variant={current_sort === 'price_low_high' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'price_low_high' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('price_low_high');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Price: Low to High
+                                    </Button>
+                                    <Button
+                                        variant={current_sort === 'price_high_low' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'price_high_low' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('price_high_low');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Price: High to Low
+                                    </Button>
+                                    <Button
+                                        variant={current_sort === 'name_a_z' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'name_a_z' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('name_a_z');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Name: A to Z
+                                    </Button>
+                                    <Button
+                                        variant={current_sort === 'name_z_a' ? 'default' : 'ghost'}
+                                        className={`w-full justify-start h-10 rounded-lg font-medium ${
+                                            current_sort === 'name_z_a' 
+                                                ? 'bg-black hover:bg-gray-800 text-white' 
+                                                : 'hover:bg-gray-100 text-gray-700'
+                                        }`}
+                                        onClick={() => {
+                                            handleSortChange('name_z_a');
+                                            setIsSortOpen(false);
+                                        }}
+                                    >
+                                        Name: Z to A
+                                    </Button>
+                                </div>
+                            </SheetContent>
+                        </Sheet>
+
+                        {/* View Mode */}
+                        <div className="flex items-center bg-gray-100 rounded-md p-1">
+                            <Button
+                                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setViewMode('grid')}
+                                className="p-2"
+                            >
+                                <Grid3X3 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                                variant={viewMode === 'list' ? 'default' : 'ghost'}
+                                size="sm"
+                                onClick={() => setViewMode('list')}
+                                className="p-2"
+                            >
+                                <List className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            {/* Desktop Filters & Controls */}
+            <section className="border-b bg-white sticky top-16 z-40 hidden lg:block">
                 <div className="container mx-auto px-4 py-4">
-                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                    <div className="flex flex-row items-center justify-between gap-4">
                         {/* Left Side - Search & Filters */}
                         <div className="flex items-center gap-4">
-                            {/* Mobile Filter Button */}
-                            <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                                <SheetTrigger asChild>
-                                    <Button variant="outline" size="sm" className="lg:hidden">
-                                        <SlidersHorizontal className="h-4 w-4 mr-2" />
-                                        Filters
-                                        {activeFilterCount > 0 && (
-                                            <Badge className="ml-2 bg-black text-white">
-                                                {activeFilterCount}
-                                            </Badge>
-                                        )}
-                                    </Button>
-                                </SheetTrigger>
-                                <SheetContent side="left" className="w-80 bg-white">
-                                    <SheetHeader>
-                                        <SheetTitle>Filters</SheetTitle>
-                                    </SheetHeader>
-                                    {/* Mobile filters content will go here */}
-                                    <div className="mt-6">
-                                        <p className="text-gray-500">Filter options coming soon...</p>
-                                    </div>
-                                </SheetContent>
-                            </Sheet>
-
                             {/* Search */}
-                            <form onSubmit={handleSearch} className="flex-1 lg:flex-none">
+                            <form onSubmit={handleSearch} className="flex-none">
                                 <div className="relative">
                                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                                     <Input
@@ -128,14 +300,14 @@ const Shop: React.FC<ShopPageProps> = ({
                                         placeholder="Search products..."
                                         value={searchQuery}
                                         onChange={(e) => setSearchQuery(e.target.value)}
-                                        className="pl-10 w-full lg:w-64"
+                                        className="pl-10 w-64"
                                     />
                                 </div>
                             </form>
 
                             {/* Active Filters */}
                             {activeFilterCount > 0 && (
-                                <div className="hidden lg:flex items-center gap-2">
+                                <div className="flex items-center gap-2">
                                     <span className="text-sm text-gray-500">Filters:</span>
                                     <Button
                                         variant="ghost"
@@ -154,7 +326,7 @@ const Shop: React.FC<ShopPageProps> = ({
                         <div className="flex items-center gap-4">
                             {/* Sort */}
                             <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-600 hidden sm:block">Sort by:</span>
+                                <span className="text-sm text-gray-600">Sort by:</span>
                                 <Select value={current_sort} onValueChange={handleSortChange}>
                                     <SelectTrigger className="w-40">
                                         <SelectValue />
@@ -237,34 +409,6 @@ const Shop: React.FC<ShopPageProps> = ({
 
                                 <Separator className="my-6" />
 
-                                {/* Price Range Filter */}
-                                <div className="mb-8">
-                                    <h4 className="font-medium mb-4">Price Range</h4>
-                                    <div className="space-y-3">
-                                        {[
-                                            { label: 'Under $50', value: '0-50' },
-                                            { label: '$50 - $100', value: '50-100' },
-                                            { label: '$100 - $200', value: '100-200' },
-                                            { label: '$200 - $500', value: '200-500' },
-                                            { label: 'Over $500', value: '500-999999' },
-                                        ].map((range) => (
-                                            <label key={range.value} className="flex items-center gap-3 cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={current_filters.price?.includes(range.value) || false}
-                                                    onChange={() => handleFilterChange('price', range.value)}
-                                                    className="rounded border-gray-300 text-black focus:ring-black"
-                                                />
-                                                <span className="text-sm text-gray-700 hover:text-black">
-                                                    {range.label}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <Separator className="my-6" />
-
                                 {/* Size Filter */}
                                 <div className="mb-8">
                                     <h4 className="font-medium mb-4">Size</h4>
@@ -299,7 +443,7 @@ const Shop: React.FC<ShopPageProps> = ({
                             {products.length > 0 ? (
                                 <div className={
                                     viewMode === 'grid' 
-                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6'
                                         : 'flex flex-col gap-4'
                                 }>
                                     {products.map((product) => (
@@ -361,7 +505,7 @@ const Shop: React.FC<ShopPageProps> = ({
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {[
                             { name: 'Sunglasses', slug: 'sunglasses', color: 'from-slate-800 to-slate-600' },
                             { name: 'Shorts', slug: 'shorts', color: 'from-blue-600 to-indigo-700' },

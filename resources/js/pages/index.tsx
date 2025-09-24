@@ -238,7 +238,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                                 </span>
                                             )}
                                         </div>
-                                        <Link href={`/products/${product.slug}`}>
+                                        <Link href={`/product/${product.slug}`}>
                                             <Button 
                                                 variant="outline" 
                                                 className="bg-transparent border-white text-white hover:bg-white hover:text-black transition-all duration-300"

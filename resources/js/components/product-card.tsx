@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types';
 import { formatPrice, isOnSale, calculateDiscount, getPrimaryImage, getStockStatus } from '@/lib/fashion-utils';
+import { useCart } from '@/contexts/cart-context';
+import { useToast } from '@/components/ui/toast';
 
 interface ProductCardProps {
     product: Product;
@@ -14,16 +16,73 @@ interface ProductCardProps {
 const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) => {
     const [isHovered, setIsHovered] = React.useState(false);
     const [isWishlisted, setIsWishlisted] = React.useState(false);
+    const [isAddingToCart, setIsAddingToCart] = React.useState(false);
+    const [cartStatus, setCartStatus] = React.useState<'idle' | 'success' | 'error'>('idle');
+    const { addToCart } = useCart();
+    const { addToast } = useToast();
     
     const primaryImage = getPrimaryImage(product);
     const stockStatus = getStockStatus(product);
     const onSale = isOnSale(product);
     const discountPercent = onSale ? calculateDiscount(product.price, product.sale_price!) : 0;
 
-    const handleAddToCart = (e: React.MouseEvent) => {
+    const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
-        // TODO: Implement add to cart functionality
-        console.log('Add to cart:', product.id);
+        
+        if (isAddingToCart) return; // Prevent multiple clicks
+        
+        setIsAddingToCart(true);
+        setCartStatus('idle');
+        
+        try {
+            const success = await addToCart(product.id, 1);
+            
+            if (success) {
+                console.log('Product added to cart successfully');
+                setCartStatus('success');
+                addToast({
+                    title: 'Added to Cart!',
+                    description: `${product.name} has been added to your cart.`,
+                    type: 'success',
+                    duration: 3000,
+                });
+                
+                // Reset status after 2 seconds
+                setTimeout(() => {
+                    setCartStatus('idle');
+                }, 2000);
+            } else {
+                console.error('Failed to add to cart');
+                setCartStatus('error');
+                addToast({
+                    title: 'Failed to Add to Cart',
+                    description: 'There was an error adding the product to your cart. Please try again.',
+                    type: 'error',
+                    duration: 4000,
+                });
+                
+                // Reset status after 3 seconds
+                setTimeout(() => {
+                    setCartStatus('idle');
+                }, 3000);
+            }
+        } catch (error) {
+            console.error('Add to cart error:', error);
+            setCartStatus('error');
+            addToast({
+                title: 'Error',
+                description: 'An unexpected error occurred. Please try again.',
+                type: 'error',
+                duration: 4000,
+            });
+            
+            // Reset status after 3 seconds
+            setTimeout(() => {
+                setCartStatus('idle');
+            }, 3000);
+        } finally {
+            setIsAddingToCart(false);
+        }
     };
 
     const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -60,11 +119,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) =>
                     {onSale && (
                         <Badge variant="destructive" className="bg-red-500 text-white">
                             -{discountPercent}%
-                        </Badge>
-                    )}
-                    {product.is_featured && (
-                        <Badge variant="secondary" className="bg-black text-white">
-                            Featured
                         </Badge>
                     )}
                     {stockStatus === 'low_stock' && (
@@ -104,24 +158,41 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) =>
                 <div className={`absolute bottom-3 left-3 right-3 transition-all duration-300 ${isHovered ? 'translate-y-0 opacity-100' : 'translate-y-2 opacity-0'}`}>
                     <Button
                         onClick={handleAddToCart}
-                        disabled={stockStatus === 'out_of_stock'}
-                        className="w-full bg-black text-white hover:bg-gray-800 disabled:bg-gray-300"
+                        disabled={stockStatus === 'out_of_stock' || isAddingToCart}
+                        className={`w-full text-white disabled:bg-gray-300 ${
+                            cartStatus === 'success' ? 'bg-green-600' : 
+                            cartStatus === 'error' ? 'bg-red-600' : 
+                            'bg-black hover:bg-gray-800'
+                        }`}
                         size="sm"
                     >
-                        <ShoppingBag className="h-4 w-4 mr-2" />
-                        {stockStatus === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
+                        {isAddingToCart ? (
+                            <>
+                                <div className="w-4 h-4 mr-2 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                Adding...
+                            </>
+                        ) : cartStatus === 'success' ? (
+                            <>
+                                <div className="w-4 h-4 mr-2">✓</div>
+                                Added!
+                            </>
+                        ) : cartStatus === 'error' ? (
+                            <>
+                                <div className="w-4 h-4 mr-2">✗</div>
+                                Error
+                            </>
+                        ) : (
+                            <>
+                                <ShoppingBag className="h-4 w-4 mr-2" />
+                                {stockStatus === 'out_of_stock' ? 'Out of Stock' : 'Add to Cart'}
+                            </>
+                        )}
                     </Button>
                 </div>
             </div>
 
             {/* Product Info */}
             <div className="p-4">
-                <div className="mb-2">
-                    <p className="text-xs text-gray-500 uppercase tracking-wider">
-                        {product.category.name}
-                    </p>
-                </div>
-                
                 <Link href={`/product/${product.slug}`} className="group">
                     <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 mb-2">
                         {product.name}
@@ -136,10 +207,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) =>
 
                 {/* Price */}
                 <div className="flex items-center gap-2">
-                    {onSale ? (
+                    {onSale && product.sale_price ? (
                         <>
                             <span className="text-lg font-semibold text-gray-900">
-                                {formatPrice(product.sale_price!)}
+                                {formatPrice(product.sale_price)}
                             </span>
                             <span className="text-sm text-gray-500 line-through">
                                 {formatPrice(product.price)}
@@ -152,27 +223,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) =>
                     )}
                 </div>
 
-                {/* Variants Preview */}
-                {product.variants.length > 0 && (
-                    <div className="mt-3 flex gap-1">
-                        {product.variants
-                            .filter(v => v.type === 'color')
-                            .slice(0, 4)
-                            .map((variant) => (
-                                <div
-                                    key={variant.id}
-                                    className="w-4 h-4 rounded-full border border-gray-200"
-                                    style={{ backgroundColor: variant.value.toLowerCase() }}
-                                    title={variant.name}
-                                />
-                            ))}
-                        {product.variants.filter(v => v.type === 'color').length > 4 && (
-                            <div className="w-4 h-4 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center">
-                                <span className="text-xs text-gray-500">+</span>
-                            </div>
-                        )}
-                    </div>
-                )}
             </div>
         </div>
     );

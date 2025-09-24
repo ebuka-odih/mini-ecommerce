@@ -21,18 +21,20 @@ use App\Http\Controllers\PaymentController;
 Route::get('/', [HomeController::class, 'index'])->name('index');
 Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
 Route::get('/product/{product:slug}', [HomeController::class, 'show'])->name('product.show');
+Route::get('/api/products/{id}', [HomeController::class, 'getProduct'])->name('api.product.get');
 Route::get('/docs', fn () => view('docs'))->name('docs');
 
 // Coming soon password verification
 Route::post('/coming-soon/verify', [HomeController::class, 'verifyComingSoonPassword'])->name('coming-soon.verify')->middleware('antibot:contact');
 
 // Cart routes
-Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add')->middleware('antibot:checkout');
-Route::post('/cart/update', [CartController::class, 'updateQuantity'])->name('cart.update')->middleware('antibot:checkout');
-Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove')->middleware('antibot:checkout');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/cart/update', [CartController::class, 'updateQuantity'])->name('cart.update');
+Route::post('/cart/remove', [CartController::class, 'removeFromCart'])->name('cart.remove');
 Route::get('/cart', [CartController::class, 'view'])->name('cart.index');
 Route::get('/cart/data', [CartController::class, 'getCart'])->name('cart.get');
-Route::delete('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+Route::get('/cart/get', [CartController::class, 'getCartData'])->name('cart.get-data');
+Route::post('/cart/clear', [CartController::class, 'clearCart'])->name('cart.clear');
 Route::get('/cart/sidebar', [CartController::class, 'sidebar'])->name('cart.sidebar');
 
 // Checkout routes
