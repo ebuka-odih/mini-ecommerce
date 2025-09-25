@@ -59,8 +59,20 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
   return (
     <>
       <Head title="Coming Soon" />
+      <style>
+        {`
+          html, body {
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: auto;
+          }
+          body {
+            background-color: black;
+            min-height: 100vh;
+          }
+        `}
+      </style>
       
-      <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-16">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-16 overflow-hidden overscroll-none">
         {/* Logo */}
         <div className="absolute top-8 left-8">
           <img 
