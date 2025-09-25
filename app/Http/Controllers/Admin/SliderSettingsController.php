@@ -43,9 +43,16 @@ class SliderSettingsController extends Controller
             'images_count' => count($images)
         ]);
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/slider-settings', [
             'images' => $images,
             'selectedImages' => $selectedImages,
+            'site_settings' => $siteSettings,
         ]);
     }
 

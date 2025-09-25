@@ -73,20 +73,20 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
         {/* Main Content */}
         <div className="text-center max-w-2xl mx-auto">
           {/* Main Message */}
-          <div className="mb-12">
-            <h1 className="text-2xl md:text-3xl font-light tracking-wide leading-relaxed">
+          <div className="mb-20">
+            <h1 className="text-xl md:text-2xl font-light tracking-wide leading-relaxed">
               {settings.message}
             </h1>
           </div>
 
           {/* Password Entry Section */}
-          <div className="mb-16">
+          <div className="mb-24">
             <div 
               className="flex items-center justify-center mb-6 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => setShowPasswordForm(!showPasswordForm)}
             >
               <ArrowRight className="w-4 h-4 mr-2" />
-              <span className="text-lg font-medium">ENTER USING PASSWORD</span>
+              <span className="text-base font-medium">ENTER USING PASSWORD</span>
               {showPasswordForm ? (
                 <ChevronUp className="w-4 h-4 ml-2" />
               ) : (
@@ -129,9 +129,9 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
           </div>
 
           {/* Email Subscription Section */}
-          <div className="mb-8">
-            <p className="text-lg font-medium mb-6">
-              BE THE FIRST TO RECEIVE THE PASSWORD WHEN 'LARAVEL' DROPS
+          <div className="mb-16">
+            <p className="text-base font-medium mb-6">
+              BE THE FIRST TO RECEIVE THE PASSWORD WHEN 'PAPERVIEW' DROPS
             </p>
             
             <form onSubmit={handleEmailSubmit} className="max-w-sm mx-auto">

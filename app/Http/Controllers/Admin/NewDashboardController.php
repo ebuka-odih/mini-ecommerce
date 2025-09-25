@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -37,6 +38,12 @@ class NewDashboardController extends Controller
             ->where('is_active', true)
             ->get(['id', 'name', 'stock_quantity']);
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/dashboard', [
             'stats' => $stats,
             'recent_orders' => $recent_orders,
@@ -45,6 +52,7 @@ class NewDashboardController extends Controller
                 'total_orders' => $stats['total_orders'],
                 'pending_orders' => Order::where('status', 'pending')->count(),
             ],
+            'site_settings' => $siteSettings,
         ]);
     }
 

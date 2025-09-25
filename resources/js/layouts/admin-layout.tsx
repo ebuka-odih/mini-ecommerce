@@ -40,6 +40,10 @@ interface AdminLayoutProps {
         total_orders: number;
         pending_orders?: number;
     };
+    site_settings?: {
+        site_name: string;
+        site_logo: string;
+    };
 }
 
 interface NavItem {
@@ -50,10 +54,44 @@ interface NavItem {
     children?: NavItem[];
 }
 
-const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dashboard', stats }) => {
+const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dashboard', stats, site_settings }) => {
     const { auth, flash } = usePage().props as any;
+    
+    // Get site settings from props or use defaults
+    const siteName = site_settings?.site_name || 'GNOSIS';
+    const siteLogo = site_settings?.site_logo || '/brand/GNOSIS4.png';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const [showFlash, setShowFlash] = React.useState(true);
+
+    // Helper function to render logo or site name
+    const renderLogoOrName = () => {
+        // Logo takes higher precedence
+        if (siteLogo && siteLogo !== '/brand/GNOSIS4.png') {
+            return (
+                <img 
+                    src={siteLogo} 
+                    alt={siteName} 
+                    className="h-8 w-auto object-contain"
+                    onError={(e) => {
+                        // Fallback to site name if image fails to load
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const parent = target.parentElement;
+                        if (parent) {
+                            parent.innerHTML = `<span class="text-white font-bold text-lg">${siteName}</span>`;
+                        }
+                    }}
+                />
+            );
+        }
+        
+        // Fallback to site name
+        return (
+            <span className="text-white font-bold text-lg">
+                {siteName}
+            </span>
+        );
+    };
 
     // Auto-dismiss flash messages after 5 seconds
     React.useEffect(() => {
@@ -119,11 +157,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                 <div className="px-3 py-2 md:block hidden">
                     <Link href="/admin" className="flex items-center pl-3">
                         <div className="flex items-center gap-3">
-                            <img 
-                                src="/brand/GNOSIS4.png" 
-                                alt="GNOSIS" 
-                                className="h-8 w-auto object-contain"
-                            />
+                            {renderLogoOrName()}
                             <Badge className="bg-blue-500 text-white text-xs">Admin</Badge>
                         </div>
                     </Link>
@@ -244,12 +278,28 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                 </SheetHeader>
                                 <div className="flex items-center justify-between p-6 border-b border-gray-700">
                                     <div className="flex items-center gap-3">
-                                        <img 
-                                            src="/brand/GNOSIS4.png" 
-                                            alt="GNOSIS" 
-                                            className="h-6 w-auto object-contain"
-                                        />
-                                    <Badge className="bg-blue-500 text-white text-xs">Admin</Badge>
+                                        <div className="h-6 flex items-center">
+                                            {siteLogo && siteLogo !== '/brand/GNOSIS4.png' ? (
+                                                <img 
+                                                    src={siteLogo} 
+                                                    alt={siteName} 
+                                                    className="h-6 w-auto object-contain"
+                                                    onError={(e) => {
+                                                        const target = e.target as HTMLImageElement;
+                                                        target.style.display = 'none';
+                                                        const parent = target.parentElement;
+                                                        if (parent) {
+                                                            parent.innerHTML = `<span class="text-white font-bold">${siteName}</span>`;
+                                                        }
+                                                    }}
+                                                />
+                                            ) : (
+                                                <span className="text-white font-bold">
+                                                    {siteName}
+                                                </span>
+                                            )}
+                                        </div>
+                                        <Badge className="bg-blue-500 text-white text-xs">Admin</Badge>
                                     </div>
                                     {/* Close button is automatically added by SheetContent */}
                                 </div>

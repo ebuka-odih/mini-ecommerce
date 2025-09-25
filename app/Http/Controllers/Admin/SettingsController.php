@@ -22,8 +22,15 @@ class SettingsController extends Controller
             'frontpage' => Setting::getValue('frontpage', 'homepage'),
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => $settings['site_name'],
+            'site_logo' => $settings['site_logo'],
+        ];
+
         return Inertia::render('admin/settings', [
-            'settings' => $settings
+            'settings' => $settings,
+            'site_settings' => $siteSettings,
         ]);
     }
 

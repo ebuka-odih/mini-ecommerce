@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Image;
+use App\Models\Setting;
 use App\Services\MediaLibraryService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -30,12 +31,19 @@ class MediaController extends Controller
         $tags = $this->mediaLibraryService->getTags();
         $stats = $this->mediaLibraryService->getStatistics();
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/media', [
             'media' => $media,
             'folders' => $folders,
             'tags' => $tags,
             'stats' => $stats,
             'filters' => $filters,
+            'site_settings' => $siteSettings,
         ]);
     }
 

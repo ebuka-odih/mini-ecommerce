@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\HomepageLayout;
 use App\Models\Category;
 use App\Models\Image;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -63,12 +64,19 @@ class HomepageController extends Controller
             'slider' => 'Slider Layout (Multiple Images)',
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/homepage-layout', [
             'layouts' => $layouts,
             'categories' => $categories,
             'gridPositions' => $gridPositions,
             'gradients' => $gradients,
             'layoutTypes' => $layoutTypes,
+            'site_settings' => $siteSettings,
         ]);
     }
 
