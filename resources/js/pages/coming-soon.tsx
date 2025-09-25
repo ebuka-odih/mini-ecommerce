@@ -60,7 +60,7 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
     <>
       <Head title="Coming Soon" />
       
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
+      <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-16">
         {/* Logo */}
         <div className="absolute top-8 left-8">
           <img 
@@ -71,7 +71,7 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
         </div>
 
         {/* Main Content */}
-        <div className="text-center max-w-2xl mx-auto">
+        <div className="text-center max-w-2xl mx-auto mt-32">
           {/* Main Message */}
           <div className="mb-20">
             <h1 className="text-xl md:text-2xl font-light tracking-wide leading-relaxed">
