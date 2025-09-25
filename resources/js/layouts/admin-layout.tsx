@@ -105,6 +105,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             children: [
                 { title: 'General Settings', href: '/admin/settings', icon: Settings },
                 { title: 'Profile', href: '/admin/profile', icon: User },
+                { title: 'Slider Settings', href: '/admin/slider-settings', icon: Image },
                 { title: 'Coming Soon', href: '/admin/coming-soon', icon: Lock },
                 { title: 'Page Layout', href: '/admin/homepage-layout', icon: Grid3X3 },
             ]

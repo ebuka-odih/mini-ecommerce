@@ -83,7 +83,7 @@ class AdminController extends Controller
                 ->whereDate('created_at', $date)
                 ->sum('total');
             $salesChartData[] = [
-                'date' => $date->format('M d'),
+                'date' => $date ? $date->format('M d') : 'Unknown',
                 'sales' => $daySales
             ];
         }
@@ -94,7 +94,7 @@ class AdminController extends Controller
             $date = Carbon::now()->subDays($i);
             $dayOrders = Order::whereDate('created_at', $date)->count();
             $ordersChartData[] = [
-                'date' => $date->format('M d'),
+                'date' => $date ? $date->format('M d') : 'Unknown',
                 'orders' => $dayOrders
             ];
         }

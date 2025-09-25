@@ -34,9 +34,18 @@ interface Category {
   };
 }
 
+interface SliderImage {
+  id: number;
+  url: string;
+  alt_text: string;
+  width: number;
+  height: number;
+}
+
 interface BlackThemeProps {
   featuredProducts: Product[];
   categories: Category[];
+  sliderImages?: SliderImage[];
 }
 
 // Cart Sidebar Component
@@ -204,7 +213,7 @@ const CartSidebar: React.FC = () => {
   );
 };
 
-export default function BlackTheme({ featuredProducts, categories }: BlackThemeProps) {
+export default function BlackTheme({ featuredProducts, categories, sliderImages = [] }: BlackThemeProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { cartCount, addToCart } = useCart();
   const { addToast } = useToast();
@@ -237,29 +246,32 @@ export default function BlackTheme({ featuredProducts, categories }: BlackThemeP
     }
   };
 
-  // Create hero images from featured products
-  const heroImages = featuredProducts.length > 0 
-    ? featuredProducts.slice(0, 3).map(product => {
-        // Get the first image from the product's images array
-        const firstImage = product.images && product.images.length > 0 
-          ? product.images[0].url || product.images[0].thumbnail_url
-          : null;
-        const imageUrl = firstImage || '/images/placeholder-product.jpg';
-        console.log('Hero image for product:', product.name, 'URL:', imageUrl);
-        return imageUrl;
-      })
-    : [
-        '/images/placeholder-product.jpg',
-        '/images/placeholder-product.jpg', 
-        '/images/placeholder-product.jpg'
-      ];
+  // Create hero images from slider settings or fallback to featured products
+  const heroImages = sliderImages.length > 0 
+    ? sliderImages.map(img => img.url)
+    : featuredProducts.length > 0 
+      ? featuredProducts.slice(0, 3).map(product => {
+          // Get the first image from the product's images array
+          const firstImage = product.images && product.images.length > 0 
+            ? product.images[0].url || product.images[0].thumbnail_url
+            : null;
+          const imageUrl = firstImage || '/images/placeholder-product.jpg';
+          console.log('Hero image for product:', product.name, 'URL:', imageUrl);
+          return imageUrl;
+        })
+      : [
+          '/images/placeholder-product.jpg',
+          '/images/placeholder-product.jpg', 
+          '/images/placeholder-product.jpg'
+        ];
 
   // Debug logging
   useEffect(() => {
     console.log('Hero images loaded:', heroImages);
     console.log('Current image index:', currentImageIndex);
     console.log('Featured products:', featuredProducts);
-  }, [heroImages, currentImageIndex, featuredProducts]);
+    console.log('Slider images from settings:', sliderImages);
+  }, [heroImages, currentImageIndex, featuredProducts, sliderImages]);
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);

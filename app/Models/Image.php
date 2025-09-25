@@ -124,6 +124,10 @@ class Image extends Model
 
     public function getFormattedSizeAttribute()
     {
+        if (!$this->size) {
+            return 'Unknown';
+        }
+        
         $bytes = $this->size;
         $units = ['B', 'KB', 'MB', 'GB'];
         

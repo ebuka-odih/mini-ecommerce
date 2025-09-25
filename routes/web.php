@@ -64,6 +64,9 @@ Route::get('/payment/callback', [PaymentController::class, 'callback'])->name('p
 // Payment webhook (outside splade middleware)
 Route::post('/payment/webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
 
+// Slider images API (public)
+Route::get('/api/slider-images', [\App\Http\Controllers\Admin\SliderSettingsController::class, 'getSliderImages'])->name('slider.images');
+
 require __DIR__.'/auth.php';
 require __DIR__.'/test.php';
 require __DIR__.'/admin.php';

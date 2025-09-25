@@ -28,7 +28,7 @@ class NewDashboardController extends Controller
                     'customer_name' => $order->user->name ?? 'Guest Customer',
                     'total' => $order->total,
                     'status' => $order->status,
-                    'created_at' => $order->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $order->created_at ? $order->created_at->format('Y-m-d H:i:s') : 'Unknown',
                 ];
             });
 

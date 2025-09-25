@@ -101,4 +101,8 @@ Route::post('settings/upload-logo', [\App\Http\Controllers\Admin\SettingsControl
 Route::get('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'index'])->name('profile.index');
 Route::put('profile', [\App\Http\Controllers\Admin\ProfileController::class, 'update'])->name('profile.update');
 Route::put('profile/password', [\App\Http\Controllers\Admin\ProfileController::class, 'updatePassword'])->name('profile.password');
+
+// Slider settings routes
+Route::get('slider-settings', [\App\Http\Controllers\Admin\SliderSettingsController::class, 'index'])->name('slider-settings.index');
+Route::put('slider-settings', [\App\Http\Controllers\Admin\SliderSettingsController::class, 'update'])->name('slider-settings.update');
 });

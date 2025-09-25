@@ -278,9 +278,36 @@ class HomeController extends Controller
                 return $category;
             });
 
+        // Get slider images from settings
+        $selectedImageIds = Setting::getValue('homepage_slider_images', []);
+        
+        $sliderImages = [];
+        if (!empty($selectedImageIds)) {
+            $images = \App\Models\Image::whereIn('id', $selectedImageIds)->get();
+            
+            // Sort by the order they appear in selectedImageIds array
+            $sliderImages = collect($selectedImageIds)
+                ->map(function ($id) use ($images) {
+                    return $images->firstWhere('id', $id);
+                })
+                ->filter() // Remove null values
+                ->map(function ($image) {
+                    return [
+                        'id' => $image->id,
+                        'url' => $image->url,
+                        'alt_text' => $image->alt_text ?: $image->original_name,
+                        'width' => $image->width,
+                        'height' => $image->height,
+                    ];
+                })
+                ->values()
+                ->toArray();
+        }
+
         return Inertia::render('homepage-second', [
             'featuredProducts' => $featuredProducts,
-            'categories' => $categories
+            'categories' => $categories,
+            'sliderImages' => $sliderImages
         ]);
     }
     
