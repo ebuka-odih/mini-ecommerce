@@ -11,15 +11,15 @@ interface PageHeaderProps {
 const PageHeader: React.FC<PageHeaderProps> = ({ title, description, children }) => {
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between">
-                <div className="space-y-1">
-                    <h1 className="text-3xl font-bold tracking-tight text-white">{title}</h1>
+            <div className="flex flex-col space-y-4 sm:flex-row sm:items-start sm:justify-between sm:space-y-0">
+                <div className="space-y-1 flex-1">
+                    <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">{title}</h1>
                     {description && (
                         <p className="text-gray-400">{description}</p>
                     )}
                 </div>
                 {children && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-col space-y-2 sm:flex-row sm:items-center sm:space-y-0 sm:gap-2 sm:flex-shrink-0">
                         {children}
                     </div>
                 )}

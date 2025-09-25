@@ -444,10 +444,10 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                 title="Products" 
                 description="Manage your product inventory and catalog"
             >
-                <div className="flex gap-3">
+                <div className="flex flex-col space-y-2 sm:flex-row sm:space-y-0 sm:gap-3">
                     <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
                         <DialogTrigger asChild>
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Button className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white">
                                 <Plus className="mr-2 h-4 w-4" />
                                 Add Product
                             </Button>
@@ -973,7 +973,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                     </Dialog>
                     
                     <Link href="/admin/products/import">
-                        <Button className="bg-green-600 hover:bg-green-700 text-white">
+                        <Button className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white">
                             <ExternalLink className="mr-2 h-4 w-4" />
                             Import from URL
                         </Button>

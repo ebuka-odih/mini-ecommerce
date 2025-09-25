@@ -15,10 +15,20 @@ class HomeController extends Controller
         $settings = Setting::getComingSoonSettings();
         
         if ($settings['enabled'] && !session('coming-soon-bypassed')) {
-            return view('pages.coming-soon', compact('settings'));
+            return Inertia::render('coming-soon', [
+                'settings' => $settings
+            ]);
         }
         
-        // Normal index page
+        // Get the selected frontpage setting
+        $frontpage = Setting::getValue('frontpage', 'homepage');
+        
+        // Route to the appropriate frontpage based on setting
+        if ($frontpage === 'homepage-second') {
+            return $this->homepageSecond();
+        }
+        
+        // Default homepage
         $products = Product::with('category')->latest()->take(4)->get();
         
         // Load featured products for hero slider
@@ -205,6 +215,48 @@ class HomeController extends Controller
         ]);
     }
     
+    public function homepageSecond()
+    {
+        // Get featured products for the black theme homepage
+        $featuredProducts = Product::with(['category', 'images'])
+            ->where('is_featured', true)
+            ->where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->take(6)
+            ->get()
+            ->map(function ($product) {
+                // Ensure images are properly loaded
+                if ($product->getRelation('images') && $product->getRelation('images')->count() > 0) {
+                    $product->getRelation('images')->each(function ($image) {
+                        $image->url = $image->url;
+                        $image->thumbnail_url = $image->thumbnail_url;
+                    });
+                }
+                return $product;
+            });
+
+        // Get categories for the black theme homepage
+        $categories = \App\Models\Category::with('image')
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->take(6)
+            ->get()
+            ->map(function ($category) {
+                // Ensure image is properly loaded
+                if ($category->getRelation('image')) {
+                    $image = $category->getRelation('image');
+                    $image->url = $image->url;
+                    $image->thumbnail_url = $image->thumbnail_url;
+                }
+                return $category;
+            });
+
+        return Inertia::render('homepage-second', [
+            'featuredProducts' => $featuredProducts,
+            'categories' => $categories
+        ]);
+    }
+    
     public function verifyComingSoonPassword(Request $request)
     {
         $request->validate([
@@ -221,5 +273,21 @@ class HomeController extends Controller
         }
         
         return back()->withErrors(['password' => 'Incorrect password. Please try again.']);
+    }
+
+    /**
+     * Handle email subscription for coming soon
+     */
+    public function subscribeEmail(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email|max:255',
+        ]);
+
+        // Store email in database or send to mailing service
+        // For now, we'll just return success
+        // You can implement actual email storage here
+        
+        return back()->with('success', 'Thank you for subscribing! We\'ll notify you when we launch.');
     }
 }

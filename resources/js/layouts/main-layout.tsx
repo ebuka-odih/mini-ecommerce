@@ -237,10 +237,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                             {/* Navigation Items */}
                                             <nav className="flex-1 px-6 py-8">
                                                 <div className="flex flex-col space-y-6">
-                                                    {navigationItems.map((item) => (
-                                                        <Link
-                                                            key={item.name}
-                                                            href={item.href}
+                                            {navigationItems.map((item) => (
+                                                <Link
+                                                    key={item.name}
+                                                    href={item.href}
                                                             className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors py-2 border-b border-gray-100 last:border-b-0"
                                                         >
                                                             <div className="flex items-center justify-between">
@@ -249,8 +249,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                                                     <span className="text-gray-400">→</span>
                                                                 )}
                                                             </div>
-                                                        </Link>
-                                                    ))}
+                                                </Link>
+                                            ))}
                                                 </div>
                                             </nav>
                                             

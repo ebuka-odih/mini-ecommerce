@@ -88,7 +88,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::delete('variations/colors/{color}', [VariationController::class, 'destroyColor'])->name('variations.colors.destroy');
     
     // Coming Soon
-    Route::get('coming-soon', [ComingSoonController::class, 'index'])->name('coming-soon.index');
-    Route::put('coming-soon', [ComingSoonController::class, 'update'])->name('coming-soon.update');
-    Route::post('coming-soon/toggle', [ComingSoonController::class, 'toggle'])->name('coming-soon.toggle');
+Route::get('coming-soon', [ComingSoonController::class, 'index'])->name('coming-soon.index');
+Route::put('coming-soon', [ComingSoonController::class, 'update'])->name('coming-soon.update');
+Route::post('coming-soon/toggle', [ComingSoonController::class, 'toggle'])->name('coming-soon.toggle');
+
+// Settings routes
+Route::get('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'index'])->name('settings.index');
+Route::put('settings', [\App\Http\Controllers\Admin\SettingsController::class, 'update'])->name('settings.update');
+Route::post('settings/upload-logo', [\App\Http\Controllers\Admin\SettingsController::class, 'uploadLogo'])->name('settings.upload-logo');
 });

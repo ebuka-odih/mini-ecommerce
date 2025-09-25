@@ -222,12 +222,6 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
                                 Manage Customers
                             </Link>
                         </Button>
-                        <Button className="w-full justify-start border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700" variant="outline" asChild>
-                            <Link href="/admin/analytics">
-                                <BarChart3 className="mr-2 h-4 w-4" />
-                                View Analytics
-                            </Link>
-                        </Button>
                         
                         <Separator className="my-4" />
                         

@@ -16,7 +16,9 @@ class ComingSoonController extends Controller
     {
         $settings = Setting::getComingSoonSettings();
         
-        return view('admin.coming-soon.index', compact('settings'));
+        return Inertia::render('admin/coming-soon', [
+            'settings' => $settings
+        ]);
     }
 
     /**

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Head, Link, usePage } from '@inertiajs/react';
 import { 
-    BarChart3, 
     Package, 
     ShoppingCart, 
     Users, 
@@ -12,12 +11,11 @@ import {
     Home,
     Tag,
     Image,
-    Mail,
-    FileText,
     Shield,
     Eye,
     Grid3X3,
-    Layers
+    Layers,
+    Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -100,31 +98,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             icon: Image,
         },
         {
-            title: 'Homepage',
-            href: '/admin/homepage-layout',
-            icon: Grid3X3,
-        },
-        {
-            title: 'Analytics',
-            href: '/admin/analytics',
-            icon: BarChart3,
-        },
-        {
-            title: 'Marketing',
-            href: '/admin/marketing',
-            icon: Mail,
-            children: [
-                { title: 'Email Campaigns', href: '/admin/marketing/emails', icon: Mail },
-                { title: 'Newsletters', href: '/admin/marketing/newsletters', icon: FileText },
-            ]
-        },
-        {
             title: 'Settings',
             href: '/admin/settings',
             icon: Settings,
             children: [
-                { title: 'General', href: '/admin/settings', icon: Settings },
-                { title: 'Security', href: '/admin/settings/security', icon: Shield },
+                { title: 'General Settings', href: '/admin/settings', icon: Settings },
+                { title: 'Coming Soon', href: '/admin/coming-soon', icon: Lock },
+                { title: 'Page Layout', href: '/admin/homepage-layout', icon: Grid3X3 },
             ]
         },
     ];
@@ -149,8 +129,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                 {/* Navigation */}
                 <div className="px-3">
                     <div className="space-y-1">
-                        {navigationItems.map((item) => (
+                        {navigationItems.map((item, index) => (
                             <div key={item.title}>
+                                {/* Add separator before Settings */}
+                                {item.title === 'Settings' && (
+                                    <>
+                                        <Separator className="my-4 bg-gray-700" />
+                                        <div className="px-3 py-2">
+                                            <p className="text-xs font-medium text-gray-500 uppercase tracking-wider">Configuration</p>
+                                        </div>
+                                    </>
+                                )}
                                 <Link
                                     href={item.href}
                                     className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300 transition-all hover:text-white hover:bg-gray-700 font-medium"
@@ -236,8 +225,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                 {/* Main Content Area */}
                 <div className="flex-1 md:ml-[220px] lg:ml-[280px]">
                     <div className="flex flex-col min-h-screen">
-                        {/* Header - Same as Sidebar */}
-                        <header className="flex h-14 items-center gap-4 border-b border-gray-700 bg-gray-800 px-4 lg:h-[60px] lg:px-6">
+                    {/* Header - Same as Sidebar */}
+                    <header className="flex h-14 items-center gap-4 border-b border-gray-700 bg-gray-800 px-4 lg:h-[60px] lg:px-6">
                         {/* Mobile Menu */}
                         <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
                             <SheetTrigger asChild>
@@ -257,7 +246,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                             alt="GNOSIS" 
                                             className="h-6 w-auto object-contain"
                                         />
-                                        <Badge className="bg-blue-500 text-white text-xs">Admin</Badge>
+                                    <Badge className="bg-blue-500 text-white text-xs">Admin</Badge>
                                     </div>
                                     {/* Close button is automatically added by SheetContent */}
                                 </div>
@@ -325,7 +314,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                         <Separator className="bg-gray-700" />
                                         <Button variant="ghost" className="w-full text-center text-blue-400 hover:text-blue-300 hover:bg-gray-700">
                                             View all notifications
-                                        </Button>
+                            </Button>
                                     </div>
                                 </DropdownMenuContent>
                             </DropdownMenu>
@@ -396,10 +385,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                         </div>
                     </header>
 
-                        {/* Main Content Area - Dark Theme */}
+                    {/* Main Content Area - Dark Theme */}
                         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-gray-900">
-                            {children}
-                        </main>
+                        {children}
+                    </main>
                     </div>
                 </div>
             </div>

@@ -119,7 +119,7 @@ export default function CustomersPage({ customers, stats, filters }: CustomersPa
 
             <PageHeader
                 title="Customers"
-                description="Manage your customer base and track customer analytics"
+                description="Manage your customer base and customer information"
             />
 
             {/* Customer Details Modal */}

@@ -1,16 +1,60 @@
 {
+  "_headlessui-BwBWThWm.js": {
+    "file": "assets/headlessui-BwBWThWm.js",
+    "name": "headlessui",
+    "imports": [
+      "_inertia-DaK15SqE.js",
+      "_ui-D9D1upTR.js"
+    ]
+  },
+  "_icons-BM2CjkM_.js": {
+    "file": "assets/icons-BM2CjkM_.js",
+    "name": "icons",
+    "imports": [
+      "_inertia-DaK15SqE.js"
+    ]
+  },
+  "_inertia-DaK15SqE.js": {
+    "file": "assets/inertia-DaK15SqE.js",
+    "name": "inertia",
+    "imports": [
+      "_vendor-ClZwdvRs.js"
+    ]
+  },
+  "_ui-D9D1upTR.js": {
+    "file": "assets/ui-D9D1upTR.js",
+    "name": "ui",
+    "imports": [
+      "_inertia-DaK15SqE.js",
+      "_vendor-ClZwdvRs.js"
+    ]
+  },
+  "_vendor-ClZwdvRs.js": {
+    "file": "assets/vendor-ClZwdvRs.js",
+    "name": "vendor"
+  },
   "resources/css/app.css": {
-    "file": "assets/app-BBNIwMw6.css",
+    "file": "assets/app-Mkuult6D.css",
     "src": "resources/css/app.css",
-    "isEntry": true
+    "isEntry": true,
+    "names": [
+      "app.css"
+    ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-Bpajs_TX.js",
+    "file": "assets/app-BHyGMdGE.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
+    "imports": [
+      "_ui-D9D1upTR.js",
+      "_inertia-DaK15SqE.js",
+      "_headlessui-BwBWThWm.js",
+      "_icons-BM2CjkM_.js",
+      "_vendor-ClZwdvRs.js"
+    ],
     "css": [
-      "assets/app-BBNIwMw6.css"
+      "assets/app-Mkuult6D.css"
     ]
   }
 }

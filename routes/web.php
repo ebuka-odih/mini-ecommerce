@@ -19,6 +19,7 @@ use App\Http\Controllers\PaymentController;
 
 // Main application routes
 Route::get('/', [HomeController::class, 'index'])->name('index');
+Route::get('/homepage-second', [HomeController::class, 'homepageSecond'])->name('homepage-second');
 Route::get('/shop', [HomeController::class, 'shop'])->name('shop');
 Route::get('/product/{product:slug}', [HomeController::class, 'show'])->name('product.show');
 Route::get('/api/products/{id}', [HomeController::class, 'getProduct'])->name('api.product.get');
@@ -26,6 +27,7 @@ Route::get('/docs', fn () => view('docs'))->name('docs');
 
 // Coming soon password verification
 Route::post('/coming-soon/verify', [HomeController::class, 'verifyComingSoonPassword'])->name('coming-soon.verify')->middleware('antibot:contact');
+Route::post('/coming-soon/subscribe', [HomeController::class, 'subscribeEmail'])->name('coming-soon.subscribe')->middleware('antibot:contact');
 
 // Cart routes
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
