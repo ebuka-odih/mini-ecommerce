@@ -15,7 +15,8 @@ import {
     Eye,
     Grid3X3,
     Layers,
-    Lock
+    Lock,
+    User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -103,6 +104,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             icon: Settings,
             children: [
                 { title: 'General Settings', href: '/admin/settings', icon: Settings },
+                { title: 'Profile', href: '/admin/profile', icon: User },
                 { title: 'Coming Soon', href: '/admin/coming-soon', icon: Lock },
                 { title: 'Page Layout', href: '/admin/homepage-layout', icon: Grid3X3 },
             ]

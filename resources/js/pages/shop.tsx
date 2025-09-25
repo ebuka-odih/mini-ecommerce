@@ -18,13 +18,17 @@ const Shop: React.FC<ShopPageProps> = ({
     sort_options = [],
     current_filters = {},
     current_sort = 'newest',
-    pagination
+    pagination,
+    settings
 }) => {
     const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
     const [isSearchOpen, setIsSearchOpen] = React.useState(false);
     const [isSortOpen, setIsSortOpen] = React.useState(false);
+
+    const isDarkTheme = settings?.theme === 'dark';
+    const siteName = settings?.site_name || 'GNOSIS';
 
     const handleSortChange = (value: string) => {
         router.get('/shop', { 
@@ -75,17 +79,17 @@ const Shop: React.FC<ShopPageProps> = ({
     const activeFilterCount = Object.values(current_filters).flat().length;
 
     return (
-        <MainLayout title="Shop - GNOSIS">
+        <MainLayout title={`Shop - ${siteName}`} settings={settings}>
             <Head title="Shop" />
             
             {/* Hero Section */}
-            <section className="bg-gray-50 py-12">
+            <section className={`${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'} py-12`}>
                 <div className="container mx-auto px-4">
                     <div className="text-center">
-                        <h1 className="text-4xl lg:text-5xl font-light tracking-wider mb-4">
+                        <h1 className={`text-4xl lg:text-5xl font-light tracking-wider mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                             SHOP COLLECTION
                         </h1>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} max-w-2xl mx-auto`}>
                             Discover our carefully curated collection of premium fashion pieces
                         </p>
                     </div>
@@ -93,7 +97,7 @@ const Shop: React.FC<ShopPageProps> = ({
             </section>
 
             {/* Mobile Compact Controls */}
-            <section className="border-b bg-white sticky top-16 z-40 lg:hidden">
+            <section className={`border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white'} sticky top-16 z-40 lg:hidden`}>
                 <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-3">
                         {/* Mobile Filter Button */}
@@ -286,7 +290,7 @@ const Shop: React.FC<ShopPageProps> = ({
             </section>
 
             {/* Desktop Filters & Controls */}
-            <section className="border-b bg-white sticky top-16 z-40 hidden lg:block">
+            <section className={`border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white'} sticky top-16 z-40 hidden lg:block`}>
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex flex-row items-center justify-between gap-4">
                         {/* Left Side - Search & Filters */}
@@ -372,7 +376,7 @@ const Shop: React.FC<ShopPageProps> = ({
                     <div className="flex gap-8">
                         {/* Desktop Sidebar Filters */}
                         <aside className="hidden lg:block w-64 flex-shrink-0">
-                            <div className="bg-white rounded-lg p-6 shadow-sm">
+                            <div className={`${isDarkTheme ? 'bg-gray-900 border-gray-800' : 'bg-white'} rounded-lg p-6 shadow-sm border`}>
                                 <div className="flex items-center justify-between mb-6">
                                     <h3 className="font-semibold text-lg">Filters</h3>
                                     {activeFilterCount > 0 && (
@@ -494,13 +498,13 @@ const Shop: React.FC<ShopPageProps> = ({
             </section>
 
             {/* Category Showcase Section */}
-            <section className="bg-gray-50 py-16">
+            <section className={`${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'} py-16`}>
                 <div className="container mx-auto px-4">
                     <div className="text-center mb-12">
-                        <h2 className="text-3xl lg:text-4xl font-light tracking-wider mb-4">
+                        <h2 className={`text-3xl lg:text-4xl font-light tracking-wider mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                             SHOP BY CATEGORY
                         </h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
+                        <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} max-w-2xl mx-auto`}>
                             Explore our collections designed for every style and occasion
                         </p>
                     </div>

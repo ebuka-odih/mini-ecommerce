@@ -19,7 +19,14 @@ type RegisterForm = {
     _form_start_time?: number;
 };
 
-export default function Register() {
+interface RegisterProps {
+    settings?: {
+        site_name?: string;
+        site_logo?: string;
+    };
+}
+
+export default function Register({ settings }: RegisterProps) {
     const { data, setData, post, processing, errors, reset } = useForm<RegisterForm>({
         name: '',
         email: '',
@@ -37,13 +44,13 @@ export default function Register() {
     };
 
     return (
-        <AuthLayout title="Create an account" description="Enter your details below to create your account">
+        <AuthLayout title="Create an account" description="Enter your details below to create your account" settings={settings}>
             <Head title="Register" />
             <form className="flex flex-col gap-6" onSubmit={submit}>
                 {/* <Honeypot onFormStart={(startTime) => setData('_form_start_time', startTime)} /> */}
                 <div className="grid gap-6">
                     <div className="grid gap-2">
-                        <Label htmlFor="name">Name</Label>
+                        <Label htmlFor="name" className="text-gray-300">Name</Label>
                         <Input
                             id="name"
                             type="text"
@@ -55,12 +62,13 @@ export default function Register() {
                             onChange={(e) => setData('name', e.target.value)}
                             disabled={processing}
                             placeholder="Full name"
+                            className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                         />
                         <InputError message={errors.name} className="mt-2" />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="email">Email address</Label>
+                        <Label htmlFor="email" className="text-gray-300">Email address</Label>
                         <Input
                             id="email"
                             type="email"
@@ -71,12 +79,13 @@ export default function Register() {
                             onChange={(e) => setData('email', e.target.value)}
                             disabled={processing}
                             placeholder="email@example.com"
+                            className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                         />
                         <InputError message={errors.email} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password">Password</Label>
+                        <Label htmlFor="password" className="text-gray-300">Password</Label>
                         <Input
                             id="password"
                             type="password"
@@ -87,12 +96,13 @@ export default function Register() {
                             onChange={(e) => setData('password', e.target.value)}
                             disabled={processing}
                             placeholder="Password"
+                            className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                         />
                         <InputError message={errors.password} />
                     </div>
 
                     <div className="grid gap-2">
-                        <Label htmlFor="password_confirmation">Confirm password</Label>
+                        <Label htmlFor="password_confirmation" className="text-gray-300">Confirm password</Label>
                         <Input
                             id="password_confirmation"
                             type="password"
@@ -103,19 +113,22 @@ export default function Register() {
                             onChange={(e) => setData('password_confirmation', e.target.value)}
                             disabled={processing}
                             placeholder="Confirm password"
+                            className="bg-gray-800 border-gray-600 text-white placeholder-gray-400 focus:border-blue-500 focus:ring-blue-500"
                         />
                         <InputError message={errors.password_confirmation} />
                     </div>
 
-                    <Button type="submit" className="mt-2 w-full" tabIndex={5} disabled={processing}>
-                        {processing && <LoaderCircle className="h-4 w-4 animate-spin" />}
-                        Create account
+                    <Button type="submit" className="mt-2 w-full bg-blue-600 hover:bg-blue-700 text-white" tabIndex={5} disabled={processing}>
+                        <div className="flex items-center justify-center gap-2">
+                            {processing && <LoaderCircle className="h-4 w-4 animate-spin flex-shrink-0" />}
+                            <span className="flex-shrink-0">{processing ? 'Creating account...' : 'Create account'}</span>
+                        </div>
                     </Button>
                 </div>
 
-                <div className="text-center text-sm text-muted-foreground">
+                <div className="text-center text-sm text-gray-400">
                     Already have an account?{' '}
-                    <TextLink href={route('login')} tabIndex={6}>
+                    <TextLink href={route('login')} className="text-blue-400 hover:text-blue-300" tabIndex={6}>
                         Log in
                     </TextLink>
                 </div>

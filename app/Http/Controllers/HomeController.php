@@ -69,10 +69,19 @@ class HomeController extends Controller
                 return $layout;
             });
         
+        // Get settings for the homepage
+        $settings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+            'theme' => Setting::getValue('theme', 'dark'),
+        ];
+
         return Inertia::render('index', [
             'products' => $products,
             'featuredProducts' => $featuredProducts,
-            'homepageLayouts' => $homepageLayouts
+            'homepageLayouts' => $homepageLayouts,
+            'settings' => $settings
         ]);
     }
 
@@ -95,8 +104,17 @@ class HomeController extends Controller
             });
         }
         
+        // Get settings for the product page
+        $settings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+            'theme' => Setting::getValue('theme', 'dark'),
+        ];
+
         return Inertia::render('product', [
-            'product' => $product
+            'product' => $product,
+            'settings' => $settings
         ]);
     }
 
@@ -198,6 +216,14 @@ class HomeController extends Controller
             }
         });
 
+        // Get settings for the shop page
+        $settings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+            'theme' => Setting::getValue('theme', 'dark'),
+        ];
+
         return Inertia::render('shop', [
             'products' => $products->items(),
             'categories' => $categories,
@@ -211,7 +237,8 @@ class HomeController extends Controller
                 'last_page' => $products->lastPage(),
                 'per_page' => $products->perPage(),
                 'total' => $products->total(),
-            ]
+            ],
+            'settings' => $settings
         ]);
     }
     

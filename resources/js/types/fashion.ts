@@ -198,6 +198,12 @@ export interface ShopPageProps {
         per_page: number;
         total: number;
     };
+    settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+        theme: 'light' | 'dark';
+    };
 }
 
 export interface ProductPageProps {

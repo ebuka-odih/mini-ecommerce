@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, router } from '@inertiajs/react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, Upload, Settings, Palette, Globe, Save } from 'lucide-react';
+import { useToast } from '@/components/ui/toast';
 import AdminLayout from '@/layouts/admin-layout';
 
 interface SettingsData {
@@ -31,6 +32,8 @@ export default function SettingsPage({ settings, flash }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState('general');
   const [showSuccess, setShowSuccess] = useState(!!flash?.success);
   const [showError, setShowError] = useState(!!flash?.error);
+  const [logoKey, setLogoKey] = useState(0);
+  const { addToast } = useToast();
 
   const { data, setData, put, processing, errors } = useForm({
     site_name: settings.site_name || '',
@@ -54,11 +57,72 @@ export default function SettingsPage({ settings, flash }: SettingsPageProps) {
     });
   };
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Handle file upload logic here
-      console.log('Logo file selected:', file.name);
+      // Validate file size (2MB max)
+      if (file.size > 2 * 1024 * 1024) {
+        addToast({
+          title: "Upload failed",
+          description: "File size must be less than 2MB.",
+          type: "error",
+        });
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        addToast({
+          title: "Upload failed",
+          description: "Please select an image file.",
+          type: "error",
+        });
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('logo', file);
+
+      try {
+        addToast({
+          title: "Uploading...",
+          description: "Please wait while we upload your logo.",
+          type: "info",
+        });
+
+        const response = await fetch('/admin/settings/upload-logo', {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+          },
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          setData('site_logo', result.url);
+          setLogoKey(prev => prev + 1); // Force image re-render
+          addToast({
+            title: "Logo uploaded",
+            description: "Logo has been uploaded successfully.",
+            type: "success",
+          });
+        } else {
+          addToast({
+            title: "Upload failed",
+            description: result.message || "Failed to upload logo. Please try again.",
+            type: "error",
+          });
+        }
+      } catch (error) {
+        console.error('Logo upload error:', error);
+        addToast({
+          title: "Upload failed",
+          description: "Failed to upload logo. Please try again.",
+          type: "error",
+        });
+      }
     }
   };
 
@@ -151,8 +215,29 @@ export default function SettingsPage({ settings, flash }: SettingsPageProps) {
                   </div>
 
                   {/* Site Logo */}
-                  <div className="space-y-2">
+                  <div className="space-y-4">
                     <Label htmlFor="site_logo" className="text-white">Site Logo</Label>
+                    
+                    {/* Current Logo Preview */}
+                    {data.site_logo && (
+                      <div className="flex items-center space-x-4">
+                        <div className="w-16 h-16 border border-gray-600 rounded-lg overflow-hidden bg-gray-700">
+                          <img
+                            key={logoKey}
+                            src={data.site_logo}
+                            alt="Current logo"
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/img/paperview.png';
+                            }}
+                          />
+                        </div>
+                        <div className="text-sm text-gray-400">
+                          Current logo preview
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="flex items-center space-x-4">
                       <Input
                         id="site_logo"

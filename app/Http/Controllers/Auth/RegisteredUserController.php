@@ -22,7 +22,14 @@ class RegisteredUserController extends Controller
      */
     public function create(): Response
     {
-        return Inertia::render('auth/register');
+        $settings = [
+            'site_name' => \App\Models\Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => \App\Models\Setting::getValue('site_logo', '/brand/GNOSIS3.png'),
+        ];
+
+        return Inertia::render('auth/register', [
+            'settings' => $settings,
+        ]);
     }
 
     /**

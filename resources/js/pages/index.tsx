@@ -53,9 +53,15 @@ interface HomePageProps {
     products: any[];
     featuredProducts: FeaturedProduct[];
     homepageLayouts: HomepageLayout[];
+    settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+        theme: 'light' | 'dark';
+    };
 }
 
-const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], homepageLayouts = [] }) => {
+const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], homepageLayouts = [], settings }) => {
     // Hero slider state
     const [currentSlide, setCurrentSlide] = useState(0);
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -170,7 +176,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
 
 
     return (
-        <MainLayout title="Home - GNOSIS">
+        <MainLayout title="Home - GNOSIS" settings={settings}>
             {/* Featured Products Hero Slider */}
             <section className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -12,6 +12,12 @@ import { useCart } from '@/contexts/cart-context';
 interface MainLayoutProps {
     children: React.ReactNode;
     title?: string;
+    settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+        theme: 'light' | 'dark';
+    };
 }
 
 // Cart Sidebar Component
@@ -195,7 +201,11 @@ const CartSidebar: React.FC = () => {
     );
 };
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND' }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND', settings }) => {
+    const isDarkTheme = settings?.theme === 'dark';
+    const siteName = settings?.site_name || 'GNOSIS';
+    const siteLogo = settings?.site_logo || '/img/paperview.png';
+    const currency = settings?.currency || 'NGN';
 
     const navigationItems: NavigationItem[] = [
         { name: 'DEMOS', href: '#', hasDropdown: true },
@@ -207,9 +217,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
     return (
         <>
             <Head title={title} />
-            <div className="min-h-screen bg-white">
+            <div className={`min-h-screen ${isDarkTheme ? 'bg-black text-white' : 'bg-white'}`}>
                 {/* Header */}
-                <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
+                <header className={`sticky top-0 z-50 w-full border-b ${isDarkTheme ? 'bg-black/95 border-gray-800' : 'bg-white/95'} backdrop-blur supports-[backdrop-filter]:${isDarkTheme ? 'bg-black/60' : 'bg-white/60'}`}>
                     <div className="container mx-auto px-4">
                         <div className="flex h-16 items-center justify-between">
                             {/* Mobile Menu */}
@@ -228,8 +238,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                             {/* Mobile Menu Header */}
                                             <div className="flex items-center justify-between p-6 border-b">
                                                 <img 
-                                                    src="/brand/GNOSIS3.png" 
-                                                    alt="GNOSIS" 
+                                                    src={siteLogo} 
+                                                    alt={siteName} 
                                                     className="h-6 w-auto"
                                                 />
                                             </div>
@@ -291,8 +301,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                             <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
                                 <Link href="/" className="flex items-center">
                                     <img 
-                                        src="/brand/GNOSIS3.png" 
-                                        alt="GNOSIS" 
+                                        src={siteLogo} 
+                                        alt={siteName} 
                                         className="h-8 lg:h-10 w-auto"
                                     />
                                 </Link>
@@ -321,51 +331,51 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                 </main>
 
                 {/* Footer */}
-                <footer className="bg-gray-50 border-t">
+                <footer className={`${isDarkTheme ? 'bg-gray-900 border-gray-800' : 'bg-gray-50'} border-t`}>
                     <div className="container mx-auto px-4 py-12">
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                             <div>
                                 <div className="mb-4">
                                     <img 
-                                        src="/brand/GNOSIS3.png" 
-                                        alt="GNOSIS" 
+                                        src={siteLogo} 
+                                        alt={siteName} 
                                         className="h-8 w-auto"
                                     />
                                 </div>
-                                <p className="text-gray-600 text-sm">
+                                <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} text-sm`}>
                                     Premium fashion brand delivering quality and style.
                                 </p>
                             </div>
                             <div>
-                                <h4 className="font-semibold mb-4">Shop</h4>
-                                <ul className="space-y-2 text-sm text-gray-600">
-                                    <li><Link href="/shop" className="hover:text-black">All Products</Link></li>
-                                    <li><Link href="/shop" className="hover:text-black">New Arrivals</Link></li>
-                                    <li><Link href="/shop" className="hover:text-black">Sale</Link></li>
+                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Shop</h4>
+                                <ul className={`space-y-2 text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>All Products</Link></li>
+                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>New Arrivals</Link></li>
+                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Sale</Link></li>
                                 </ul>
                             </div>
                             <div>
-                                <h4 className="font-semibold mb-4">Support</h4>
-                                <ul className="space-y-2 text-sm text-gray-600">
-                                    <li><Link href="#" className="hover:text-black">Contact Us</Link></li>
-                                    <li><Link href="#" className="hover:text-black">Size Guide</Link></li>
-                                    <li><Link href="#" className="hover:text-black">Returns</Link></li>
+                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Support</h4>
+                                <ul className={`space-y-2 text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
+                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Contact Us</Link></li>
+                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Size Guide</Link></li>
+                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Returns</Link></li>
                                 </ul>
                             </div>
                             <div>
-                                <h4 className="font-semibold mb-4">Follow Us</h4>
+                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Follow Us</h4>
                                 <div className="flex space-x-4">
-                                    <a href="#" className="text-gray-600 hover:text-black">
+                                    <a href="#" className={`${isDarkTheme ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
                                         Instagram
                                     </a>
-                                    <a href="#" className="text-gray-600 hover:text-black">
+                                    <a href="#" className={`${isDarkTheme ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
                                         Twitter
                                     </a>
                                 </div>
                             </div>
                         </div>
-                        <div className="border-t mt-8 pt-8 text-center text-sm text-gray-600">
-                            <p>&copy; 2025 GNOSIS. All rights reserved.</p>
+                        <div className={`border-t mt-8 pt-8 text-center text-sm ${isDarkTheme ? 'border-gray-800 text-gray-400' : 'text-gray-600'}`}>
+                            <p>&copy; 2025 {siteName}. All rights reserved.</p>
                         </div>
                     </div>
                 </footer>

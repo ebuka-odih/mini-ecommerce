@@ -17,10 +17,17 @@ export const formatPrice = (price: number, currency: string = 'NGN'): string => 
         }).format(price);
     }
 
+    // Format other currencies
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: currency,
     }).format(price);
+};
+
+// Global currency formatter that uses settings
+export const formatPriceWithCurrency = (price: number, settings?: { currency?: string }): string => {
+    const currency = settings?.currency || 'NGN';
+    return formatPrice(price, currency);
 };
 
 export const calculateDiscount = (originalPrice: number, salePrice: number): number => {

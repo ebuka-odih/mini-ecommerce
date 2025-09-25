@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { formatPrice } from '@/lib/fashion-utils';
+import { formatPriceWithCurrency } from '@/lib/fashion-utils';
 
 interface CheckoutItem {
     id: string;
@@ -52,82 +52,55 @@ interface CheckoutData {
 
 interface CheckoutPageProps {
     cart: CheckoutData;
+    settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+        theme: 'light' | 'dark';
+    };
 }
 
 interface CheckoutForm {
     // Contact Information
+    name: string;
     email: string;
     phone: string;
     
     // Shipping Information
-    shipping_name: string;
-    shipping_address: string;
-    shipping_city: string;
-    shipping_state: string;
-    shipping_country: string;
-    shipping_zip_code: string;
-    
-    // Billing Information (optional, defaults to shipping)
-    billing_name: string;
-    billing_address: string;
-    billing_city: string;
-    billing_state: string;
-    billing_country: string;
-    billing_zip_code: string;
+    address: string;
+    city: string;
+    state: string;
+    country: string;
+    zip: string;
     
     // Payment
     payment_method: string;
     
     // Order Notes
     order_notes: string;
-    
-    // Same as shipping checkbox
-    same_as_shipping: boolean;
 }
 
-const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
+const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, settings }) => {
     const { data, setData, post, processing, errors } = useForm<CheckoutForm>({
         // Contact Information
+        name: '',
         email: '',
         phone: '',
         
         // Shipping Information
-        shipping_name: '',
-        shipping_address: '',
-        shipping_city: '',
-        shipping_state: '',
-        shipping_country: 'Nigeria',
-        shipping_zip_code: '',
-        
-        // Billing Information
-        billing_name: '',
-        billing_address: '',
-        billing_city: '',
-        billing_state: '',
-        billing_country: 'Nigeria',
-        billing_zip_code: '',
+        address: '',
+        city: '',
+        state: '',
+        country: 'Nigeria',
+        zip: '',
         
         // Payment
         payment_method: 'paystack',
         
         // Order Notes
         order_notes: '',
-        
-        // Same as shipping
-        same_as_shipping: true,
     });
 
-    const handleSameAsShippingChange = (checked: boolean) => {
-        setData('same_as_shipping', checked);
-        if (checked) {
-            setData('billing_name', data.shipping_name);
-            setData('billing_address', data.shipping_address);
-            setData('billing_city', data.shipping_city);
-            setData('billing_state', data.shipping_state);
-            setData('billing_country', data.shipping_country);
-            setData('billing_zip_code', data.shipping_zip_code);
-        }
-    };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -175,19 +148,23 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
     ];
 
     return (
-        <MainLayout title="Checkout - GNOSIS">
+        <MainLayout title="Checkout - GNOSIS" settings={settings}>
             <Head title="Checkout" />
             
             <div className="container mx-auto px-4 py-8">
                 {/* Header */}
-                <div className="flex items-center space-x-4 mb-8">
-                    <Button variant="outline" size="sm" asChild>
-                        <Link href="/cart">
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Cart
-                        </Link>
-                    </Button>
-                    <h1 className="text-3xl font-light text-gray-900">Checkout</h1>
+                <div className="mb-8">
+                    {/* Button at the top */}
+                    <div className="mb-4">
+                        <Button variant="outline" size="sm" asChild>
+                            <Link href="/cart">
+                                <ArrowLeft className="w-4 h-4 mr-2" />
+                                Back to Cart
+                            </Link>
+                        </Button>
+                    </div>
+                    {/* Title below the button - centered */}
+                    <h1 className="text-3xl font-light text-gray-900 text-center">Checkout</h1>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -203,6 +180,18 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
+                                        <Label htmlFor="name">Full Name *</Label>
+                                        <Input
+                                            id="name"
+                                            value={data.name}
+                                            onChange={(e) => setData('name', e.target.value)}
+                                            className={errors.name ? 'border-red-500' : ''}
+                                            placeholder="John Doe"
+                                        />
+                                        {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+                                    </div>
+                                    
+                                    <div>
                                         <Label htmlFor="email">Email Address *</Label>
                                         <Input
                                             id="email"
@@ -214,19 +203,19 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                         />
                                         {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
                                     </div>
-                                    
-                                    <div>
-                                        <Label htmlFor="phone">Phone Number *</Label>
-                                        <Input
-                                            id="phone"
-                                            type="tel"
-                                            value={data.phone}
-                                            onChange={(e) => setData('phone', e.target.value)}
-                                            className={errors.phone ? 'border-red-500' : ''}
-                                            placeholder="+234 800 000 0000"
-                                        />
-                                        {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
-                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <Label htmlFor="phone">Phone Number</Label>
+                                    <Input
+                                        id="phone"
+                                        type="tel"
+                                        value={data.phone}
+                                        onChange={(e) => setData('phone', e.target.value)}
+                                        className={errors.phone ? 'border-red-500' : ''}
+                                        placeholder="+234 800 000 0000"
+                                    />
+                                    {errors.phone && <p className="text-sm text-red-500 mt-1">{errors.phone}</p>}
                                 </div>
                             </div>
 
@@ -239,162 +228,61 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <Label htmlFor="shipping_name">Full Name *</Label>
+                                        <Label htmlFor="address">Address *</Label>
                                         <Input
-                                            id="shipping_name"
-                                            value={data.shipping_name}
-                                            onChange={(e) => setData('shipping_name', e.target.value)}
-                                            className={errors.shipping_name ? 'border-red-500' : ''}
-                                            placeholder="John Doe"
-                                        />
-                                        {errors.shipping_name && <p className="text-sm text-red-500 mt-1">{errors.shipping_name}</p>}
-                                    </div>
-                                    
-                                    <div>
-                                        <Label htmlFor="shipping_address">Address *</Label>
-                                        <Input
-                                            id="shipping_address"
-                                            value={data.shipping_address}
-                                            onChange={(e) => setData('shipping_address', e.target.value)}
-                                            className={errors.shipping_address ? 'border-red-500' : ''}
+                                            id="address"
+                                            value={data.address}
+                                            onChange={(e) => setData('address', e.target.value)}
+                                            className={errors.address ? 'border-red-500' : ''}
                                             placeholder="123 Main Street, Apartment 4B"
                                         />
-                                        {errors.shipping_address && <p className="text-sm text-red-500 mt-1">{errors.shipping_address}</p>}
+                                        {errors.address && <p className="text-sm text-red-500 mt-1">{errors.address}</p>}
                                     </div>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                         <div>
-                                            <Label htmlFor="shipping_city">City *</Label>
+                                            <Label htmlFor="city">City *</Label>
                                             <Input
-                                                id="shipping_city"
-                                                value={data.shipping_city}
-                                                onChange={(e) => setData('shipping_city', e.target.value)}
-                                                className={errors.shipping_city ? 'border-red-500' : ''}
+                                                id="city"
+                                                value={data.city}
+                                                onChange={(e) => setData('city', e.target.value)}
+                                                className={errors.city ? 'border-red-500' : ''}
                                                 placeholder="Lagos"
                                             />
-                                            {errors.shipping_city && <p className="text-sm text-red-500 mt-1">{errors.shipping_city}</p>}
+                                            {errors.city && <p className="text-sm text-red-500 mt-1">{errors.city}</p>}
                                         </div>
                                         
                                         <div>
-                                            <Label htmlFor="shipping_state">State *</Label>
+                                            <Label htmlFor="state">State *</Label>
                                             <select
-                                                id="shipping_state"
-                                                value={data.shipping_state}
-                                                onChange={(e) => setData('shipping_state', e.target.value)}
-                                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.shipping_state ? 'border-red-500' : 'border-gray-300'}`}
+                                                id="state"
+                                                value={data.state}
+                                                onChange={(e) => setData('state', e.target.value)}
+                                                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.state ? 'border-red-500' : 'border-gray-300'}`}
                                             >
                                                 <option value="">Select State</option>
                                                 {nigerianStates.map((state) => (
                                                     <option key={state} value={state}>{state}</option>
                                                 ))}
                                             </select>
-                                            {errors.shipping_state && <p className="text-sm text-red-500 mt-1">{errors.shipping_state}</p>}
+                                            {errors.state && <p className="text-sm text-red-500 mt-1">{errors.state}</p>}
                                         </div>
                                         
                                         <div>
-                                            <Label htmlFor="shipping_zip_code">ZIP Code</Label>
+                                            <Label htmlFor="zip">ZIP Code</Label>
                                             <Input
-                                                id="shipping_zip_code"
-                                                value={data.shipping_zip_code}
-                                                onChange={(e) => setData('shipping_zip_code', e.target.value)}
-                                                className={errors.shipping_zip_code ? 'border-red-500' : ''}
+                                                id="zip"
+                                                value={data.zip}
+                                                onChange={(e) => setData('zip', e.target.value)}
+                                                className={errors.zip ? 'border-red-500' : ''}
                                                 placeholder="100001"
                                             />
-                                            {errors.shipping_zip_code && <p className="text-sm text-red-500 mt-1">{errors.shipping_zip_code}</p>}
+                                            {errors.zip && <p className="text-sm text-red-500 mt-1">{errors.zip}</p>}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Billing Information */}
-                            <div className="bg-white rounded-xl border border-gray-200 p-6">
-                                <h2 className="text-xl font-medium text-gray-900 mb-6 flex items-center">
-                                    <CreditCard className="w-5 h-5 mr-2" />
-                                    Billing Information
-                                </h2>
-                                
-                                <div className="mb-4">
-                                    <label className="flex items-center space-x-2">
-                                        <input
-                                            type="checkbox"
-                                            checked={data.same_as_shipping}
-                                            onChange={(e) => handleSameAsShippingChange(e.target.checked)}
-                                            className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                        />
-                                        <span className="text-sm text-gray-700">Same as shipping address</span>
-                                    </label>
-                                </div>
-                                
-                                {!data.same_as_shipping && (
-                                    <div className="space-y-4">
-                                        <div>
-                                            <Label htmlFor="billing_name">Full Name *</Label>
-                                            <Input
-                                                id="billing_name"
-                                                value={data.billing_name}
-                                                onChange={(e) => setData('billing_name', e.target.value)}
-                                                className={errors.billing_name ? 'border-red-500' : ''}
-                                                placeholder="John Doe"
-                                            />
-                                            {errors.billing_name && <p className="text-sm text-red-500 mt-1">{errors.billing_name}</p>}
-                                        </div>
-                                        
-                                        <div>
-                                            <Label htmlFor="billing_address">Address *</Label>
-                                            <Input
-                                                id="billing_address"
-                                                value={data.billing_address}
-                                                onChange={(e) => setData('billing_address', e.target.value)}
-                                                className={errors.billing_address ? 'border-red-500' : ''}
-                                                placeholder="123 Main Street, Apartment 4B"
-                                            />
-                                            {errors.billing_address && <p className="text-sm text-red-500 mt-1">{errors.billing_address}</p>}
-                                        </div>
-                                        
-                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                            <div>
-                                                <Label htmlFor="billing_city">City *</Label>
-                                                <Input
-                                                    id="billing_city"
-                                                    value={data.billing_city}
-                                                    onChange={(e) => setData('billing_city', e.target.value)}
-                                                    className={errors.billing_city ? 'border-red-500' : ''}
-                                                    placeholder="Lagos"
-                                                />
-                                                {errors.billing_city && <p className="text-sm text-red-500 mt-1">{errors.billing_city}</p>}
-                                            </div>
-                                            
-                                            <div>
-                                                <Label htmlFor="billing_state">State *</Label>
-                                                <select
-                                                    id="billing_state"
-                                                    value={data.billing_state}
-                                                    onChange={(e) => setData('billing_state', e.target.value)}
-                                                    className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.billing_state ? 'border-red-500' : 'border-gray-300'}`}
-                                                >
-                                                    <option value="">Select State</option>
-                                                    {nigerianStates.map((state) => (
-                                                        <option key={state} value={state}>{state}</option>
-                                                    ))}
-                                                </select>
-                                                {errors.billing_state && <p className="text-sm text-red-500 mt-1">{errors.billing_state}</p>}
-                                            </div>
-                                            
-                                            <div>
-                                                <Label htmlFor="billing_zip_code">ZIP Code</Label>
-                                                <Input
-                                                    id="billing_zip_code"
-                                                    value={data.billing_zip_code}
-                                                    onChange={(e) => setData('billing_zip_code', e.target.value)}
-                                                    className={errors.billing_zip_code ? 'border-red-500' : ''}
-                                                    placeholder="100001"
-                                                />
-                                                {errors.billing_zip_code && <p className="text-sm text-red-500 mt-1">{errors.billing_zip_code}</p>}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
 
                             {/* Order Notes */}
                             <div className="bg-white rounded-xl border border-gray-200 p-6">
@@ -412,7 +300,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                             <Button
                                 type="submit"
                                 disabled={processing}
-                                className="w-full h-12 text-lg font-medium"
+                                className="w-full mt-6 h-14 text-lg font-semibold bg-gray-900 hover:bg-gray-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                                 size="lg"
                             >
                                 {processing ? (
@@ -420,7 +308,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                 ) : (
                                     <>
                                         <Lock className="w-5 h-5 mr-2" />
-                                        Complete Order - {formatPrice(cart.total)}
+                                        Complete Order - {formatPriceWithCurrency(cart.total, settings)}
                                     </>
                                 )}
                             </Button>
@@ -449,11 +337,11 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                                     {getItemTitle(item)}
                                                 </p>
                                                 <p className="text-xs text-gray-600">
-                                                    Qty: {item.quantity} × {formatPrice(item.price)}
+                                                    Qty: {item.quantity} × {formatPriceWithCurrency(item.price, settings)}
                                                 </p>
                                             </div>
                                             <div className="text-sm font-medium text-gray-900">
-                                                {formatPrice(item.price * item.quantity)}
+                                                {formatPriceWithCurrency(item.price * item.quantity, settings)}
                                             </div>
                                         </div>
                                     ))}
@@ -465,27 +353,27 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                 <div className="space-y-3">
                                     <div className="flex justify-between text-gray-600">
                                         <span>Subtotal</span>
-                                        <span>{formatPrice(cart.subtotal)}</span>
+                                        <span>{formatPriceWithCurrency(cart.subtotal, settings)}</span>
                                     </div>
                                     
                                     {cart.shipping > 0 && (
                                         <div className="flex justify-between text-gray-600">
                                             <span>Shipping</span>
-                                            <span>{formatPrice(cart.shipping)}</span>
+                                            <span>{formatPriceWithCurrency(cart.shipping, settings)}</span>
                                         </div>
                                     )}
                                     
                                     {cart.tax > 0 && (
                                         <div className="flex justify-between text-gray-600">
                                             <span>Tax</span>
-                                            <span>{formatPrice(cart.tax)}</span>
+                                            <span>{formatPriceWithCurrency(cart.tax, settings)}</span>
                                         </div>
                                     )}
                                     
                                     {cart.discount > 0 && (
                                         <div className="flex justify-between text-green-600">
                                             <span>Discount</span>
-                                            <span>-{formatPrice(cart.discount)}</span>
+                                            <span>-{formatPriceWithCurrency(cart.discount, settings)}</span>
                                         </div>
                                     )}
                                     
@@ -493,7 +381,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart }) => {
                                     
                                     <div className="flex justify-between text-lg font-semibold text-gray-900">
                                         <span>Total</span>
-                                        <span>{formatPrice(cart.total)}</span>
+                                        <span>{formatPriceWithCurrency(cart.total, settings)}</span>
                                     </div>
                                 </div>
 

@@ -62,7 +62,7 @@ class SettingsController extends Controller
         if ($request->hasFile('logo')) {
             $file = $request->file('logo');
             $filename = 'logo-' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/logos', $filename);
+            $path = $file->storeAs('logos', $filename, 'public');
             
             $logoUrl = '/storage/logos/' . $filename;
             

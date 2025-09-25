@@ -4,16 +4,19 @@ import { Heart, ShoppingBag, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/types';
-import { formatPrice, isOnSale, calculateDiscount, getPrimaryImage, getStockStatus } from '@/lib/fashion-utils';
+import { formatPriceWithCurrency, isOnSale, calculateDiscount, getPrimaryImage, getStockStatus } from '@/lib/fashion-utils';
 import { useCart } from '@/contexts/cart-context';
 import { useToast } from '@/components/ui/toast';
 
 interface ProductCardProps {
     product: Product;
     className?: string;
+    settings?: {
+        currency?: string;
+    };
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', settings }) => {
     const [isHovered, setIsHovered] = React.useState(false);
     const [isWishlisted, setIsWishlisted] = React.useState(false);
     const [isAddingToCart, setIsAddingToCart] = React.useState(false);
@@ -210,15 +213,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '' }) =>
                     {onSale && product.sale_price ? (
                         <>
                             <span className="text-lg font-semibold text-gray-900">
-                                {formatPrice(product.sale_price)}
+                                {formatPriceWithCurrency(product.sale_price, settings)}
                             </span>
                             <span className="text-sm text-gray-500 line-through">
-                                {formatPrice(product.price)}
+                                {formatPriceWithCurrency(product.price, settings)}
                             </span>
                         </>
                     ) : (
                         <span className="text-lg font-semibold text-gray-900">
-                            {formatPrice(product.price)}
+                            {formatPriceWithCurrency(product.price, settings)}
                         </span>
                     )}
                 </div>

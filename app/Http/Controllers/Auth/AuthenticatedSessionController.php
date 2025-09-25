@@ -16,9 +16,17 @@ class AuthenticatedSessionController extends Controller
     /**
      * Display the login view.
      */
-    public function create(): View
+    public function create(): Response
     {
-        return view('auth/login-fixed');
+        $settings = [
+            'site_name' => \App\Models\Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => \App\Models\Setting::getValue('site_logo', '/brand/GNOSIS3.png'),
+        ];
+
+        return Inertia::render('auth/login', [
+            'canResetPassword' => true,
+            'settings' => $settings,
+        ]);
     }
 
     /**

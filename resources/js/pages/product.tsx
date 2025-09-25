@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/components/ui/toast';
 import { useCart } from '@/contexts/cart-context';
-import { formatPrice, isOnSale, calculateDiscount, getStockStatus } from '@/lib/fashion-utils';
+import { formatPriceWithCurrency, isOnSale, calculateDiscount, getStockStatus } from '@/lib/fashion-utils';
 
 interface ProductImage {
     id: number;
@@ -62,9 +62,15 @@ interface Product {
 
 interface ProductPageProps {
     product: Product;
+    settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+        theme: 'light' | 'dark';
+    };
 }
 
-const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
+const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
     const [selectedImage, setSelectedImage] = React.useState<ProductImage | null>(null);
     const [selectedSize, setSelectedSize] = React.useState<string | null>(null);
     const [selectedColor, setSelectedColor] = React.useState<string | null>(null);
@@ -253,7 +259,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
     };
 
     return (
-        <MainLayout title={`${product.name} - GNOSIS`}>
+        <MainLayout title={`${product.name} - GNOSIS`} settings={settings}>
             <Head title={product.name} />
 
             <div className="container mx-auto px-4 py-8">
@@ -349,10 +355,10 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
                             {onSale ? (
                                 <div className="flex items-center space-x-3">
                                     <span className="text-3xl font-semibold text-gray-900">
-                                        {formatPrice(product.sale_price!)}
+                                        {formatPriceWithCurrency(product.sale_price!, settings)}
                                     </span>
                                     <span className="text-xl text-gray-500 line-through">
-                                        {formatPrice(product.price)}
+                                        {formatPriceWithCurrency(product.price, settings)}
                                     </span>
                                     <Badge className="bg-red-100 text-red-800">
                                         -{discountPercent}%
@@ -360,7 +366,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product }) => {
                                 </div>
                             ) : (
                                 <span className="text-3xl font-semibold text-gray-900">
-                                    {formatPrice(product.price)}
+                                    {formatPriceWithCurrency(product.price, settings)}
                                 </span>
                             )}
                         </div>
