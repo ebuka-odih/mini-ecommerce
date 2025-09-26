@@ -9,6 +9,7 @@ use App\Models\Image;
 use App\Models\Size;
 use App\Models\Color;
 use App\Models\ProductVariation;
+use App\Models\Setting;
 use App\Services\ImageService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -206,8 +207,16 @@ class NewProductController extends Controller
         // Add images to product object
         $product->setRelation('images', $images);
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+        ];
+
         return Inertia::render('admin/products/show', [
-            'product' => $product
+            'product' => $product,
+            'site_settings' => $siteSettings
         ]);
     }
 

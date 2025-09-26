@@ -543,7 +543,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                         <div className="space-y-4 pt-6 border-t border-gray-200">
                             <div className="flex items-center space-x-3 text-sm text-gray-600">
                                 <Truck className="w-5 h-5" />
-                                <span>Free shipping on orders over ₦50,000</span>
+                                <span>Free shipping on orders over {formatPriceWithCurrency(50000, settings)}</span>
                             </div>
                             <div className="flex items-center space-x-3 text-sm text-gray-600">
                                 <Shield className="w-5 h-5" />

@@ -76,18 +76,24 @@ interface Product {
 
 interface ProductShowProps {
     product: Product;
+    site_settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+    };
 }
 
-export default function ProductShow({ product }: ProductShowProps) {
+export default function ProductShow({ product, site_settings }: ProductShowProps) {
     const [selectedImage, setSelectedImage] = React.useState<string | null>(null);
     const [selectedImageAlt, setSelectedImageAlt] = React.useState<string>('');
 
 
 
     const formatCurrency = (amount: number) => {
+        const currency = site_settings?.currency || 'NGN';
         return new Intl.NumberFormat('en-NG', {
             style: 'currency',
-            currency: 'NGN',
+            currency: currency,
         }).format(amount);
     };
 

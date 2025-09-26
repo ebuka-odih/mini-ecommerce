@@ -122,10 +122,16 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
     const [uploadMode, setUploadMode] = React.useState<'file' | 'url' | 'paste'>('file');
     const [pastePreviews, setPastePreviews] = React.useState<string[]>([]);
     const [pasteFiles, setPasteFiles] = React.useState<File[]>([]);
+    const [uploadProgress, setUploadProgress] = React.useState(0);
+    const [isUploading, setIsUploading] = React.useState(false);
+    const [isDragOver, setIsDragOver] = React.useState(false);
 
     // Handle file upload
     const handleUpload = (e: React.FormEvent) => {
         e.preventDefault();
+        
+        setIsUploading(true);
+        setUploadProgress(0);
         
         const formData = new FormData();
         uploadData.files.forEach(file => {
@@ -136,16 +142,36 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
         formData.append('alt_text', uploadData.alt_text);
         formData.append('caption', uploadData.caption);
 
+        // Simulate progress for better UX
+        const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+                if (prev >= 90) {
+                    clearInterval(progressInterval);
+                    return prev;
+                }
+                return prev + Math.random() * 10;
+            });
+        }, 200);
+
         uploadPost('/admin/media', {
             data: formData,
             forceFormData: true,
             onSuccess: () => {
-                setIsUploadModalOpen(false);
-                resetUpload();
-                alert('Files uploaded successfully!');
+                setUploadProgress(100);
+                setTimeout(() => {
+                    setIsUploadModalOpen(false);
+                    resetUpload();
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                    clearInterval(progressInterval);
+                    alert('Files uploaded successfully!');
+                }, 500);
             },
             onError: (errors) => {
                 console.error('Upload errors:', errors);
+                setIsUploading(false);
+                setUploadProgress(0);
+                clearInterval(progressInterval);
                 alert('Error uploading files. Please try again.');
             },
         });
@@ -155,6 +181,30 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         setUploadData('files', files);
+    };
+
+    // Handle drag and drop
+    const handleDragOver = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(true);
+    };
+
+    const handleDragLeave = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
+    };
+
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        setIsDragOver(false);
+        
+        const files = Array.from(e.dataTransfer.files).filter(file => 
+            file.type.startsWith('image/')
+        );
+        
+        if (files.length > 0) {
+            setUploadData('files', files);
+        }
     };
 
     // Handle URL import
@@ -255,6 +305,9 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
             return;
         }
 
+        setIsUploading(true);
+        setUploadProgress(0);
+
         const formData = new FormData();
         pasteFiles.forEach((file, index) => {
             console.log(`Adding file ${index}:`, file.name, file.type, file.size);
@@ -267,18 +320,38 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
 
         console.log('FormData contents:', Array.from(formData.entries()));
 
+        // Simulate progress for better UX
+        const progressInterval = setInterval(() => {
+            setUploadProgress(prev => {
+                if (prev >= 90) {
+                    clearInterval(progressInterval);
+                    return prev;
+                }
+                return prev + Math.random() * 10;
+            });
+        }, 200);
+
         uploadPost('/admin/media', {
             data: formData,
             forceFormData: true,
             onSuccess: () => {
-                setIsUploadModalOpen(false);
-                resetUpload();
-                setPasteFiles([]);
-                setPastePreviews([]);
-                alert(`${pasteFiles.length} image(s) uploaded successfully!`);
+                setUploadProgress(100);
+                setTimeout(() => {
+                    setIsUploadModalOpen(false);
+                    resetUpload();
+                    setPasteFiles([]);
+                    setPastePreviews([]);
+                    setIsUploading(false);
+                    setUploadProgress(0);
+                    clearInterval(progressInterval);
+                    alert(`${pasteFiles.length} image(s) uploaded successfully!`);
+                }, 500);
             },
             onError: (errors) => {
                 console.error('Upload errors:', errors);
+                setIsUploading(false);
+                setUploadProgress(0);
+                clearInterval(progressInterval);
                 alert('Error uploading images. Please try again.');
             },
         });
@@ -443,18 +516,87 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                             {/* File Input */}
                             <div className="space-y-2">
                                 <Label className="text-gray-300">Files</Label>
-                                <Input
-                                    type="file"
-                                    multiple
-                                    accept="image/*"
-                                    onChange={handleFileSelect}
-                                    className="bg-gray-700 border-gray-600 text-white"
-                                    required
-                                />
-                                {uploadData.files.length > 0 && (
-                                    <p className="text-sm text-gray-400">
-                                        {uploadData.files.length} file(s) selected
-                                    </p>
+                                <div className="relative">
+                                    <Input
+                                        type="file"
+                                        multiple
+                                        accept="image/*"
+                                        onChange={handleFileSelect}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                                        required
+                                    />
+                                    <div 
+                                        className={`border-2 border-dashed rounded-lg p-6 text-center transition-all cursor-pointer ${
+                                            isDragOver 
+                                                ? 'border-blue-500 bg-blue-500/10' 
+                                                : 'border-gray-600 hover:border-gray-500 bg-gray-700/50 hover:bg-gray-700'
+                                        }`}
+                                        onDragOver={handleDragOver}
+                                        onDragLeave={handleDragLeave}
+                                        onDrop={handleDrop}
+                                    >
+                                        <div className="space-y-3">
+                                            <div className="text-4xl text-gray-400">📁</div>
+                                            <div>
+                                                <p className="text-sm font-medium text-white">
+                                                    {uploadData.files.length > 0 
+                                                        ? `${uploadData.files.length} file(s) selected`
+                                                        : isDragOver 
+                                                            ? 'Drop files here'
+                                                            : 'Click to choose files or drag and drop'
+                                                    }
+                                                </p>
+                                                <p className="text-xs text-gray-400 mt-1">
+                                                    {uploadData.files.length > 0 
+                                                        ? uploadData.files.map(f => f.name).join(', ')
+                                                        : 'Supports: JPG, PNG, GIF, WebP (max 10MB each)'
+                                                    }
+                                                </p>
+                                            </div>
+                                            {uploadData.files.length > 0 && (
+                                                <div className="space-y-3">
+                                                    <div className="flex flex-wrap gap-2 justify-center">
+                                                        {uploadData.files.slice(0, 3).map((file, index) => (
+                                                            <div key={index} className="bg-blue-600/20 text-blue-300 px-2 py-1 rounded text-xs">
+                                                                {file.name.length > 15 ? `${file.name.substring(0, 15)}...` : file.name}
+                                                            </div>
+                                                        ))}
+                                                        {uploadData.files.length > 3 && (
+                                                            <div className="bg-gray-600/20 text-gray-300 px-2 py-1 rounded text-xs">
+                                                                +{uploadData.files.length - 3} more
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="outline"
+                                                        size="sm"
+                                                        onClick={() => setUploadData('files', [])}
+                                                        className="border-gray-600 text-gray-300 hover:text-white hover:bg-gray-700 text-xs"
+                                                    >
+                                                        <X className="mr-1 h-3 w-3" />
+                                                        Clear Files
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Progress Bar */}
+                                {isUploading && (
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm text-gray-400">
+                                            <span>Uploading files...</span>
+                                            <span>{Math.round(uploadProgress)}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-700 rounded-full h-2">
+                                            <div 
+                                                className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
                                 )}
                             </div>
 
@@ -506,10 +648,10 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                                 </Button>
                                 <Button 
                                     type="submit" 
-                                    disabled={uploadProcessing || uploadData.files.length === 0}
+                                    disabled={uploadProcessing || uploadData.files.length === 0 || isUploading}
                                     className="bg-blue-600 hover:bg-blue-700 text-white"
                                 >
-                                    {uploadProcessing ? 'Uploading...' : 'Upload Files'}
+                                    {isUploading ? `Uploading... ${Math.round(uploadProgress)}%` : uploadProcessing ? 'Uploading...' : 'Upload Files'}
                                 </Button>
                             </div>
                         </form>
@@ -665,6 +807,22 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                                     )}
                                 </div>
 
+                                {/* Progress Bar for Paste Upload */}
+                                {isUploading && (
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm text-gray-400">
+                                            <span>Uploading images...</span>
+                                            <span>{Math.round(uploadProgress)}%</span>
+                                        </div>
+                                        <div className="w-full bg-gray-700 rounded-full h-2">
+                                            <div 
+                                                className="bg-blue-600 h-2 rounded-full transition-all duration-300 ease-out"
+                                                style={{ width: `${uploadProgress}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {/* Folder */}
                                 <div className="space-y-2">
                                     <Label className="text-gray-300">Folder (Optional)</Label>
@@ -713,10 +871,10 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
                                     </Button>
                                     <Button 
                                         type="submit" 
-                                        disabled={pasteFiles.length === 0}
+                                        disabled={pasteFiles.length === 0 || isUploading}
                                         className="bg-blue-600 hover:bg-blue-700 text-white"
                                     >
-                                        Upload {pasteFiles.length} Image{pasteFiles.length !== 1 ? 's' : ''}
+                                        {isUploading ? `Uploading... ${Math.round(uploadProgress)}%` : `Upload ${pasteFiles.length} Image${pasteFiles.length !== 1 ? 's' : ''}`}
                                     </Button>
                                 </div>
                             </form>

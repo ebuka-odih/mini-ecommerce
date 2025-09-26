@@ -3,6 +3,7 @@ import { Link } from '@inertiajs/react';
 import MainLayout from '@/layouts/main-layout';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { formatPriceWithCurrency } from '@/lib/fashion-utils';
 
 interface HomepageLayout {
     id: string;
@@ -229,10 +230,10 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                             {product.is_on_sale ? (
                                                 <>
                                                     <span className="text-2xl font-semibold">
-                                                        ₦{product.final_price.toLocaleString()}
+                                                        {formatPriceWithCurrency(product.final_price, settings)}
                                                     </span>
                                                     <span className="text-lg line-through opacity-60">
-                                                        ₦{product.price.toLocaleString()}
+                                                        {formatPriceWithCurrency(product.price, settings)}
                                                     </span>
                                                     <span className="bg-red-500 text-white px-2 py-1 text-xs rounded">
                                                         -{product.discount_percentage}%
@@ -240,7 +241,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                                 </>
                                             ) : (
                                                 <span className="text-2xl font-semibold">
-                                                    ₦{product.price.toLocaleString()}
+                                                    {formatPriceWithCurrency(product.price, settings)}
                                                 </span>
                                             )}
                                         </div>

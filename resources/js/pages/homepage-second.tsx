@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { ArrowRight, ShoppingBag, ShoppingCart, Menu, X, Loader2, Plus, Minus, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/cart-context';
 import { useToast } from '@/components/ui/toast';
+import { formatPriceWithCurrency } from '@/lib/fashion-utils';
 
 interface Product {
   id: number;
@@ -46,20 +47,22 @@ interface BlackThemeProps {
   featuredProducts: Product[];
   categories: Category[];
   sliderImages?: SliderImage[];
+  settings?: {
+    site_name: string;
+    site_logo: string;
+    currency: string;
+    theme: string;
+  };
 }
 
 // Cart Sidebar Component
-const CartSidebar: React.FC = () => {
+const CartSidebar: React.FC<{ settings?: { currency: string } }> = ({ settings }) => {
   const { cartItems, cartCount, cartTotal, isLoading, updateQuantity, removeFromCart, clearCart, addToCart } = useCart();
   const { toast } = useToast();
   const [isUpdating, setIsUpdating] = React.useState<string | null>(null);
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-NG', {
-      style: 'currency',
-      currency: 'NGN',
-      minimumFractionDigits: 0,
-    }).format(amount);
+    return formatPriceWithCurrency(amount, settings);
   };
 
   const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
@@ -213,7 +216,7 @@ const CartSidebar: React.FC = () => {
   );
 };
 
-export default function BlackTheme({ featuredProducts, categories, sliderImages = [] }: BlackThemeProps) {
+export default function BlackTheme({ featuredProducts, categories, sliderImages = [], settings }: BlackThemeProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { cartCount, addToCart } = useCart();
   const { addToast } = useToast();
@@ -342,7 +345,7 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
             {/* Right side icons */}
             <div className="flex items-center space-x-4">
               <div className="relative">
-                <CartSidebar />
+                <CartSidebar settings={settings} />
                 {cartCount > 0 && (
                   <Badge className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-1.5 py-0.5 rounded-full border-2 border-black">
                     {cartCount}
@@ -455,7 +458,7 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
                     </h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-white">₦15,000</span>
+                        <span className="text-2xl font-bold text-white">{formatPriceWithCurrency(15000, settings)}</span>
                       </div>
                       <Button 
                         size="sm"
@@ -493,7 +496,7 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
                     </h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-white">₦25,000</span>
+                        <span className="text-2xl font-bold text-white">{formatPriceWithCurrency(25000, settings)}</span>
                       </div>
                       <Button 
                         size="sm"
@@ -531,7 +534,7 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
                     </h3>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl font-bold text-white">₦45,000</span>
+                        <span className="text-2xl font-bold text-white">{formatPriceWithCurrency(45000, settings)}</span>
                       </div>
                       <Button 
                         size="sm"
@@ -577,11 +580,11 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
                       <div className="flex items-center space-x-2">
                         {product.sale_price && product.sale_price < product.price ? (
                           <>
-                            <span className="text-2xl font-bold text-white">₦{product.sale_price.toLocaleString()}</span>
-                            <span className="text-lg text-gray-500 line-through">₦{product.price.toLocaleString()}</span>
+                            <span className="text-2xl font-bold text-white">{formatPriceWithCurrency(product.sale_price, settings)}</span>
+                            <span className="text-lg text-gray-500 line-through">{formatPriceWithCurrency(product.price, settings)}</span>
                           </>
                         ) : (
-                          <span className="text-2xl font-bold text-white">₦{product.price.toLocaleString()}</span>
+                          <span className="text-2xl font-bold text-white">{formatPriceWithCurrency(product.price, settings)}</span>
                         )}
                       </div>
                       <Button 

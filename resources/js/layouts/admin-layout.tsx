@@ -359,7 +359,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                                 <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0"></div>
                                                 <div className="flex-1">
                                                     <p className="text-sm text-white font-medium">Payment received</p>
-                                                    <p className="text-xs text-gray-400">₦25,000 from Sarah Wilson</p>
+                                                    <p className="text-xs text-gray-400">$25,000 from Sarah Wilson</p>
                                                     <p className="text-xs text-gray-500 mt-1">3 hours ago</p>
                                                 </div>
                                             </div>

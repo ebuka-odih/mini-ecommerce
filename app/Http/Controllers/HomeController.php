@@ -304,10 +304,19 @@ class HomeController extends Controller
                 ->toArray();
         }
 
+        // Get settings for the homepage
+        $settings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS3.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+            'theme' => Setting::getValue('theme', 'dark'),
+        ];
+
         return Inertia::render('homepage-second', [
             'featuredProducts' => $featuredProducts,
             'categories' => $categories,
-            'sliderImages' => $sliderImages
+            'sliderImages' => $sliderImages,
+            'settings' => $settings
         ]);
     }
     
