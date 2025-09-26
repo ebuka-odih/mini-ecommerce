@@ -57,6 +57,13 @@ class NewProductController extends Controller
         $sizes = Size::active()->ordered()->get();
         $colors = Color::active()->ordered()->get();
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+        ];
+
         return Inertia::render('admin/products', [
             'products' => $products,
             'categories' => $categories,
@@ -66,7 +73,8 @@ class NewProductController extends Controller
                 'search' => $request->search,
                 'category' => $request->category,
                 'status' => $request->status,
-            ]
+            ],
+            'site_settings' => $siteSettings,
         ]);
     }
 
@@ -234,11 +242,19 @@ class NewProductController extends Controller
         $sizes = Size::active()->ordered()->get();
         $colors = Color::active()->ordered()->get();
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+        ];
+
         return Inertia::render('admin/products/edit', [
             'product' => $product,
             'categories' => $categories,
             'sizes' => $sizes,
-            'colors' => $colors
+            'colors' => $colors,
+            'site_settings' => $siteSettings,
         ]);
     }
 

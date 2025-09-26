@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Carbon\Carbon;
@@ -63,13 +64,20 @@ class CustomerController extends Controller
             'total_customer_value' => Order::where('payment_status', 'paid')->sum('total'),
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/customers', [
             'customers' => $customers,
             'stats' => $stats,
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
-            ]
+            ],
+            'site_settings' => $siteSettings,
         ]);
     }
 

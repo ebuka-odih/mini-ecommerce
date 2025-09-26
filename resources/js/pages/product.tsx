@@ -82,6 +82,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
     const { addToast } = useToast();
     const { addToCart } = useCart();
 
+
     // Set default selected image
     React.useEffect(() => {
         if (product.images && product.images.length > 0 && !selectedImage) {

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -49,6 +50,12 @@ class OrderController extends Controller
             'orders_today' => Order::whereDate('created_at', today())->count(),
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/orders', [
             'orders' => $orders,
             'stats' => $stats,
@@ -61,6 +68,7 @@ class OrderController extends Controller
                 'total_orders' => $stats['total_orders'],
                 'pending_orders' => $stats['pending_orders'],
             ],
+            'site_settings' => $siteSettings,
         ]);
     }
 

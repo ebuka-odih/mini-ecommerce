@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Str;
@@ -33,12 +34,19 @@ class CategoryController extends Controller
 
         $categories = $query->orderBy('created_at', 'desc')->get();
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/categories', [
             'categories' => $categories,
             'filters' => [
                 'search' => $request->search,
                 'status' => $request->status,
-            ]
+            ],
+            'site_settings' => $siteSettings,
         ]);
     }
 

@@ -122,6 +122,11 @@ interface ProductsPageProps {
         category?: string;
         status?: string;
     };
+    site_settings?: {
+        site_name: string;
+        site_logo: string;
+        currency: string;
+    };
 }
 
 const ProductsPage: React.FC<ProductsPageProps> = ({ 
@@ -129,7 +134,8 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
     categories = [],
     sizes = [],
     colors = [],
-    filters = {}
+    filters = {},
+    site_settings
 }) => {
     const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState(filters.search || '');
@@ -428,11 +434,18 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
     };
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-NG', {
+        const currency = site_settings?.currency || 'NGN';
+        if (currency === 'NGN') {
+            return new Intl.NumberFormat('en-NG', {
+                style: 'currency',
+                currency: currency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+            }).format(price);
+        }
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'NGN',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0,
+            currency: currency,
         }).format(price);
     };
 
