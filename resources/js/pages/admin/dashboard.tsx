@@ -47,6 +47,10 @@ interface AdminDashboardProps {
         total_orders: number;
         pending_orders: number;
     };
+    site_settings?: {
+        site_name: string;
+        site_logo: string;
+    };
 }
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ 
@@ -62,7 +66,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     },
     recent_orders = [],
     low_stock_products = [],
-    layout_stats
+    layout_stats,
+    site_settings
 }) => {
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -94,7 +99,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     };
 
     return (
-        <AdminLayout title="Dashboard - GNOSIS Admin" stats={layout_stats}>
+        <AdminLayout title="Dashboard - GNOSIS Admin" stats={layout_stats} site_settings={site_settings}>
             <Head title="Dashboard" />
             
             <PageHeader 

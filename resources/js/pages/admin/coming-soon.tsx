@@ -20,9 +20,13 @@ interface ComingSoonPageProps {
   settings: ComingSoonSettings;
   success?: string;
   error?: string;
+  site_settings?: {
+    site_name: string;
+    site_logo: string;
+  };
 }
 
-export default function ComingSoonPage({ settings, success, error }: ComingSoonPageProps) {
+export default function ComingSoonPage({ settings, success, error, site_settings }: ComingSoonPageProps) {
   const { data, setData, put, processing, errors, reset } = useForm({
     enabled: settings.enabled,
     message: settings.message,
@@ -85,7 +89,7 @@ export default function ComingSoonPage({ settings, success, error }: ComingSoonP
   };
 
   return (
-    <AdminLayout title="Coming Soon Settings">
+    <AdminLayout title="Coming Soon Settings" site_settings={site_settings}>
       <Head title="Coming Soon Settings" />
       
       <div className="max-w-4xl mx-auto space-y-6">

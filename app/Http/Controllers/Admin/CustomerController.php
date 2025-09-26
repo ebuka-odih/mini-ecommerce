@@ -100,9 +100,16 @@ class CustomerController extends Controller
             'last_order_date' => $customer->orders->first()?->created_at,
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/customers/show', [
             'customer' => $customer,
-            'customerStats' => $customerStats
+            'customerStats' => $customerStats,
+            'site_settings' => $siteSettings,
         ]);
     }
 
@@ -116,9 +123,16 @@ class CustomerController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/customers/orders', [
             'customer' => $customer,
-            'orders' => $orders
+            'orders' => $orders,
+            'site_settings' => $siteSettings,
         ]);
     }
 

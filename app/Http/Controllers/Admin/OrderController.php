@@ -79,8 +79,15 @@ class OrderController extends Controller
     {
         $order->load(['user', 'orderItems.product']);
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/orders/show', [
-            'order' => $order
+            'order' => $order,
+            'site_settings' => $siteSettings,
         ]);
     }
 
@@ -172,8 +179,15 @@ class OrderController extends Controller
                 ->get(),
         ];
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/orders/analytics', [
-            'analytics' => $analytics
+            'analytics' => $analytics,
+            'site_settings' => $siteSettings,
         ]);
     }
 }

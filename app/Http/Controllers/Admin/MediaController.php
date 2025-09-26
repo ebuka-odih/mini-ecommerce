@@ -97,10 +97,17 @@ class MediaController extends Controller
     {
         $medium->load('uploader');
         
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/media-detail', [
             'media' => $medium,
             'folders' => $this->mediaLibraryService->getFolders(),
             'tags' => $this->mediaLibraryService->getTags(),
+            'site_settings' => $siteSettings,
         ]);
     }
 

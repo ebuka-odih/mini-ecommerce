@@ -26,9 +26,13 @@ interface SettingsPageProps {
     success?: string;
     error?: string;
   };
+  site_settings?: {
+    site_name: string;
+    site_logo: string;
+  };
 }
 
-export default function SettingsPage({ settings, flash }: SettingsPageProps) {
+export default function SettingsPage({ settings, flash, site_settings }: SettingsPageProps) {
   const [activeTab, setActiveTab] = useState('general');
   const [showSuccess, setShowSuccess] = useState(!!flash?.success);
   const [showError, setShowError] = useState(!!flash?.error);
@@ -127,7 +131,7 @@ export default function SettingsPage({ settings, flash }: SettingsPageProps) {
   };
 
   return (
-    <AdminLayout title="Settings">
+    <AdminLayout title="Settings" site_settings={site_settings}>
       <Head title="Settings" />
       
       <div className="max-w-[1400px] mx-auto space-y-6">

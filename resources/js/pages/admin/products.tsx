@@ -450,7 +450,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
     };
 
     return (
-        <AdminLayout title="Products - GNOSIS Admin">
+        <AdminLayout title="Products - GNOSIS Admin" site_settings={site_settings}>
             <Head title="Products" />
             
             <PageHeader 

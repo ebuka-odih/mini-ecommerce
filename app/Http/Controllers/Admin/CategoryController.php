@@ -95,8 +95,15 @@ class CategoryController extends Controller
             $q->orderBy('name');
         }]);
 
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/categories/show', [
-            'category' => $category
+            'category' => $category,
+            'site_settings' => $siteSettings,
         ]);
     }
 
@@ -105,8 +112,15 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
+        // Get site settings for layout
+        $siteSettings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+        ];
+
         return Inertia::render('admin/categories/edit', [
-            'category' => $category
+            'category' => $category,
+            'site_settings' => $siteSettings,
         ]);
     }
 

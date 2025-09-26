@@ -26,9 +26,13 @@ interface SliderSettingsPageProps {
     success?: string;
     error?: string;
   };
+  site_settings?: {
+    site_name: string;
+    site_logo: string;
+  };
 }
 
-export default function SliderSettingsPage({ images, selectedImages, flash }: SliderSettingsPageProps) {
+export default function SliderSettingsPage({ images, selectedImages, flash, site_settings }: SliderSettingsPageProps) {
   const [showSuccess, setShowSuccess] = useState(!!flash?.success);
   const [showError, setShowError] = useState(!!flash?.error);
   const [previewImage, setPreviewImage] = useState<MediaImage | null>(null);
@@ -74,7 +78,7 @@ export default function SliderSettingsPage({ images, selectedImages, flash }: Sl
   const selectedImagesData = images.filter(img => data.selectedImages.includes(img.id));
 
   return (
-    <AdminLayout title="Slider Settings">
+    <AdminLayout title="Slider Settings" site_settings={site_settings}>
       <Head title="Homepage Slider Settings" />
       
       <div className="space-y-6">

@@ -44,6 +44,8 @@ class Product extends Model
         'price' => 'decimal:2',
         'sale_price' => 'decimal:2',
         'weight' => 'decimal:2',
+        'stock' => 'integer',
+        'stock_quantity' => 'integer',
     ];
 
     protected static function boot()

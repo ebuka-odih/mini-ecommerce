@@ -21,9 +21,13 @@ interface AdminProfileProps {
     success?: string;
     error?: string;
   };
+  site_settings?: {
+    site_name: string;
+    site_logo: string;
+  };
 }
 
-export default function AdminProfile({ user, flash }: AdminProfileProps) {
+export default function AdminProfile({ user, flash, site_settings }: AdminProfileProps) {
   const [activeTab, setActiveTab] = useState('profile');
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -74,7 +78,7 @@ export default function AdminProfile({ user, flash }: AdminProfileProps) {
   };
 
   return (
-    <AdminLayout title="Profile Settings">
+    <AdminLayout title="Profile Settings" site_settings={site_settings}>
       <Head title="Profile Settings" />
       
       <div className="max-w-[1400px] mx-auto space-y-6">

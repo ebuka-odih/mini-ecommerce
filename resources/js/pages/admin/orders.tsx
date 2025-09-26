@@ -79,6 +79,10 @@ interface OrdersPageProps {
         total_orders: number;
         pending_orders: number;
     };
+    site_settings?: {
+        site_name: string;
+        site_logo: string;
+    };
 }
 
 const Orders: React.FC<OrdersPageProps> = ({ 
@@ -89,7 +93,8 @@ const Orders: React.FC<OrdersPageProps> = ({
         completed_orders: 0,
         total_revenue: 0
     },
-    layout_stats
+    layout_stats,
+    site_settings
 }) => {
     const [selectedOrder, setSelectedOrder] = React.useState<Order | null>(null);
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -174,7 +179,7 @@ const Orders: React.FC<OrdersPageProps> = ({
     });
 
     return (
-        <AdminLayout title="Orders - GNOSIS Admin" stats={layout_stats}>
+        <AdminLayout title="Orders - GNOSIS Admin" stats={layout_stats} site_settings={site_settings}>
             <Head title="Orders Management" />
             
             <PageHeader 
