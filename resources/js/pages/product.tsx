@@ -82,6 +82,9 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
     const { addToast } = useToast();
     const { addToCart } = useCart();
 
+    // Check if dark theme is active
+    const isDarkTheme = settings?.theme === 'dark';
+
 
     // Set default selected image
     React.useEffect(() => {
