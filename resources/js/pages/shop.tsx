@@ -497,57 +497,6 @@ const Shop: React.FC<ShopPageProps> = ({
                 </div>
             </section>
 
-            {/* Category Showcase Section */}
-            <section className={`${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'} py-16`}>
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className={`text-3xl lg:text-4xl font-light tracking-wider mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
-                            SHOP BY CATEGORY
-                        </h2>
-                        <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} max-w-2xl mx-auto`}>
-                            Explore our collections designed for every style and occasion
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        {[
-                            { name: 'Sunglasses', slug: 'sunglasses', color: 'from-slate-800 to-slate-600' },
-                            { name: 'Shorts', slug: 'shorts', color: 'from-blue-600 to-indigo-700' },
-                            { name: 'Casual Wear', slug: 'casual', color: 'from-amber-600 to-orange-700' },
-                            { name: 'Dresses', slug: 'dresses', color: 'from-rose-600 to-pink-700' }
-                        ].map((category) => (
-                            <Link
-                                key={category.slug}
-                                href={`/shop?category=${category.slug}`}
-                                className="group"
-                            >
-                                <div className={`relative h-64 rounded-xl bg-gradient-to-br ${category.color} overflow-hidden transition-all duration-500 hover:scale-[1.02] fashion-shadow`}>
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent"></div>
-                                    
-                                    {/* Category placeholder */}
-                                    <div className="w-full h-full flex items-center justify-center">
-                                        <div className="text-center text-white/80 z-20 relative">
-                                            <div className="w-16 h-16 bg-white/10 rounded-full mx-auto mb-4 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-                                                <div className="w-8 h-8 bg-white/20 rounded-full"></div>
-                                            </div>
-                                            <p className="text-sm font-light tracking-wider opacity-80">
-                                                {category.name.toUpperCase()}
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="absolute bottom-6 left-6 z-30 text-white">
-                                        <h3 className="text-lg font-light tracking-wider">
-                                            {category.name.toUpperCase()}
-                                        </h3>
-                                        <p className="text-sm opacity-80 mt-1">Shop Collection</p>
-                                    </div>
-                                </div>
-                            </Link>
-                        ))}
-                    </div>
-                </div>
-            </section>
         </MainLayout>
     );
 };

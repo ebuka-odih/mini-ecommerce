@@ -332,49 +332,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
 
                 {/* Footer */}
                 <footer className={`${isDarkTheme ? 'bg-gray-900 border-gray-800' : 'bg-gray-50'} border-t`}>
-                    <div className="container mx-auto px-4 py-12">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-                            <div>
-                                <div className="mb-4">
-                                    <img 
-                                        src={siteLogo} 
-                                        alt={siteName} 
-                                        className="h-8 w-auto"
-                                    />
-                                </div>
-                                <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} text-sm`}>
-                                    Premium fashion brand delivering quality and style.
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Shop</h4>
-                                <ul className={`space-y-2 text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>All Products</Link></li>
-                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>New Arrivals</Link></li>
-                                    <li><Link href="/shop" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Sale</Link></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Support</h4>
-                                <ul className={`space-y-2 text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
-                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Contact Us</Link></li>
-                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Size Guide</Link></li>
-                                    <li><Link href="#" className={`${isDarkTheme ? 'hover:text-white' : 'hover:text-black'}`}>Returns</Link></li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className={`font-semibold mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Follow Us</h4>
-                                <div className="flex space-x-4">
-                                    <a href="#" className={`${isDarkTheme ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
-                                        Instagram
-                                    </a>
-                                    <a href="#" className={`${isDarkTheme ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-black'}`}>
-                                        Twitter
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className={`border-t mt-8 pt-8 text-center text-sm ${isDarkTheme ? 'border-gray-800 text-gray-400' : 'text-gray-600'}`}>
+                    <div className="container mx-auto px-4 py-8">
+                        <div className={`text-center text-sm ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
                             <p>&copy; 2025 {siteName}. All rights reserved.</p>
                         </div>
                     </div>
