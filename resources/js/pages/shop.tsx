@@ -455,6 +455,7 @@ const Shop: React.FC<ShopPageProps> = ({
                                             key={product.id}
                                             product={product}
                                             className={viewMode === 'list' ? 'flex flex-row' : ''}
+                                            settings={settings}
                                         />
                                     ))}
                                 </div>
