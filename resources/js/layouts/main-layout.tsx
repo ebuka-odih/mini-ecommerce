@@ -249,7 +249,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                                 <Link
                                                     key={item.name}
                                                     href={item.href}
-                                                            className="text-base font-medium text-gray-900 hover:text-gray-600 transition-colors py-2 border-b border-gray-100 last:border-b-0"
+                                                            className={`text-base font-medium transition-colors py-2 border-b border-gray-100 last:border-b-0 ${isDarkTheme ? 'text-white hover:text-gray-300' : 'text-gray-900 hover:text-gray-600'}`}
                                                         >
                                                             <div className="flex items-center justify-between">
                                                                 <span>{item.name}</span>
@@ -281,7 +281,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                     <Link
                                         key={item.name}
                                         href={item.href}
-                                        className="text-sm font-medium text-gray-700 hover:text-black transition-colors relative group"
+                                        className={`text-sm font-medium transition-colors relative group ${isDarkTheme ? 'text-white hover:text-gray-300' : 'text-gray-700 hover:text-black'}`}
                                     >
                                         {item.name}
                                         {item.hasDropdown && (
