@@ -84,9 +84,6 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
         return;
       }
 
-      const formData = new FormData();
-      formData.append('logo', file);
-
       try {
         addToast({
           title: "Uploading...",
@@ -94,31 +91,36 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
           type: "info",
         });
 
-        const response = await fetch('/admin/settings/upload-logo', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-          },
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          setData('site_logo', result.url);
-          setLogoKey(prev => prev + 1); // Force image re-render
-          addToast({
-            title: "Logo uploaded",
-            description: "Logo has been uploaded successfully.",
-            type: "success",
-          });
-        } else {
-          addToast({
-            title: "Upload failed",
-            description: result.message || "Failed to upload logo. Please try again.",
-            type: "error",
-          });
-        }
+        // Use Inertia's post method with FormData for proper CSRF handling
+        router.post('/admin/settings/upload-logo', 
+          { logo: file },
+          {
+            forceFormData: true,
+            onSuccess: (page) => {
+              // The response should be JSON with success and url
+              if (page.props.flash?.success) {
+                const logoUrl = page.props.flash.logo_url || page.props.logo_url;
+                if (logoUrl) {
+                  setData('site_logo', logoUrl);
+                  setLogoKey(prev => prev + 1); // Force image re-render
+                }
+                addToast({
+                  title: "Logo uploaded",
+                  description: "Logo has been uploaded successfully.",
+                  type: "success",
+                });
+              }
+            },
+            onError: (errors) => {
+              console.error('Logo upload errors:', errors);
+              addToast({
+                title: "Upload failed",
+                description: "Failed to upload logo. Please try again.",
+                type: "error",
+              });
+            },
+          }
+        );
       } catch (error) {
         console.error('Logo upload error:', error);
         addToast({

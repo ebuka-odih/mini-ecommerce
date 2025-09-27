@@ -76,16 +76,14 @@ class SettingsController extends Controller
             // Update the setting
             Setting::setValue('site_logo', $logoUrl, 'string', 'general', 'Website logo path');
             
-            return response()->json([
-                'success' => true,
-                'url' => $logoUrl
+            // Return redirect with flash data for Inertia
+            return redirect()->back()->with([
+                'success' => 'Logo uploaded successfully!',
+                'logo_url' => $logoUrl
             ]);
         }
 
-        return response()->json([
-            'success' => false,
-            'message' => 'No file uploaded'
-        ], 400);
+        return redirect()->back()->with('error', 'No file uploaded');
     }
 }
 
