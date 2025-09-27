@@ -80,9 +80,10 @@ class Image extends Model
         // Fix for incorrect APP_URL - replace with correct domain
         $url = str_replace('marodesignclothings.test', 'gnosisbrand.test', $url);
         
-        // Fix localhost URLs for production
+        // Fix localhost URLs for production - handle all localhost variations
         if (str_contains($url, 'localhost')) {
-            $url = str_replace('http://localhost', config('app.url'), $url);
+            // Replace any localhost URL with the configured APP_URL
+            $url = preg_replace('/^https?:\/\/localhost(?::\d+)?/', config('app.url'), $url);
         }
         
         return $url;
@@ -104,9 +105,10 @@ class Image extends Model
             // Fix for incorrect APP_URL - replace with correct domain
             $url = str_replace('marodesignclothings.test', 'gnosisbrand.test', $url);
             
-            // Fix localhost URLs for production
+            // Fix localhost URLs for production - handle all localhost variations
             if (str_contains($url, 'localhost')) {
-                $url = str_replace('http://localhost', config('app.url'), $url);
+                // Replace any localhost URL with the configured APP_URL
+                $url = preg_replace('/^https?:\/\/localhost(?::\d+)?/', config('app.url'), $url);
             }
             
             return $url;
@@ -126,9 +128,10 @@ class Image extends Model
             // Fix for incorrect APP_URL - replace with correct domain
             $url = str_replace('marodesignclothings.test', 'gnosisbrand.test', $url);
             
-            // Fix localhost URLs for production
+            // Fix localhost URLs for production - handle all localhost variations
             if (str_contains($url, 'localhost')) {
-                $url = str_replace('http://localhost', config('app.url'), $url);
+                // Replace any localhost URL with the configured APP_URL
+                $url = preg_replace('/^https?:\/\/localhost(?::\d+)?/', config('app.url'), $url);
             }
             
             return $url;
