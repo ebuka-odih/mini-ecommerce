@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Heart, ShoppingBag, Menu, X, Plus, Minus, Trash2, Loader2 } from 'lucide-react';
+import { ShoppingBag, Menu, X, Plus, Minus, Trash2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -208,9 +208,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
     const currency = settings?.currency || 'NGN';
 
     const navigationItems: NavigationItem[] = [
-        { name: 'DEMOS', href: '#', hasDropdown: true },
-        { name: 'PAGES', href: '#', hasDropdown: true },
-        { name: 'COLLECTION', href: '/shop' },
+        { name: 'HOME', href: '/' },
         { name: 'SHOP', href: '/shop' },
     ];
 
@@ -240,7 +238,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                                 <img 
                                                     src={siteLogo} 
                                                     alt={siteName} 
-                                                    className="h-6 w-auto"
+                                                    className="h-8 w-auto"
                                                 />
                                             </div>
                                             
@@ -267,9 +265,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                             {/* Mobile Menu Footer */}
                                             <div className="p-6 border-t bg-gray-50">
                                                 <div className="flex flex-col space-y-3">
-                                                    <Link href="/account" className="text-sm text-gray-600 hover:text-black">
-                                                        My Account
-                                                    </Link>
                                                     <Link href="/contact" className="text-sm text-gray-600 hover:text-black">
                                                         Contact Us
                                                     </Link>
@@ -282,7 +277,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
 
                             {/* Desktop Navigation */}
                             <nav className="hidden lg:flex items-center space-x-8">
-                                {navigationItems.slice(0, 3).map((item) => (
+                                {navigationItems.map((item) => (
                                     <Link
                                         key={item.name}
                                         href={item.href}
@@ -303,7 +298,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                     <img 
                                         src={siteLogo} 
                                         alt={siteName} 
-                                        className="h-8 lg:h-10 w-auto"
+                                        className="h-10 lg:h-12 w-auto"
                                     />
                                 </Link>
                             </div>
@@ -313,11 +308,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
 
                             {/* Right Actions */}
                             <div className="flex items-center gap-1">
-                                {/* Wishlist */}
-                                <Button variant="ghost" size="sm" className="relative hover:bg-gray-100 transition-colors">
-                                    <Heart className="h-6 w-6" />
-                                </Button>
-
                                 {/* Cart */}
                                 <CartSidebar />
                             </div>
