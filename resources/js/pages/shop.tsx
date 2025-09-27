@@ -378,7 +378,7 @@ const Shop: React.FC<ShopPageProps> = ({
                         <aside className="hidden lg:block w-64 flex-shrink-0">
                             <div className={`${isDarkTheme ? 'bg-gray-900 border-gray-800' : 'bg-white'} rounded-lg p-6 shadow-sm border`}>
                                 <div className="flex items-center justify-between mb-6">
-                                    <h3 className="font-semibold text-lg">Filters</h3>
+                                    <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Filters</h3>
                                     {activeFilterCount > 0 && (
                                         <Button
                                             variant="ghost"
@@ -393,7 +393,7 @@ const Shop: React.FC<ShopPageProps> = ({
 
                                 {/* Categories Filter */}
                                 <div className="mb-8">
-                                    <h4 className="font-medium mb-4">Categories</h4>
+                                    <h4 className={`font-medium mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Categories</h4>
                                     <div className="space-y-3">
                                         {categories.map((category) => (
                                             <label key={category.id} className="flex items-center gap-3 cursor-pointer">
@@ -401,9 +401,9 @@ const Shop: React.FC<ShopPageProps> = ({
                                                     type="checkbox"
                                                     checked={current_filters.category?.includes(category.slug) || false}
                                                     onChange={() => handleFilterChange('category', category.slug)}
-                                                    className="rounded border-gray-300 text-black focus:ring-black"
+                                                    className={`rounded border-gray-300 text-black focus:ring-black ${isDarkTheme ? 'bg-gray-700 border-gray-600' : ''}`}
                                                 />
-                                                <span className="text-sm text-gray-700 hover:text-black">
+                                                <span className={`text-sm ${isDarkTheme ? 'text-white hover:text-gray-300' : 'text-gray-700 hover:text-black'}`}>
                                                     {category.name}
                                                 </span>
                                             </label>
