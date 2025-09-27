@@ -34,7 +34,7 @@
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-DDpiw4CX.css",
+    "file": "assets/app-CAOYaWrZ.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -42,7 +42,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-C5zB4YBY.js",
+    "file": "assets/app-DaAkhOeq.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -54,7 +54,7 @@
       "_vendor-ClZwdvRs.js"
     ],
     "css": [
-      "assets/app-DDpiw4CX.css"
+      "assets/app-CAOYaWrZ.css"
     ]
   }
 }

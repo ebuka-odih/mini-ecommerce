@@ -265,16 +265,16 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
 
             <div className="container mx-auto px-4 py-8">
                 {/* Breadcrumb */}
-                <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-6">
-                    <Link href="/" className="hover:text-gray-900">Home</Link>
+                <nav className={`flex items-center space-x-2 text-sm mb-6 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`}>
+                    <Link href="/" className={isDarkTheme ? 'hover:text-white' : 'hover:text-gray-900'}>Home</Link>
                     <span>/</span>
-                    <Link href="/shop" className="hover:text-gray-900">Shop</Link>
+                    <Link href="/shop" className={isDarkTheme ? 'hover:text-white' : 'hover:text-gray-900'}>Shop</Link>
                     <span>/</span>
-                    <Link href={`/shop?category=${product.category.slug}`} className="hover:text-gray-900">
+                    <Link href={`/shop?category=${product.category.slug}`} className={isDarkTheme ? 'hover:text-white' : 'hover:text-gray-900'}>
                         {product.category.name}
                     </Link>
                     <span>/</span>
-                    <span className="text-gray-900">{product.name}</span>
+                    <span className={isDarkTheme ? 'text-white' : 'text-gray-900'}>{product.name}</span>
                 </nav>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -347,7 +347,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                         </div>
 
                         {/* Title */}
-                        <h1 className="text-3xl lg:text-4xl font-light text-gray-900 tracking-wide">
+                        <h1 className={`text-3xl lg:text-4xl font-light tracking-wide ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                             {product.name}
                         </h1>
 
@@ -355,10 +355,10 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                         <div className="space-y-2">
                             {onSale ? (
                                 <div className="flex items-center space-x-3">
-                                    <span className="text-3xl font-semibold text-gray-900">
+                                    <span className={`text-3xl font-semibold ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                                         {formatPriceWithCurrency(product.sale_price!, settings)}
                                     </span>
-                                    <span className="text-xl text-gray-500 line-through">
+                                    <span className={`text-xl line-through ${isDarkTheme ? 'text-gray-400' : 'text-gray-500'}`}>
                                         {formatPriceWithCurrency(product.price, settings)}
                                     </span>
                                     <Badge className="bg-red-100 text-red-800">
@@ -366,7 +366,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     </Badge>
                                 </div>
                             ) : (
-                                <span className="text-3xl font-semibold text-gray-900">
+                                <span className={`text-3xl font-semibold ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                                     {formatPriceWithCurrency(product.price, settings)}
                                 </span>
                             )}
@@ -374,7 +374,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
 
                         {/* Description */}
                         {product.short_description && (
-                            <p className="text-gray-600 leading-relaxed">
+                            <p className={`leading-relaxed ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
                                 {product.short_description}
                             </p>
                         )}
@@ -386,7 +386,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     {/* Size Selection */}
                                     {availableSizes.length > 0 && (
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-gray-700">Size:</span>
+                                            <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Size:</span>
                                             <div className="flex gap-1">
                                                 {availableSizes.map((size) => (
                                                     <button
@@ -408,7 +408,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     {/* Color Selection */}
                                     {availableColors.length > 0 && (
                                         <div className="flex items-center gap-2">
-                                            <span className="text-sm font-medium text-gray-700">Color:</span>
+                                            <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Color:</span>
                                             <div className="flex gap-1">
                                                 {availableColors.map((color) => (
                                                     <button
@@ -433,11 +433,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                         {/* Quantity */}
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-gray-700">Quantity:</span>
+                                <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Quantity:</span>
                                 <span className={`text-xs font-medium ${
                                     currentStock <= 3 
-                                        ? 'text-red-600' 
-                                        : 'text-green-600'
+                                        ? 'text-red-500' 
+                                        : isDarkTheme ? 'text-green-400' : 'text-green-600'
                                 }`}>
                                     {currentStock <= 3 ? 'Low Stock' : 'In Stock'}
                                 </span>
@@ -446,15 +446,23 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                 <button
                                     onClick={decrementQuantity}
                                     disabled={quantity <= 1}
-                                    className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className={`w-8 h-8 rounded border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                                        isDarkTheme 
+                                            ? 'border-gray-600 bg-gray-800 hover:bg-gray-700 text-white' 
+                                            : 'border-gray-300 hover:bg-gray-50'
+                                    }`}
                                 >
                                     <Minus className="w-3 h-3" />
                                 </button>
-                                <span className="w-12 text-center font-medium text-sm">{quantity}</span>
+                                <span className={`w-12 text-center font-medium text-sm ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>{quantity}</span>
                                 <button
                                     onClick={incrementQuantity}
                                     disabled={quantity >= currentStock}
-                                    className="w-8 h-8 rounded border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className={`w-8 h-8 rounded border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                                        isDarkTheme 
+                                            ? 'border-gray-600 bg-gray-800 hover:bg-gray-700 text-white' 
+                                            : 'border-gray-300 hover:bg-gray-50'
+                                    }`}
                                 >
                                     <Plus className="w-3 h-3" />
                                 </button>
@@ -510,7 +518,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     }, 1000);
                                 }}
                                 disabled={currentStock <= 0 || isAddingToCart}
-                                className="w-full h-12 text-lg font-semibold rounded-xl border-2 border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white transition-all duration-300 hover:shadow-lg"
+                                className={`w-full h-12 text-lg font-semibold rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
+                                    isDarkTheme 
+                                        ? 'border-gray-400 text-white hover:bg-gray-400 hover:text-black' 
+                                        : 'border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white'
+                                }`}
                             >
                                 Buy Now
                             </Button>
@@ -521,36 +533,46 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     onClick={handleToggleWishlist}
                                     className={`flex-1 h-12 rounded-xl border-2 transition-all duration-300 ${
                                         isWishlisted 
-                                            ? 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100' 
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                            ? isDarkTheme
+                                                ? 'border-red-400 bg-red-900/20 text-red-400 hover:bg-red-900/30'
+                                                : 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
+                                            : isDarkTheme
+                                                ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800'
+                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
                                     }`}
                                 >
                                     <Heart className={`w-4 h-4 mr-2 transition-colors ${
-                                        isWishlisted ? 'fill-red-500 text-red-500' : 'text-gray-600'
+                                        isWishlisted 
+                                            ? 'fill-red-500 text-red-500' 
+                                            : isDarkTheme ? 'text-gray-400' : 'text-gray-600'
                                     }`} />
                                     {isWishlisted ? 'Wishlisted' : 'Wishlist'}
                                 </Button>
                                 <Button 
                                     variant="outline" 
-                                    className="flex-1 h-12 rounded-xl border-2 border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all duration-300"
+                                    className={`flex-1 h-12 rounded-xl border-2 transition-all duration-300 ${
+                                        isDarkTheme 
+                                            ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800' 
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                                    }`}
                                 >
-                                    <Share2 className="w-4 h-4 mr-2 text-gray-600" />
+                                    <Share2 className={`w-4 h-4 mr-2 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`} />
                                     Share
                                 </Button>
                             </div>
                         </div>
 
                         {/* Features */}
-                        <div className="space-y-4 pt-6 border-t border-gray-200">
-                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                        <div className={`space-y-4 pt-6 border-t ${isDarkTheme ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <div className={`flex items-center space-x-3 text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
                                 <Truck className="w-5 h-5" />
                                 <span>Free shipping on orders over {formatPriceWithCurrency(50000, settings)}</span>
                             </div>
-                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                            <div className={`flex items-center space-x-3 text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
                                 <Shield className="w-5 h-5" />
                                 <span>30-day return policy</span>
                             </div>
-                            <div className="flex items-center space-x-3 text-sm text-gray-600">
+                            <div className={`flex items-center space-x-3 text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
                                 <RotateCcw className="w-5 h-5" />
                                 <span>Easy returns and exchanges</span>
                             </div>
