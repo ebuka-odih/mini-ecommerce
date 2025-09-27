@@ -7,8 +7,8 @@
       "_ui-D9D1upTR.js"
     ]
   },
-  "_icons-CbPHcuOz.js": {
-    "file": "assets/icons-CbPHcuOz.js",
+  "_icons-BaD0fBd1.js": {
+    "file": "assets/icons-BaD0fBd1.js",
     "name": "icons",
     "imports": [
       "_inertia-DaK15SqE.js"
@@ -42,7 +42,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-DvLad0um.js",
+    "file": "assets/app-BG6_cAsg.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -50,7 +50,7 @@
       "_ui-D9D1upTR.js",
       "_inertia-DaK15SqE.js",
       "_headlessui-BwBWThWm.js",
-      "_icons-CbPHcuOz.js",
+      "_icons-BaD0fBd1.js",
       "_vendor-ClZwdvRs.js"
     ],
     "css": [

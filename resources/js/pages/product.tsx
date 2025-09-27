@@ -250,6 +250,45 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
         });
     };
 
+    const handleShare = async () => {
+        const productUrl = window.location.href;
+        const shareText = `Check out ${product.name} - ${formatPriceWithCurrency(product.price, settings)}`;
+        
+        if (navigator.share) {
+            // Use native Web Share API if available
+            try {
+                await navigator.share({
+                    title: product.name,
+                    text: shareText,
+                    url: productUrl,
+                });
+                addToast({
+                    title: 'Shared!',
+                    description: `${product.name} has been shared successfully.`,
+                    type: 'success',
+                    duration: 3000
+                });
+            } catch (error) {
+                // User cancelled or error occurred
+                console.log('Share cancelled or failed:', error);
+            }
+        } else {
+            // Fallback: Copy to clipboard
+            try {
+                await navigator.clipboard.writeText(`${shareText}\n${productUrl}`);
+                addToast({
+                    title: 'Link Copied!',
+                    description: 'Product link has been copied to clipboard.',
+                    type: 'success',
+                    duration: 3000
+                });
+            } catch (error) {
+                // Fallback: Show URL in alert
+                alert(`${shareText}\n${productUrl}`);
+            }
+        }
+    };
+
     const incrementQuantity = () => {
         if (quantity < currentStock) {
             setQuantity(quantity + 1);
@@ -530,39 +569,19 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                 Buy Now
                             </Button>
 
-                            <div className="flex space-x-4">
-                                <Button
-                                    variant="outline"
-                                    onClick={handleToggleWishlist}
-                                    className={`flex-1 h-12 rounded-xl border-2 transition-all duration-300 ${
-                                        isWishlisted 
-                                            ? isDarkTheme
-                                                ? 'border-red-400 bg-red-900/20 text-red-400 hover:bg-red-900/30'
-                                                : 'border-red-200 bg-red-50 text-red-600 hover:bg-red-100'
-                                            : isDarkTheme
-                                                ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800'
-                                                : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Heart className={`w-4 h-4 mr-2 transition-colors ${
-                                        isWishlisted 
-                                            ? 'fill-red-500 text-red-500' 
-                                            : isDarkTheme ? 'text-gray-400' : 'text-gray-600'
-                                    }`} />
-                                    {isWishlisted ? 'Wishlisted' : 'Wishlist'}
-                                </Button>
-                                <Button 
-                                    variant="outline" 
-                                    className={`flex-1 h-12 rounded-xl border-2 transition-all duration-300 ${
-                                        isDarkTheme 
-                                            ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800' 
-                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                                    }`}
-                                >
-                                    <Share2 className={`w-4 h-4 mr-2 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`} />
-                                    Share
-                                </Button>
-                            </div>
+                            {/* Share Button */}
+                            <Button 
+                                variant="outline" 
+                                onClick={handleShare}
+                                className={`w-full h-12 rounded-xl border-2 transition-all duration-300 ${
+                                    isDarkTheme 
+                                        ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800 text-white' 
+                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-900'
+                                }`}
+                            >
+                                <Share2 className={`w-4 h-4 mr-2 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`} />
+                                Share Product
+                            </Button>
                         </div>
 
                         {/* Features */}
