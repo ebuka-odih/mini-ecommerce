@@ -272,7 +272,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                     <span className="sr-only">Toggle navigation menu</span>
                                 </Button>
                             </SheetTrigger>
-                            <SheetContent side="left" className="flex flex-col w-80 bg-gray-800 border-r border-gray-700 shadow-lg">
+                            <SheetContent side="left" className="flex flex-col w-80 border-r border-gray-700 shadow-lg" style={{ backgroundColor: '#1f2937' }}>
                                 <SheetHeader>
                                     <SheetTitle className="sr-only">Admin Navigation Menu</SheetTitle>
                                 </SheetHeader>
