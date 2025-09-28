@@ -414,12 +414,6 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                             )}
                         </div>
 
-                        {/* Description */}
-                        {product.short_description && (
-                            <p className={`leading-relaxed ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
-                                {product.short_description}
-                            </p>
-                        )}
 
                         {/* Size and Color Selection */}
                         {(availableSizes.length > 0 || availableColors.length > 0) && (
@@ -602,6 +596,18 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                 <span>Easy returns and exchanges</span>
                             </div>
                         </div>
+
+                        {/* Product Description */}
+                        {product.short_description && (
+                            <div className={`pt-6 border-t ${isDarkTheme ? 'border-gray-700' : 'border-gray-200'}`}>
+                                <h3 className={`text-lg font-medium mb-3 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
+                                    Product Description
+                                </h3>
+                                <p className={`leading-relaxed ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                                    {product.short_description}
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
 
