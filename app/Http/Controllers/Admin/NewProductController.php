@@ -163,8 +163,8 @@ class NewProductController extends Controller
         // Handle product variations
         if ($request->has('has_variations') && $request->has_variations && $request->has('variations')) {
             foreach ($request->variations as $variationData) {
-                $sizeId = ($variationData['size_id'] && $variationData['size_id'] !== 'none') ? $variationData['size_id'] : null;
-                $colorId = ($variationData['color_id'] && $variationData['color_id'] !== 'none') ? $variationData['color_id'] : null;
+                $sizeId = (isset($variationData['size_id']) && $variationData['size_id'] && $variationData['size_id'] !== 'none') ? $variationData['size_id'] : null;
+                $colorId = (isset($variationData['color_id']) && $variationData['color_id'] && $variationData['color_id'] !== 'none') ? $variationData['color_id'] : null;
                 
                 // Validate that size and color IDs exist if provided
                 if ($sizeId && !Size::where('id', $sizeId)->exists()) {
@@ -379,8 +379,8 @@ class NewProductController extends Controller
         // Then create new variations if enabled
         if ($request->has('has_variations') && $request->has_variations && $request->has('variations')) {
             foreach ($request->variations as $variationData) {
-                $sizeId = ($variationData['size_id'] && $variationData['size_id'] !== 'none') ? $variationData['size_id'] : null;
-                $colorId = ($variationData['color_id'] && $variationData['color_id'] !== 'none') ? $variationData['color_id'] : null;
+                $sizeId = (isset($variationData['size_id']) && $variationData['size_id'] && $variationData['size_id'] !== 'none') ? $variationData['size_id'] : null;
+                $colorId = (isset($variationData['color_id']) && $variationData['color_id'] && $variationData['color_id'] !== 'none') ? $variationData['color_id'] : null;
                 
                 // Validate that size and color IDs exist if provided
                 if ($sizeId && !Size::where('id', $sizeId)->exists()) {

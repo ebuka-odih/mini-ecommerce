@@ -840,8 +840,8 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                     <div>
                                                         <Label htmlFor={`variation-${index}-size`} className="text-gray-300">Size</Label>
                                                         <Select
-                                                            value={variation.size_id?.toString() || ""}
-                                                            onValueChange={(value) => updateVariation(index, 'size_id', value ? parseInt(value) : undefined)}
+                                                            value={variation.size_id?.toString() || "none"}
+                                                            onValueChange={(value) => updateVariation(index, 'size_id', value === 'none' ? undefined : parseInt(value))}
                                                         >
                                                             <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                                                                 <SelectValue placeholder="Select size" />
@@ -865,8 +865,8 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                                     <div>
                                                         <Label htmlFor={`variation-${index}-color`} className="text-gray-300">Color</Label>
                                                         <Select
-                                                            value={variation.color_id?.toString() || ""}
-                                                            onValueChange={(value) => updateVariation(index, 'color_id', value ? parseInt(value) : undefined)}
+                                                            value={variation.color_id?.toString() || "none"}
+                                                            onValueChange={(value) => updateVariation(index, 'color_id', value === 'none' ? undefined : parseInt(value))}
                                                         >
                                                             <SelectTrigger className="bg-gray-700 border-gray-600 text-white">
                                                                 <SelectValue placeholder="Select color" />
