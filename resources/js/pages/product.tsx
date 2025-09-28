@@ -549,39 +549,42 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                 )}
                             </Button>
 
-                            {/* Buy Now Button */}
-                            <Button
-                                variant="outline"
-                                onClick={() => {
-                                    // First add to cart, then redirect to checkout
-                                    handleAddToCart();
-                                    setTimeout(() => {
-                                        router.visit('/checkout');
-                                    }, 1000);
-                                }}
-                                disabled={currentStock <= 0 || isAddingToCart}
-                                className={`w-full h-12 text-lg font-semibold rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
-                                    isDarkTheme 
-                                        ? 'border-gray-400 text-white hover:bg-gray-400 hover:text-black' 
-                                        : 'border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white'
-                                }`}
-                            >
-                                Buy Now
-                            </Button>
+                            {/* Buy Now and Share Buttons */}
+                            <div className="flex flex-col sm:flex-row gap-4">
+                                {/* Buy Now Button */}
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        // First add to cart, then redirect to checkout
+                                        handleAddToCart();
+                                        setTimeout(() => {
+                                            router.visit('/checkout');
+                                        }, 1000);
+                                    }}
+                                    disabled={currentStock <= 0 || isAddingToCart}
+                                    className={`flex-1 h-12 text-lg font-semibold rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
+                                        isDarkTheme 
+                                            ? 'border-gray-400 text-white hover:bg-gray-400 hover:text-black' 
+                                            : 'border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white'
+                                    }`}
+                                >
+                                    Buy Now
+                                </Button>
 
-                            {/* Share Button */}
-                            <Button 
-                                variant="outline" 
-                                onClick={handleShare}
-                                className={`w-full h-12 rounded-xl border-2 transition-all duration-300 ${
-                                    isDarkTheme 
-                                        ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800 text-white' 
-                                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-900'
-                                }`}
-                            >
-                                <Share2 className={`w-4 h-4 mr-2 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`} />
-                                Share Product
-                            </Button>
+                                {/* Share Button */}
+                                <Button 
+                                    variant="outline" 
+                                    onClick={handleShare}
+                                    className={`flex-1 h-12 rounded-xl border-2 transition-all duration-300 ${
+                                        isDarkTheme 
+                                            ? 'border-gray-600 hover:border-gray-500 hover:bg-gray-800 text-white' 
+                                            : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-900'
+                                    }`}
+                                >
+                                    <Share2 className={`w-4 h-4 mr-2 ${isDarkTheme ? 'text-gray-400' : 'text-gray-600'}`} />
+                                    Share Product
+                                </Button>
+                            </div>
                         </div>
 
                         {/* Features */}
