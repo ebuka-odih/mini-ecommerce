@@ -72,9 +72,25 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
 }) => {
     const formatCurrency = (amount: number) => {
         const currency = site_settings?.currency || 'NGN';
-        return new Intl.NumberFormat('en-US', {
+        
+        // Debug logging
+        console.log('formatCurrency - amount:', amount, 'currency:', currency, 'site_settings:', site_settings);
+        
+        // Handle different currencies with appropriate locales
+        let locale = 'en-US';
+        if (currency === 'NGN') {
+            locale = 'en-NG';
+        } else if (currency === 'EUR') {
+            locale = 'en-EU';
+        } else if (currency === 'GBP') {
+            locale = 'en-GB';
+        }
+        
+        return new Intl.NumberFormat(locale, {
             style: 'currency',
             currency: currency,
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2,
         }).format(amount);
     };
 
