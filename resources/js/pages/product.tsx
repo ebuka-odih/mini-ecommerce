@@ -376,18 +376,6 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
 
                     {/* Product Info */}
                     <div className="space-y-4">
-                        {/* Category Badge */}
-                        <div className="flex items-center gap-3">
-                            <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100">
-                                <Link href={`/shop?category=${product.category.slug}`}>
-                                    {product.category.name}
-                                </Link>
-                            </Badge>
-                            <Badge className={stockStatus.color}>
-                                {stockStatus.label}
-                            </Badge>
-                        </div>
-
                         {/* Title */}
                         <h1 className={`text-3xl lg:text-4xl font-light tracking-wide ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                             {product.name}
@@ -620,6 +608,9 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                 </div>
 
             </div>
+            
+            {/* Extra spacing below product for better visibility */}
+            <div className="py-16"></div>
 
             {/* Image Modal */}
             {isImageModalOpen && selectedImage && (
