@@ -581,6 +581,17 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                             </div>
                         </div>
 
+                        {/* Product Details */}
+                        {product.description && (
+                            <div className="pt-6 border-t">
+                                <h2 className={`text-2xl font-light mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Product Details</h2>
+                                <div 
+                                    className={`prose max-w-none ${isDarkTheme ? 'prose-invert' : 'prose-gray'}`}
+                                    dangerouslySetInnerHTML={{ __html: product.description }}
+                                />
+                            </div>
+                        )}
+
                         {/* Features */}
                         <div className={`space-y-4 pt-6 border-t ${isDarkTheme ? 'border-gray-700' : 'border-gray-200'}`}>
                             <div className={`flex items-center space-x-3 text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
@@ -611,19 +622,6 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                     </div>
                 </div>
 
-                {/* Product Details */}
-                {product.description && (
-                    <div className="mt-16 space-y-6">
-                        <Separator />
-                        <div>
-                            <h2 className="text-2xl font-light text-gray-900 mb-4">Product Details</h2>
-                            <div 
-                                className="prose prose-gray max-w-none"
-                                dangerouslySetInnerHTML={{ __html: product.description }}
-                            />
-                        </div>
-                    </div>
-                )}
             </div>
 
             {/* Image Modal */}
