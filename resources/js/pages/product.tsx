@@ -468,13 +468,8 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
 
                         {/* Quantity */}
                         <div className="space-y-2">
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center">
                                 <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Quantity:</span>
-                                {currentStock <= 3 && currentStock > 0 && (
-                                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
-                                        Low Stock
-                                    </Badge>
-                                )}
                             </div>
                             <div className="flex items-center gap-1">
                                 <button
