@@ -308,20 +308,22 @@ class NewProductController extends Controller
 
         $product->update($validated);
 
-        // Handle image deletions
+        // Handle image detachments (remove from product but keep in media library)
         if ($request->has('delete_images')) {
-            $imagesToDelete = $request->input('delete_images');
-            foreach ($imagesToDelete as $imageId) {
+            $imagesToDetach = $request->input('delete_images');
+            foreach ($imagesToDetach as $imageId) {
                 $image = Image::where('id', $imageId)
                     ->where('imageable_type', Product::class)
                     ->where('imageable_id', $product->id)
                     ->first();
                 
                 if ($image) {
-                    // Delete the file from storage
-                    $image->deleteFile();
-                    // Delete the database record
-                    $image->delete();
+                    // Only detach from product, don't delete from media library
+                    $image->update([
+                        'imageable_type' => null,
+                        'imageable_id' => null,
+                        'is_featured' => false,
+                    ]);
                 }
             }
         }
