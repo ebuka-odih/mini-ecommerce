@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Services\PaystackService;
 use App\Mail\OrderConfirmation;
+use App\Mail\AdminOrderNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -203,7 +204,7 @@ class PaymentController extends Controller
                     'status' => 'processing'
                 ]);
 
-                // Send order confirmation email
+                // Send order confirmation email to customer
                 try {
                     Mail::to($order->shipping_email)->send(new OrderConfirmation($order));
                     Log::info('Order confirmation email sent', [
@@ -214,6 +215,23 @@ class PaymentController extends Controller
                     Log::error('Failed to send order confirmation email', [
                         'order_id' => $order->id,
                         'email' => $order->shipping_email,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                // Send admin notification email
+                try {
+                    $adminEmail = config('mail.from.address');
+                    if ($adminEmail) {
+                        Mail::to($adminEmail)->send(new AdminOrderNotification($order));
+                        Log::info('Admin order notification email sent', [
+                            'order_id' => $order->id,
+                            'admin_email' => $adminEmail
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send admin order notification email', [
+                        'order_id' => $order->id,
                         'error' => $e->getMessage()
                     ]);
                 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Mail\OrderConfirmation;
+use App\Mail\AdminOrderNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -216,7 +217,7 @@ class PaystackService
                     'status' => 'processing'
                 ]);
 
-                // Send order confirmation email
+                // Send order confirmation email to customer
                 try {
                     Mail::to($order->shipping_email)->send(new OrderConfirmation($order));
                     Log::info('Order confirmation email sent via webhook', [
@@ -227,6 +228,23 @@ class PaystackService
                     Log::error('Failed to send order confirmation email via webhook', [
                         'order_id' => $order->id,
                         'email' => $order->shipping_email,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+
+                // Send admin notification email
+                try {
+                    $adminEmail = config('mail.from.address');
+                    if ($adminEmail) {
+                        Mail::to($adminEmail)->send(new AdminOrderNotification($order));
+                        Log::info('Admin order notification email sent via webhook', [
+                            'order_id' => $order->id,
+                            'admin_email' => $adminEmail
+                        ]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Failed to send admin order notification email via webhook', [
+                        'order_id' => $order->id,
                         'error' => $e->getMessage()
                     ]);
                 }
