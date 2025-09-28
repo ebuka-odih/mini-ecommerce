@@ -50,6 +50,7 @@ interface AdminDashboardProps {
     site_settings?: {
         site_name: string;
         site_logo: string;
+        currency: string;
     };
 }
 
@@ -70,9 +71,10 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     site_settings
 }) => {
     const formatCurrency = (amount: number) => {
+        const currency = site_settings?.currency || 'NGN';
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'USD',
+            currency: currency,
         }).format(amount);
     };
 

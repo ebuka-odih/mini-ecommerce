@@ -82,6 +82,7 @@ interface OrdersPageProps {
     site_settings?: {
         site_name: string;
         site_logo: string;
+        currency: string;
     };
 }
 
@@ -102,9 +103,10 @@ const Orders: React.FC<OrdersPageProps> = ({
     const [paymentFilter, setPaymentFilter] = React.useState<string>('all');
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-NG', {
+        const currency = site_settings?.currency || 'NGN';
+        return new Intl.NumberFormat('en-US', {
             style: 'currency',
-            currency: 'NGN',
+            currency: currency,
             minimumFractionDigits: 0,
         }).format(amount);
     };

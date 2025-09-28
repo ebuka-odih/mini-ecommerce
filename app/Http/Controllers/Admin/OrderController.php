@@ -54,6 +54,7 @@ class OrderController extends Controller
         $siteSettings = [
             'site_name' => Setting::getValue('site_name', 'GNOSIS'),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
         ];
 
         return Inertia::render('admin/orders', [
@@ -83,6 +84,7 @@ class OrderController extends Controller
         $siteSettings = [
             'site_name' => Setting::getValue('site_name', 'GNOSIS'),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
         ];
 
         return Inertia::render('admin/orders/show', [
@@ -183,6 +185,7 @@ class OrderController extends Controller
         $siteSettings = [
             'site_name' => Setting::getValue('site_name', 'GNOSIS'),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
         ];
 
         return Inertia::render('admin/orders/analytics', [
