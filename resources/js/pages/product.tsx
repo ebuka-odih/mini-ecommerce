@@ -470,13 +470,11 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
                                 <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Quantity:</span>
-                                <span className={`text-xs font-medium ${
-                                    currentStock <= 3 
-                                        ? 'text-red-500' 
-                                        : isDarkTheme ? 'text-green-400' : 'text-green-600'
-                                }`}>
-                                    {currentStock <= 3 ? 'Low Stock' : 'In Stock'}
-                                </span>
+                                {currentStock <= 3 && currentStock > 0 && (
+                                    <Badge className="bg-orange-100 text-orange-800 border-orange-200">
+                                        Low Stock
+                                    </Badge>
+                                )}
                             </div>
                             <div className="flex items-center gap-1">
                                 <button
@@ -549,20 +547,24 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                 <Button
                                     variant="outline"
                                     onClick={() => {
-                                        // First add to cart, then redirect to checkout
-                                        handleAddToCart();
-                                        setTimeout(() => {
-                                            router.visit('/checkout');
-                                        }, 1000);
+                                        if (currentStock > 0) {
+                                            // First add to cart, then redirect to checkout
+                                            handleAddToCart();
+                                            setTimeout(() => {
+                                                router.visit('/checkout');
+                                            }, 1000);
+                                        }
                                     }}
                                     disabled={currentStock <= 0 || isAddingToCart}
                                     className={`flex-1 h-12 text-lg font-semibold rounded-xl border-2 transition-all duration-300 hover:shadow-lg ${
-                                        isDarkTheme 
+                                        currentStock <= 0
+                                            ? 'border-gray-300 bg-gray-100 text-gray-400 cursor-not-allowed'
+                                            : isDarkTheme 
                                             ? 'border-gray-400 text-white hover:bg-gray-400 hover:text-black' 
                                             : 'border-gray-800 text-gray-800 hover:bg-gray-800 hover:text-white'
                                     }`}
                                 >
-                                    Buy Now
+                                    {currentStock <= 0 ? 'Out of Stock' : 'Buy Now'}
                                 </Button>
 
                                 {/* Share Button */}
