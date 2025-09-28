@@ -11,20 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Check if foreign key exists before trying to drop it
-        $foreignKeys = \DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'product_variations' 
-            AND COLUMN_NAME = 'product_id' 
-            AND CONSTRAINT_NAME != 'PRIMARY'
-        ");
-        
-        Schema::table('product_variations', function (Blueprint $table) use ($foreignKeys) {
-            // Drop the existing foreign key constraint if it exists
-            if (!empty($foreignKeys)) {
+        Schema::table('product_variations', function (Blueprint $table) {
+            // Try to drop the existing foreign key constraint
+            try {
                 $table->dropForeign(['product_id']);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Foreign key doesn't exist or has different name, continue
+                \Log::info('Foreign key for product_id does not exist or has different name, continuing...');
             }
             
             // Change the column type from unsigned big integer to UUID
@@ -40,20 +33,13 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Check if foreign key exists before trying to drop it
-        $foreignKeys = \DB::select("
-            SELECT CONSTRAINT_NAME 
-            FROM information_schema.KEY_COLUMN_USAGE 
-            WHERE TABLE_SCHEMA = DATABASE() 
-            AND TABLE_NAME = 'product_variations' 
-            AND COLUMN_NAME = 'product_id' 
-            AND CONSTRAINT_NAME != 'PRIMARY'
-        ");
-        
-        Schema::table('product_variations', function (Blueprint $table) use ($foreignKeys) {
-            // Drop the foreign key constraint if it exists
-            if (!empty($foreignKeys)) {
+        Schema::table('product_variations', function (Blueprint $table) {
+            // Try to drop the existing foreign key constraint
+            try {
                 $table->dropForeign(['product_id']);
+            } catch (\Illuminate\Database\QueryException $e) {
+                // Foreign key doesn't exist or has different name, continue
+                \Log::info('Foreign key for product_id does not exist or has different name, continuing...');
             }
             
             // Change back to unsigned big integer (if needed for rollback)
