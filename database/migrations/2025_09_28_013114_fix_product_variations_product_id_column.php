@@ -11,15 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Check if foreign key exists using raw SQL
+        $foreignKeyExists = \DB::select("
+            SELECT COUNT(*) as count 
+            FROM information_schema.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'product_variations' 
+            AND COLUMN_NAME = 'product_id' 
+            AND CONSTRAINT_NAME != 'PRIMARY'
+            AND REFERENCED_TABLE_NAME IS NOT NULL
+        ");
+        
+        // Drop foreign key if it exists
+        if ($foreignKeyExists[0]->count > 0) {
+            \DB::statement("ALTER TABLE product_variations DROP FOREIGN KEY product_variations_product_id_foreign");
+        }
+        
         Schema::table('product_variations', function (Blueprint $table) {
-            // Try to drop the existing foreign key constraint
-            try {
-                $table->dropForeign(['product_id']);
-            } catch (\Illuminate\Database\QueryException $e) {
-                // Foreign key doesn't exist or has different name, continue
-                \Log::info('Foreign key for product_id does not exist or has different name, continuing...');
-            }
-            
             // Change the column type from unsigned big integer to UUID
             $table->uuid('product_id')->change();
             
@@ -33,15 +41,23 @@ return new class extends Migration
      */
     public function down(): void
     {
+        // Check if foreign key exists using raw SQL
+        $foreignKeyExists = \DB::select("
+            SELECT COUNT(*) as count 
+            FROM information_schema.KEY_COLUMN_USAGE 
+            WHERE TABLE_SCHEMA = DATABASE() 
+            AND TABLE_NAME = 'product_variations' 
+            AND COLUMN_NAME = 'product_id' 
+            AND CONSTRAINT_NAME != 'PRIMARY'
+            AND REFERENCED_TABLE_NAME IS NOT NULL
+        ");
+        
+        // Drop foreign key if it exists
+        if ($foreignKeyExists[0]->count > 0) {
+            \DB::statement("ALTER TABLE product_variations DROP FOREIGN KEY product_variations_product_id_foreign");
+        }
+        
         Schema::table('product_variations', function (Blueprint $table) {
-            // Try to drop the existing foreign key constraint
-            try {
-                $table->dropForeign(['product_id']);
-            } catch (\Illuminate\Database\QueryException $e) {
-                // Foreign key doesn't exist or has different name, continue
-                \Log::info('Foreign key for product_id does not exist or has different name, continuing...');
-            }
-            
             // Change back to unsigned big integer (if needed for rollback)
             $table->unsignedBigInteger('product_id')->change();
             
