@@ -508,37 +508,6 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                 </div>
             </section>
 
-            {/* Featured Collections */}
-            <section className="bg-gray-50 py-16">
-                <div className="container mx-auto px-4">
-                    <div className="text-center mb-12">
-                        <h2 className="text-3xl lg:text-4xl font-light tracking-wider mb-4">
-                            FEATURED COLLECTIONS
-                        </h2>
-                        <p className="text-gray-600 max-w-2xl mx-auto">
-                            Discover our carefully curated collections designed for the modern lifestyle
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {[
-                            { name: 'New Arrivals', count: '24 items' },
-                            { name: 'Best Sellers', count: '18 items' },
-                            { name: 'Summer Collection', count: '32 items' },
-                            { name: 'Accessories', count: '16 items' }
-                        ].map((collection) => (
-                            <div key={collection.name} className="bg-white rounded-lg p-6 text-center hover:shadow-lg transition-shadow duration-300">
-                                <div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-4"></div>
-                                <h3 className="font-semibold mb-2">{collection.name}</h3>
-                                <p className="text-gray-600 text-sm mb-4">{collection.count}</p>
-                                <Button variant="outline" size="sm">
-                                    Explore
-                                </Button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
 
             {/* Newsletter */}
             <section className="py-16">
