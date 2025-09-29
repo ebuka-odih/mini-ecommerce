@@ -28,6 +28,10 @@ class HomeController extends Controller
             return $this->homepageSecond();
         }
         
+        if ($frontpage === 'homepage-3') {
+            return $this->homepage3();
+        }
+        
         // Default homepage
         $products = Product::with('category')->latest()->take(4)->get();
         
@@ -316,6 +320,82 @@ class HomeController extends Controller
             'featuredProducts' => $featuredProducts,
             'categories' => $categories,
             'sliderImages' => $sliderImages,
+            'settings' => $settings
+        ]);
+    }
+    
+    public function homepage3()
+    {
+        // Load featured products for banner slider
+        $featuredProducts = Product::with('category')
+            ->where('is_featured', true)
+            ->where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->take(6)
+            ->get()
+            ->map(function ($product) {
+                // Manually load images for each product
+                $images = \App\Models\Image::where('imageable_type', 'App\Models\Product')
+                    ->where('imageable_id', $product->id)
+                    ->orderBy('sort_order')
+                    ->take(2)
+                    ->get();
+                $product->images_data = $images;
+                return $product;
+            });
+        
+        // Load all products for the products section
+        $products = Product::with('category')
+            ->where('is_active', true)
+            ->orderBy('created_at', 'desc')
+            ->take(8)
+            ->get()
+            ->map(function ($product) {
+                // Manually load images for each product
+                $images = \App\Models\Image::where('imageable_type', 'App\Models\Product')
+                    ->where('imageable_id', $product->id)
+                    ->orderBy('sort_order')
+                    ->take(1)
+                    ->get();
+                $product->images_data = $images;
+                return $product;
+            });
+        
+        // Mock banner slides data (you can create a BannerSlide model later)
+        $bannerSlides = [
+            [
+                'id' => '1',
+                'title' => 'Welcome to Our Store',
+                'subtitle' => 'Discover Amazing Products',
+                'description' => 'Explore our curated collection of premium products designed for modern living.',
+                'image_url' => '/images/banner-1.jpg',
+                'button_text' => 'Shop Now',
+                'button_link' => '/shop',
+                'is_active' => true,
+            ],
+            [
+                'id' => '2',
+                'title' => 'New Collection',
+                'subtitle' => 'Latest Arrivals',
+                'description' => 'Be the first to experience our newest products with exclusive early access.',
+                'image_url' => '/images/banner-2.jpg',
+                'button_text' => 'Explore Collection',
+                'button_link' => '/shop',
+                'is_active' => true,
+            ],
+        ];
+        
+        // Get settings for the homepage
+        $settings = [
+            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
+            'currency' => Setting::getValue('currency', 'NGN'),
+            'theme' => Setting::getValue('theme', 'dark'),
+        ];
+
+        return Inertia::render('homepage-3', [
+            'products' => $products,
+            'bannerSlides' => $bannerSlides,
             'settings' => $settings
         ]);
     }

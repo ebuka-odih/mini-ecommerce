@@ -359,7 +359,7 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
                   {/* Frontend Template Selection */}
                   <div className="space-y-4">
                     <Label className="text-white">Homepage Template</Label>
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div 
                         className={`p-4 border rounded-lg cursor-pointer transition-colors ${
                           data.frontpage === 'homepage' 
@@ -386,6 +386,20 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
                           <div className="w-16 h-16 bg-black rounded-lg mx-auto mb-2"></div>
                           <p className="text-white font-medium">Homepage Second</p>
                           <p className="text-gray-400 text-sm">Minimalist dark design</p>
+                        </div>
+                      </div>
+                      <div 
+                        className={`p-4 border rounded-lg cursor-pointer transition-colors ${
+                          data.frontpage === 'homepage-3' 
+                            ? 'border-blue-500 bg-blue-900/20' 
+                            : 'border-gray-600 bg-gray-700'
+                        }`}
+                        onClick={() => setData('frontpage', 'homepage-3')}
+                      >
+                        <div className="text-center">
+                          <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-teal-600 rounded-lg mx-auto mb-2"></div>
+                          <p className="text-white font-medium">Homepage 3</p>
+                          <p className="text-gray-400 text-sm">Banner slider + video + products</p>
                         </div>
                       </div>
                     </div>

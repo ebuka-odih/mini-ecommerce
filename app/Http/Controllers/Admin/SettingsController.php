@@ -44,7 +44,7 @@ class SettingsController extends Controller
             'site_logo' => 'nullable|string|max:500',
             'currency' => 'required|string|in:NGN,USD,EUR,GBP,CAD,AUD,ZAR',
             'theme' => 'required|string|in:light,dark',
-            'frontpage' => 'required|string|in:homepage,homepage-second',
+            'frontpage' => 'required|string|in:homepage,homepage-second,homepage-3',
         ]);
 
         // Update settings
