@@ -1,14 +1,12 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Filter, Grid3X3, List, SlidersHorizontal, Search, X } from 'lucide-react';
+import { Grid3X3, List, Search } from 'lucide-react';
 import MainLayout from '@/layouts/main-layout';
 import ProductCard from '@/components/product-card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ShopPageProps } from '@/types';
 
 const Shop: React.FC<ShopPageProps> = ({ 
@@ -23,7 +21,6 @@ const Shop: React.FC<ShopPageProps> = ({
 }) => {
     const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = React.useState('');
-    const [isFilterOpen, setIsFilterOpen] = React.useState(false);
     const [isSearchOpen, setIsSearchOpen] = React.useState(false);
     const [isSortOpen, setIsSortOpen] = React.useState(false);
 
@@ -32,7 +29,6 @@ const Shop: React.FC<ShopPageProps> = ({
 
     const handleSortChange = (value: string) => {
         router.get('/shop', { 
-            ...current_filters, 
             sort: value,
             search: searchQuery || undefined 
         }, { 
@@ -45,38 +41,12 @@ const Shop: React.FC<ShopPageProps> = ({
         e.preventDefault();
         setIsSearchOpen(false); // Close mobile search modal
         router.get('/shop', { 
-            ...current_filters, 
             search: searchQuery || undefined,
             sort: current_sort 
         }, { 
             preserveState: true 
         });
     };
-
-    const handleFilterChange = (filterType: string, value: string) => {
-        const currentValues = current_filters[filterType] || [];
-        const newValues = currentValues.includes(value)
-            ? currentValues.filter(v => v !== value)
-            : [...currentValues, value];
-
-        router.get('/shop', {
-            ...current_filters,
-            [filterType]: newValues.length > 0 ? newValues : undefined,
-            sort: current_sort,
-            search: searchQuery || undefined
-        }, { 
-            preserveState: true, 
-            preserveScroll: true 
-        });
-    };
-
-    const clearFilters = () => {
-        router.get('/shop', { 
-            search: searchQuery || undefined 
-        });
-    };
-
-    const activeFilterCount = Object.values(current_filters).flat().length;
 
     return (
         <MainLayout title={`Shop - ${siteName}`} settings={settings}>
@@ -100,29 +70,6 @@ const Shop: React.FC<ShopPageProps> = ({
             <section className={`border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white'} sticky top-16 z-40 lg:hidden`}>
                 <div className="container mx-auto px-4 py-3">
                     <div className="flex items-center justify-between gap-3">
-                        {/* Mobile Filter Button */}
-                        <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                            <SheetTrigger asChild>
-                                <Button variant="outline" size="sm" className="flex items-center gap-2">
-                                    <SlidersHorizontal className="h-4 w-4" />
-                                    {activeFilterCount > 0 && (
-                                        <Badge className="bg-black text-white text-xs">
-                                            {activeFilterCount}
-                                        </Badge>
-                                    )}
-                                </Button>
-                            </SheetTrigger>
-                            <SheetContent side="left" className="w-80 bg-white border-0 shadow-lg">
-                                <SheetHeader className="pb-2">
-                                    <SheetTitle className="text-lg font-semibold text-gray-900">Filters</SheetTitle>
-                                </SheetHeader>
-                                {/* Mobile filters content will go here */}
-                                <div className="mt-4">
-                                    <p className="text-gray-500 text-sm">Filter options coming soon...</p>
-                                </div>
-                            </SheetContent>
-                        </Sheet>
-
                         {/* Mobile Search Icon */}
                         <Sheet open={isSearchOpen} onOpenChange={setIsSearchOpen}>
                             <SheetTrigger asChild>
@@ -293,7 +240,7 @@ const Shop: React.FC<ShopPageProps> = ({
             <section className={`border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white'} sticky top-16 z-40 hidden lg:block`}>
                 <div className="container mx-auto px-4 py-4">
                     <div className="flex flex-row items-center justify-between gap-4">
-                        {/* Left Side - Search & Filters */}
+                        {/* Left Side - Search */}
                         <div className="flex items-center gap-4">
                             {/* Search */}
                             <form onSubmit={handleSearch} className="flex-none">
@@ -308,22 +255,6 @@ const Shop: React.FC<ShopPageProps> = ({
                                     />
                                 </div>
                             </form>
-
-                            {/* Active Filters */}
-                            {activeFilterCount > 0 && (
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm text-gray-500">Filters:</span>
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={clearFilters}
-                                        className="text-red-600 hover:text-red-700"
-                                    >
-                                        <X className="h-3 w-3 mr-1" />
-                                        Clear All
-                                    </Button>
-                                </div>
-                            )}
                         </div>
 
                         {/* Right Side - Sort & View */}
@@ -373,73 +304,12 @@ const Shop: React.FC<ShopPageProps> = ({
             {/* Main Content */}
             <section className="py-8">
                 <div className="container mx-auto px-4">
-                    <div className="flex gap-8">
-                        {/* Desktop Sidebar Filters */}
-                        <aside className="hidden lg:block w-64 flex-shrink-0">
-                            <div className={`${isDarkTheme ? 'bg-gray-900 border-gray-800' : 'bg-white'} rounded-lg p-6 shadow-sm border`}>
-                                <div className="flex items-center justify-between mb-6">
-                                    <h3 className={`font-semibold text-lg ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Filters</h3>
-                                    {activeFilterCount > 0 && (
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={clearFilters}
-                                            className="text-red-600 hover:text-red-700"
-                                        >
-                                            Clear All
-                                        </Button>
-                                    )}
-                                </div>
-
-                                {/* Categories Filter */}
-                                <div className="mb-8">
-                                    <h4 className={`font-medium mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Categories</h4>
-                                    <div className="space-y-3">
-                                        {categories.map((category) => (
-                                            <label key={category.id} className="flex items-center gap-3 cursor-pointer">
-                                                <input
-                                                    type="checkbox"
-                                                    checked={current_filters.category?.includes(category.slug) || false}
-                                                    onChange={() => handleFilterChange('category', category.slug)}
-                                                    className={`rounded border-gray-300 text-black focus:ring-black ${isDarkTheme ? 'bg-gray-700 border-gray-600' : ''}`}
-                                                />
-                                                <span className={`text-sm ${isDarkTheme ? 'text-white hover:text-gray-300' : 'text-gray-700 hover:text-black'}`}>
-                                                    {category.name}
-                                                </span>
-                                            </label>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                <Separator className="my-6" />
-
-                                {/* Size Filter */}
-                                <div className="mb-8">
-                                    <h4 className="font-medium mb-4">Size</h4>
-                                    <div className="grid grid-cols-3 gap-2">
-                                        {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map((size) => (
-                                            <Button
-                                                key={size}
-                                                variant={current_filters.size?.includes(size) ? 'default' : 'outline'}
-                                                size="sm"
-                                                onClick={() => handleFilterChange('size', size)}
-                                                className="h-8 text-xs"
-                                            >
-                                                {size}
-                                            </Button>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </aside>
-
-                        {/* Product Grid */}
-                        <main className="flex-1">
+                    {/* Product Grid */}
+                    <main className="w-full">
                             {/* Results Info */}
                             <div className="flex items-center justify-between mb-6">
                                 <p className="text-sm text-gray-600">
                                     Showing {products.length} products
-                                    {Object.keys(current_filters).length > 0 && ' (filtered)'}
                                 </p>
                             </div>
 
@@ -455,6 +325,7 @@ const Shop: React.FC<ShopPageProps> = ({
                                             key={product.id}
                                             product={product}
                                             className={viewMode === 'list' ? 'flex flex-row' : ''}
+                                            settings={settings}
                                         />
                                     ))}
                                 </div>
@@ -468,11 +339,8 @@ const Shop: React.FC<ShopPageProps> = ({
                                         No products found
                                     </h3>
                                     <p className="text-gray-600 mb-6">
-                                        Try adjusting your search or filter criteria
+                                        Try adjusting your search criteria
                                     </p>
-                                    <Button onClick={clearFilters} variant="outline">
-                                        Clear all filters
-                                    </Button>
                                 </div>
                             )}
 
@@ -492,8 +360,7 @@ const Shop: React.FC<ShopPageProps> = ({
                                     </div>
                                 </div>
                             )}
-                        </main>
-                    </div>
+                    </main>
                 </div>
             </section>
 

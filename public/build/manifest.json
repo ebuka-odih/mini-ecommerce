@@ -7,8 +7,8 @@
       "_ui-D9D1upTR.js"
     ]
   },
-  "_icons-BaD0fBd1.js": {
-    "file": "assets/icons-BaD0fBd1.js",
+  "_icons-wKEP7OCt.js": {
+    "file": "assets/icons-wKEP7OCt.js",
     "name": "icons",
     "imports": [
       "_inertia-DaK15SqE.js"
@@ -34,7 +34,7 @@
     "name": "vendor"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CAOYaWrZ.css",
+    "file": "assets/app-CI3fCdzG.css",
     "src": "resources/css/app.css",
     "isEntry": true,
     "names": [
@@ -42,7 +42,7 @@
     ]
   },
   "resources/js/app.tsx": {
-    "file": "assets/app-BG6_cAsg.js",
+    "file": "assets/app-CFFtC-8x.js",
     "name": "app",
     "src": "resources/js/app.tsx",
     "isEntry": true,
@@ -50,11 +50,11 @@
       "_ui-D9D1upTR.js",
       "_inertia-DaK15SqE.js",
       "_headlessui-BwBWThWm.js",
-      "_icons-BaD0fBd1.js",
+      "_icons-wKEP7OCt.js",
       "_vendor-ClZwdvRs.js"
     ],
     "css": [
-      "assets/app-CAOYaWrZ.css"
+      "assets/app-CI3fCdzG.css"
     ]
   }
 }
