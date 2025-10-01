@@ -51,20 +51,6 @@ const Shop: React.FC<ShopPageProps> = ({
     return (
         <MainLayout title={`Shop - ${siteName}`} settings={settings}>
             <Head title="Shop" />
-            
-            {/* Hero Section */}
-            <section className={`${isDarkTheme ? 'bg-gray-900' : 'bg-gray-50'} py-12`}>
-                <div className="container mx-auto px-4">
-                    <div className="text-center">
-                        <h1 className={`text-4xl lg:text-5xl font-light tracking-wider mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
-                            SHOP COLLECTION
-                        </h1>
-                        <p className={`${isDarkTheme ? 'text-gray-400' : 'text-gray-600'} max-w-2xl mx-auto`}>
-                            Discover our carefully curated collection of premium fashion pieces
-                        </p>
-                    </div>
-                </div>
-            </section>
 
             {/* Mobile Compact Controls */}
             <section className={`border-b ${isDarkTheme ? 'bg-black border-gray-800' : 'bg-white'} sticky top-16 z-40 lg:hidden`}>
