@@ -3,7 +3,6 @@ import { Head, Link, router } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import MainLayout from '@/layouts/main-layout';
 import ProductCard from '@/components/product-card';
-import { Button } from '@/components/ui/button';
 import { ShopPageProps } from '@/types';
 
 const Shop: React.FC<ShopPageProps> = ({ 
