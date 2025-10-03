@@ -101,21 +101,22 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', sett
             onMouseLeave={() => setIsHovered(false)}
         >
             {/* Product Image */}
-            <div className="relative aspect-[3/4] overflow-hidden bg-gray-100">
-                {primaryImage ? (
-                    <img
-                        src={primaryImage}
-                        alt={product.name}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
-                        <div className="text-center text-gray-500">
-                            <div className="w-16 h-16 bg-gray-400 rounded-full mx-auto mb-2 opacity-50"></div>
-                            <p className="text-sm">Product Image</p>
+            <Link href={`/product/${product.slug}`}>
+                <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 cursor-pointer">
+                    {primaryImage ? (
+                        <img
+                            src={primaryImage}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                    ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-gray-200 to-gray-300 flex items-center justify-center">
+                            <div className="text-center text-gray-500">
+                                <div className="w-16 h-16 bg-gray-400 rounded-full mx-auto mb-2 opacity-50"></div>
+                                <p className="text-sm">Product Image</p>
+                            </div>
                         </div>
-                    </div>
-                )}
+                    )}
 
                 {/* Badges */}
                 <div className="absolute top-3 left-3 flex flex-col gap-2">
@@ -192,18 +193,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', sett
                         )}
                     </Button>
                 </div>
-            </div>
+                </div>
+            </Link>
 
             {/* Product Info */}
-            <div className="p-4">
+            <div className="p-4 bg-white dark:bg-gray-800">
                 <Link href={`/product/${product.slug}`} className="group">
-                    <h3 className="font-medium text-gray-900 group-hover:text-gray-600 transition-colors line-clamp-2 mb-2">
+                    <h3 className="font-medium text-gray-900 dark:text-white group-hover:text-gray-600 dark:group-hover:text-gray-300 transition-colors line-clamp-2 mb-2">
                         {product.name}
                     </h3>
                 </Link>
 
                 {product.short_description && (
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">
+                    <p className="text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mb-3">
                         {product.short_description}
                     </p>
                 )}
@@ -212,15 +214,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', sett
                 <div className="flex items-center gap-2">
                     {onSale && product.sale_price ? (
                         <>
-                            <span className="text-lg font-semibold text-gray-900">
+                            <span className="text-lg font-semibold text-gray-900 dark:text-white">
                                 {formatPriceWithCurrency(product.sale_price, settings)}
                             </span>
-                            <span className="text-sm text-gray-500 line-through">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 line-through">
                                 {formatPriceWithCurrency(product.price, settings)}
                             </span>
                         </>
                     ) : (
-                        <span className="text-lg font-semibold text-gray-900">
+                        <span className="text-lg font-semibold text-gray-900 dark:text-white">
                             {formatPriceWithCurrency(product.price, settings)}
                         </span>
                     )}

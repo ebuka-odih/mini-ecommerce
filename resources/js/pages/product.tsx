@@ -418,8 +418,12 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                                         onClick={() => setSelectedSize(size.id.toString())}
                                                         className={`px-3 py-1 border rounded text-xs font-medium transition-colors ${
                                                             selectedSize === size.id.toString()
-                                                                ? 'border-gray-900 bg-gray-900 text-white'
-                                                                : 'border-gray-300 text-gray-700 hover:border-gray-400'
+                                                                ? isDarkTheme 
+                                                                    ? 'border-white bg-white text-black'
+                                                                    : 'border-gray-900 bg-gray-900 text-white'
+                                                                : isDarkTheme
+                                                                    ? 'border-gray-600 text-gray-300 hover:border-gray-400 hover:text-white'
+                                                                    : 'border-gray-300 text-gray-700 hover:border-gray-400'
                                                         }`}
                                                     >
                                                         {size.display_name}
@@ -432,20 +436,51 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
                                     {/* Color Selection */}
                                     {availableColors.length > 0 && (
                                         <div className="flex items-center gap-2">
-                                            <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>Color:</span>
-                                            <div className="flex gap-1">
+                                            <span className={`text-sm font-medium ${isDarkTheme ? 'text-white' : 'text-gray-700'}`}>
+                                                Color: {selectedColor ? availableColors.find(c => c.id.toString() === selectedColor)?.display_name : 'Select a color'}
+                                            </span>
+                                            <div className="flex gap-2">
                                                 {availableColors.map((color) => (
                                                     <button
                                                         key={color.id}
                                                         onClick={() => setSelectedColor(color.id.toString())}
-                                                        className={`w-6 h-6 rounded-full border-2 transition-all ${
+                                                        className={`group relative w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                                                             selectedColor === color.id.toString()
-                                                                ? 'border-gray-900 scale-110'
-                                                                : 'border-gray-300 hover:border-gray-400'
+                                                                ? isDarkTheme 
+                                                                    ? 'border-white ring-2 ring-white ring-offset-2 ring-offset-gray-800 shadow-lg' 
+                                                                    : 'border-gray-900 ring-2 ring-gray-900 ring-offset-2 ring-offset-white shadow-lg'
+                                                                : isDarkTheme
+                                                                    ? 'border-gray-600 hover:border-gray-400 focus:ring-gray-400'
+                                                                    : 'border-gray-300 hover:border-gray-500 focus:ring-gray-500'
                                                         }`}
                                                         style={{ backgroundColor: color.hex_code }}
                                                         title={color.display_name}
-                                                    />
+                                                    >
+                                                        {/* Selection indicator */}
+                                                        {selectedColor === color.id.toString() && (
+                                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                                <div className={`w-4 h-4 rounded-full border ${
+                                                                    isDarkTheme ? 'border-white bg-white/20' : 'border-gray-900 bg-black/20'
+                                                                }`}>
+                                                                    <div className="w-full h-full rounded-full flex items-center justify-center">
+                                                                        <div className={`w-1 h-1 rounded-full ${
+                                                                            isDarkTheme ? 'bg-white' : 'bg-gray-900'
+                                                                        }`}></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Color name tooltip on hover */}
+                                                        <div className={`absolute -top-10 left-1/2 transform -translate-x-1/2 px-2 py-1 text-xs font-medium rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap ${
+                                                            isDarkTheme ? 'bg-gray-800 text-white border border-gray-600' : 'bg-gray-900 text-white'
+                                                        }`}>
+                                                            {color.display_name}
+                                                            <div className={`absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent ${
+                                                                isDarkTheme ? 'border-t-gray-800' : 'border-t-gray-900'
+                                                            }`}></div>
+                                                        </div>
+                                                    </button>
                                                 ))}
                                             </div>
                                         </div>

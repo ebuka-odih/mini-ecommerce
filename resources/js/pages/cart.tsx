@@ -65,6 +65,9 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
     const [isRemoving, setIsRemoving] = React.useState<string | null>(null);
     const { addToast } = useToast();
 
+    // Check if dark theme is active
+    const isDarkTheme = settings?.theme === 'dark';
+
     const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
         if (newQuantity < 1) return;
 
@@ -224,9 +227,9 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                 
                 <div className="container mx-auto px-4 py-16">
                     <div className="max-w-md mx-auto text-center">
-                        <ShoppingBag className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-                        <h1 className="text-2xl font-light text-gray-900 mb-4">Your cart is empty</h1>
-                        <p className="text-gray-600 mb-8">
+                        <ShoppingBag className={`w-16 h-16 mx-auto mb-6 ${isDarkTheme ? 'text-gray-500' : 'text-gray-400'}`} />
+                        <h1 className={`text-2xl font-light mb-4 ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>Your cart is empty</h1>
+                        <p className={`mb-8 ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
                             Looks like you haven't added any items to your cart yet.
                         </p>
                         <Button asChild size="lg">
@@ -249,7 +252,7 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                 <div className="mb-8">
                     {/* Title at the top */}
                     <div className="mb-6">
-                        <h1 className="text-3xl font-light text-gray-900">
+                        <h1 className={`text-3xl font-light ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
                             Shopping Cart ({cart.items.length} {cart.items.length === 1 ? 'item' : 'items'})
                         </h1>
                     </div>
@@ -271,10 +274,16 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                     {/* Cart Items */}
                     <div className="lg:col-span-2 space-y-6">
                         {cart.items.map((item) => (
-                            <div key={item.id} className="flex items-start space-x-4 p-6 border border-gray-200 rounded-xl bg-white shadow-sm">
+                            <div key={item.id} className={`flex items-start space-x-4 p-6 border rounded-xl shadow-sm ${
+                                isDarkTheme 
+                                    ? 'border-gray-700 bg-gray-800' 
+                                    : 'border-gray-200 bg-white'
+                            }`}>
                                 {/* Product Image */}
                                 <Link href={`/product/${item.product.slug}`} className="flex-shrink-0">
-                                    <div className="w-20 h-20 rounded-lg overflow-hidden bg-gray-100">
+                                    <div className={`w-20 h-20 rounded-lg overflow-hidden ${
+                                        isDarkTheme ? 'bg-gray-700' : 'bg-gray-100'
+                                    }`}>
                                         <img
                                             src={getItemImage(item)}
                                             alt={item.product.images[0]?.alt_text || item.product.name}
@@ -289,14 +298,49 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                                 {/* Product Info - Full width */}
                                 <div className="flex-1 min-w-0">
                                     <Link href={`/product/${item.product.slug}`}>
-                                        <h3 className="font-medium text-gray-900 hover:text-gray-600 transition-colors text-lg leading-tight mb-3">
-                                            {getItemTitle(item)}
+                                        <h3 className={`font-medium transition-colors text-lg leading-tight mb-3 ${
+                                            isDarkTheme 
+                                                ? 'text-white hover:text-gray-300' 
+                                                : 'text-gray-900 hover:text-gray-600'
+                                        }`}>
+                                            {item.product.name}
                                         </h3>
                                     </Link>
                                     
+                                    {/* Product Variations */}
+                                    {item.variation && (item.variation.size || item.variation.color) && (
+                                        <div className="flex items-center gap-4 mb-3">
+                                            {item.variation.size && (
+                                                <div className={`text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                    <span className="font-medium">Size: </span>
+                                                    <span>{item.variation.size.display_name}</span>
+                                                </div>
+                                            )}
+                                            {item.variation.color && (
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                        <span className="font-medium">Color: </span>
+                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <div 
+                                                            className="w-4 h-4 rounded-full border border-gray-400"
+                                                            style={{ backgroundColor: item.variation.color.hex_code }}
+                                                            title={item.variation.color.display_name}
+                                                        />
+                                                        <span className={`text-sm ${isDarkTheme ? 'text-gray-300' : 'text-gray-600'}`}>
+                                                            {item.variation.color.display_name}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+                                    
                                     {/* Price and Stock Badge Row */}
                                     <div className="flex items-center space-x-4 mb-3">
-                                        <span className="text-lg font-semibold text-gray-900">
+                                        <span className={`text-lg font-semibold ${
+                                            isDarkTheme ? 'text-white' : 'text-gray-900'
+                                        }`}>
                                             {formatPriceWithCurrency(item.price, settings)}
                                         </span>
                                         <Badge className={item.product.stock_quantity > 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
@@ -311,17 +355,27 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                                             <button
                                                 onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)}
                                                 disabled={item.quantity <= 1 || isUpdating === item.id}
-                                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className={`w-8 h-8 rounded-full border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                                                    isDarkTheme 
+                                                        ? 'border-gray-600 hover:bg-gray-700 text-white' 
+                                                        : 'border-gray-300 hover:bg-gray-50'
+                                                }`}
                                             >
                                                 <Minus className="w-4 h-4" />
                                             </button>
-                                            <span className="w-8 text-center font-medium">
+                                            <span className={`w-8 text-center font-medium ${
+                                                isDarkTheme ? 'text-white' : 'text-gray-900'
+                                            }`}>
                                                 {isUpdating === item.id ? '...' : item.quantity}
                                             </span>
                                             <button
                                                 onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}
                                                 disabled={item.quantity >= item.product.stock_quantity || isUpdating === item.id}
-                                                className="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className={`w-8 h-8 rounded-full border flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed ${
+                                                    isDarkTheme 
+                                                        ? 'border-gray-600 hover:bg-gray-700 text-white' 
+                                                        : 'border-gray-300 hover:bg-gray-50'
+                                                }`}
                                             >
                                                 <Plus className="w-4 h-4" />
                                             </button>
@@ -331,7 +385,11 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                                         <button
                                             onClick={() => handleRemoveItem(item.id)}
                                             disabled={isRemoving === item.id}
-                                            className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-50"
+                                            className={`p-2 transition-colors disabled:opacity-50 ${
+                                                isDarkTheme 
+                                                    ? 'text-gray-400 hover:text-red-400' 
+                                                    : 'text-gray-400 hover:text-red-600'
+                                            }`}
                                         >
                                             {isRemoving === item.id ? (
                                                 <div className="w-5 h-5 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
@@ -348,24 +406,36 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                     {/* Order Summary */}
                     <div className="lg:col-span-1">
                         <div className="sticky top-8">
-                            <div className="bg-white border-2 border-gray-200 rounded-xl p-6 shadow-lg">
-                                <h2 className="text-xl font-semibold text-gray-900 mb-6">Order Summary</h2>
+                            <div className={`border-2 rounded-xl p-6 shadow-lg ${
+                                isDarkTheme 
+                                    ? 'bg-gray-800 border-gray-700' 
+                                    : 'bg-white border-gray-200'
+                            }`}>
+                                <h2 className={`text-xl font-semibold mb-6 ${
+                                    isDarkTheme ? 'text-white' : 'text-gray-900'
+                                }`}>Order Summary</h2>
                                 
                                 <div className="space-y-4">
-                                    <div className="flex justify-between text-gray-600">
+                                    <div className={`flex justify-between ${
+                                        isDarkTheme ? 'text-gray-300' : 'text-gray-600'
+                                    }`}>
                                         <span>Subtotal</span>
                                         <span>{formatPriceWithCurrency(cart.subtotal, settings)}</span>
                                     </div>
                                     
                                     {cart.shipping > 0 && (
-                                        <div className="flex justify-between text-gray-600">
+                                        <div className={`flex justify-between ${
+                                            isDarkTheme ? 'text-gray-300' : 'text-gray-600'
+                                        }`}>
                                             <span>Shipping</span>
                                             <span>{formatPriceWithCurrency(cart.shipping, settings)}</span>
                                         </div>
                                     )}
                                     
                                     {cart.tax > 0 && (
-                                        <div className="flex justify-between text-gray-600">
+                                        <div className={`flex justify-between ${
+                                            isDarkTheme ? 'text-gray-300' : 'text-gray-600'
+                                        }`}>
                                             <span>Tax</span>
                                             <span>{formatPriceWithCurrency(cart.tax, settings)}</span>
                                         </div>
@@ -378,9 +448,13 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                                         </div>
                                     )}
                                     
-                                    <Separator />
+                                    <Separator className={isDarkTheme ? 'bg-gray-700' : 'bg-gray-200'} />
                                     
-                                    <div className="flex justify-between text-xl font-bold text-gray-900 bg-gray-50 p-3 rounded-lg">
+                                    <div className={`flex justify-between text-xl font-bold p-3 rounded-lg ${
+                                        isDarkTheme 
+                                            ? 'text-white bg-gray-700' 
+                                            : 'text-gray-900 bg-gray-50'
+                                    }`}>
                                         <span>Total</span>
                                         <span>{formatPriceWithCurrency(cart.total, settings)}</span>
                                     </div>
@@ -397,7 +471,9 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
                                     </Link>
                                 </Button>
 
-                                <p className="text-xs text-gray-500 text-center mt-4">
+                                <p className={`text-xs text-center mt-4 ${
+                                    isDarkTheme ? 'text-gray-400' : 'text-gray-500'
+                                }`}>
                                     Secure checkout powered by Paystack
                                 </p>
                             </div>
