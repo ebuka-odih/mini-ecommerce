@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { NavigationItem } from '@/types';
 import { useCart } from '@/contexts/cart-context';
+import { formatPriceWithCurrency } from '@/lib/fashion-utils';
 
 interface MainLayoutProps {
     children: React.ReactNode;
@@ -21,16 +22,12 @@ interface MainLayoutProps {
 }
 
 // Cart Sidebar Component
-const CartSidebar: React.FC = () => {
+const CartSidebar: React.FC<{ settings?: { currency: string } }> = ({ settings }) => {
     const { cartItems, cartCount, cartTotal, isLoading, updateQuantity, removeFromCart, clearCart } = useCart();
     const [isUpdating, setIsUpdating] = React.useState<string | null>(null);
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-NG', {
-            style: 'currency',
-            currency: 'NGN',
-            minimumFractionDigits: 0,
-        }).format(amount);
+        return formatPriceWithCurrency(amount, settings);
     };
 
     const handleUpdateQuantity = async (itemId: string, newQuantity: number) => {
@@ -309,7 +306,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                             {/* Right Actions */}
                             <div className="flex items-center gap-1">
                                 {/* Cart */}
-                                <CartSidebar />
+                                <CartSidebar settings={settings} />
                             </div>
                         </div>
                     </div>
