@@ -1,6 +1,6 @@
 import React from 'react';
 import { Head, Link, router } from '@inertiajs/react';
-import { Filter, Grid3X3, List, SlidersHorizontal, Search, X } from 'lucide-react';
+import { Filter, SlidersHorizontal, Search, X } from 'lucide-react';
 import MainLayout from '@/layouts/main-layout';
 import ProductCard from '@/components/product-card';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,6 @@ const Shop: React.FC<ShopPageProps> = ({
     pagination,
     settings
 }) => {
-    const [viewMode, setViewMode] = React.useState<'grid' | 'list'>('grid');
     const [searchQuery, setSearchQuery] = React.useState('');
     const [isFilterOpen, setIsFilterOpen] = React.useState(false);
     const [isSearchOpen, setIsSearchOpen] = React.useState(false);
@@ -266,25 +265,6 @@ const Shop: React.FC<ShopPageProps> = ({
                             </SheetContent>
                         </Sheet>
 
-                        {/* View Mode */}
-                        <div className="flex items-center bg-gray-100 rounded-md p-1">
-                            <Button
-                                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                                size="sm"
-                                onClick={() => setViewMode('grid')}
-                                className="p-2"
-                            >
-                                <Grid3X3 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                                size="sm"
-                                onClick={() => setViewMode('list')}
-                                className="p-2"
-                            >
-                                <List className="h-4 w-4" />
-                            </Button>
-                        </div>
                     </div>
                 </div>
             </section>
@@ -346,25 +326,6 @@ const Shop: React.FC<ShopPageProps> = ({
                                 </Select>
                             </div>
 
-                            {/* View Mode */}
-                            <div className="flex items-center bg-gray-100 rounded-md p-1">
-                                <Button
-                                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                                    size="sm"
-                                    onClick={() => setViewMode('grid')}
-                                    className="p-2"
-                                >
-                                    <Grid3X3 className="h-4 w-4" />
-                                </Button>
-                                <Button
-                                    variant={viewMode === 'list' ? 'default' : 'ghost'}
-                                    size="sm"
-                                    onClick={() => setViewMode('list')}
-                                    className="p-2"
-                                >
-                                    <List className="h-4 w-4" />
-                                </Button>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -435,26 +396,14 @@ const Shop: React.FC<ShopPageProps> = ({
 
                         {/* Product Grid */}
                         <main className="flex-1">
-                            {/* Results Info */}
-                            <div className="flex items-center justify-between mb-6">
-                                <p className="text-sm text-gray-600">
-                                    Showing {products.length} products
-                                    {Object.keys(current_filters).length > 0 && ' (filtered)'}
-                                </p>
-                            </div>
 
                             {/* Products Grid */}
                             {products.length > 0 ? (
-                                <div className={
-                                    viewMode === 'grid' 
-                                        ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6'
-                                        : 'flex flex-col gap-4'
-                                }>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
                                     {products.map((product) => (
                                         <ProductCard
                                             key={product.id}
                                             product={product}
-                                            className={viewMode === 'list' ? 'flex flex-row' : ''}
                                             settings={settings}
                                         />
                                     ))}
