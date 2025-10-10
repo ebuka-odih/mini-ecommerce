@@ -62,28 +62,61 @@ class SettingsController extends Controller
      */
     public function uploadLogo(Request $request)
     {
-        $request->validate([
-            'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
-        ]);
+        try {
+            $request->validate([
+                'logo' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+            ]);
 
-        if ($request->hasFile('logo')) {
+            if (!$request->hasFile('logo')) {
+                return redirect()->back()->with('error', 'No file uploaded');
+            }
+
             $file = $request->file('logo');
+            
+            // Check if the logos directory exists, create if not
+            $logosPath = storage_path('app/public/logos');
+            if (!file_exists($logosPath)) {
+                mkdir($logosPath, 0755, true);
+            }
+            
             $filename = 'logo-' . time() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('logos', $filename, 'public');
+            
+            if (!$path) {
+                return redirect()->back()->with('error', 'Failed to store the uploaded file');
+            }
             
             $logoUrl = '/storage/logos/' . $filename;
             
             // Update the setting
             Setting::setValue('site_logo', $logoUrl, 'string', 'general', 'Website logo path');
             
+            // Log successful upload
+            \Log::info('Logo uploaded successfully', [
+                'filename' => $filename,
+                'path' => $path,
+                'url' => $logoUrl,
+                'size' => $file->getSize()
+            ]);
+            
             // Return redirect with flash data for Inertia
             return redirect()->back()->with([
                 'success' => 'Logo uploaded successfully!',
                 'logo_url' => $logoUrl
             ]);
+            
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            \Log::error('Logo upload validation error', ['errors' => $e->errors()]);
+            return redirect()->back()->withErrors($e->errors())->with('error', 'Validation failed: ' . implode(', ', $e->errors()['logo'] ?? ['Unknown validation error']));
+        } catch (\Exception $e) {
+            \Log::error('Logo upload error', [
+                'message' => $e->getMessage(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Upload failed: ' . $e->getMessage());
         }
-
-        return redirect()->back()->with('error', 'No file uploaded');
     }
 }
 

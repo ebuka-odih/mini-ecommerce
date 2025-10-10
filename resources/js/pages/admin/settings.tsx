@@ -91,6 +91,13 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
           type: "info",
         });
 
+        console.log('Uploading file:', {
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          lastModified: file.lastModified
+        });
+
         // Use Inertia's post method with FormData for proper CSRF handling
         router.post('/admin/settings/upload-logo', 
           { logo: file },
@@ -113,9 +120,25 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
             },
             onError: (errors) => {
               console.error('Logo upload errors:', errors);
+              
+              // Extract error message from various possible formats
+              let errorMessage = "Failed to upload logo. Please try again.";
+              
+              if (typeof errors === 'object') {
+                if (errors.logo) {
+                  errorMessage = Array.isArray(errors.logo) ? errors.logo[0] : errors.logo;
+                } else if (errors.message) {
+                  errorMessage = errors.message;
+                } else if (typeof errors === 'string') {
+                  errorMessage = errors;
+                }
+              } else if (typeof errors === 'string') {
+                errorMessage = errors;
+              }
+              
               addToast({
                 title: "Upload failed",
-                description: "Failed to upload logo. Please try again.",
+                description: errorMessage,
                 type: "error",
               });
             },
