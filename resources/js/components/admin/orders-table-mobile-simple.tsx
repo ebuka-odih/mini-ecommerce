@@ -184,7 +184,13 @@ const OrdersTableMobileSimple: React.FC<OrdersTableMobileSimpleProps> = ({ order
                                 </div>
                                 <div>
                                     <span className="text-gray-400">Items:</span>
-                                    <div className="font-semibold text-white">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</div>
+                                    <div className="font-semibold text-white">
+                                        {order.items && Array.isArray(order.items) ? (
+                                            `${order.items.length} item${order.items.length !== 1 ? 's' : ''}`
+                                        ) : (
+                                            '0 items'
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
@@ -210,11 +216,15 @@ const OrdersTableMobileSimple: React.FC<OrdersTableMobileSimpleProps> = ({ order
                                         {/* Shipping Address */}
                                         <div className="space-y-2">
                                             <h4 className="font-medium text-white text-sm">Shipping Address</h4>
-                                            <div className="text-sm text-gray-400 space-y-1">
-                                                <div>{order.shipping_address.street}</div>
-                                                <div>{order.shipping_address.city}, {order.shipping_address.state}</div>
-                                                <div>{order.shipping_address.zip_code}, {order.shipping_address.country}</div>
-                                            </div>
+                                            {order.shipping_address ? (
+                                                <div className="text-sm text-gray-400 space-y-1">
+                                                    <div>{order.shipping_address.street || 'N/A'}</div>
+                                                    <div>{order.shipping_address.city || 'N/A'}, {order.shipping_address.state || 'N/A'}</div>
+                                                    <div>{order.shipping_address.zip_code || 'N/A'}, {order.shipping_address.country || 'N/A'}</div>
+                                                </div>
+                                            ) : (
+                                                <div className="text-sm text-gray-400">No shipping address available</div>
+                                            )}
                                         </div>
 
                                         {/* Order Items */}
