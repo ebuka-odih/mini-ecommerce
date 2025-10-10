@@ -317,19 +317,17 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <Link href="/" className="flex items-center">
-              <img 
-                src="/img/paperview.png" 
-                alt="Gnosis Logo" 
-                className="h-24 md:h-28 w-auto"
-                onError={(e) => {
-                  console.log('Logo failed to load, using fallback');
-                  e.currentTarget.style.display = 'none';
-                  e.currentTarget.nextElementSibling.style.display = 'flex';
-                }}
-              />
-              <div className="w-8 h-8 bg-white rounded-sm flex items-center justify-center hidden">
-                <span className="text-black font-bold text-sm">G</span>
-              </div>
+              {settings?.site_logo ? (
+                <img 
+                  src={settings.site_logo} 
+                  alt={settings?.site_name || 'Gnosis Logo'} 
+                  className="h-24 md:h-28 w-auto"
+                />
+              ) : (
+                <span className="text-3xl md:text-4xl font-bold text-white">
+                  {settings?.site_name || 'GNOSIS'}
+                </span>
+              )}
             </Link>
 
             {/* Desktop Navigation */}

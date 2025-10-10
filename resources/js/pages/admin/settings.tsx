@@ -257,7 +257,13 @@ export default function SettingsPage({ settings, flash, site_settings }: Setting
                             alt="Current logo"
                             className="w-full h-full object-contain"
                             onError={(e) => {
-                              (e.target as HTMLImageElement).src = '/img/paperview.png';
+                              // Hide image and show fallback text instead
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<div class="w-full h-full flex items-center justify-center text-gray-400 text-xs">Logo not found</div>`;
+                              }
                             }}
                           />
                         </div>

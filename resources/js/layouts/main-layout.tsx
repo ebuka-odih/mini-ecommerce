@@ -201,7 +201,7 @@ const CartSidebar: React.FC<{ settings?: { currency: string } }> = ({ settings }
 const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND', settings }) => {
     const isDarkTheme = settings?.theme === 'dark';
     const siteName = settings?.site_name || 'GNOSIS';
-    const siteLogo = settings?.site_logo || '/img/paperview.png';
+    const siteLogo = settings?.site_logo;
     const currency = settings?.currency || 'NGN';
 
     const navigationItems: NavigationItem[] = [
@@ -232,11 +232,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                                         <div className="flex flex-col h-full">
                                             {/* Mobile Menu Header */}
                                             <div className="flex items-center justify-between p-6 border-b">
-                                                <img 
-                                                    src={siteLogo} 
-                                                    alt={siteName} 
-                                                    className="h-8 w-auto"
-                                                />
+                                                {siteLogo ? (
+                                                    <img 
+                                                        src={siteLogo} 
+                                                        alt={siteName} 
+                                                        className="h-8 w-auto"
+                                                    />
+                                                ) : (
+                                                    <span className={`text-xl font-bold ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
+                                                        {siteName}
+                                                    </span>
+                                                )}
                                             </div>
                                             
                                             {/* Navigation Items */}
@@ -292,11 +298,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND'
                             {/* Logo */}
                             <div className="flex-1 lg:flex-none lg:absolute lg:left-1/2 lg:transform lg:-translate-x-1/2">
                                 <Link href="/" className="flex items-center">
-                                    <img 
-                                        src={siteLogo} 
-                                        alt={siteName} 
-                                        className="h-10 lg:h-12 w-auto"
-                                    />
+                                    {siteLogo ? (
+                                        <img 
+                                            src={siteLogo} 
+                                            alt={siteName} 
+                                            className="h-10 lg:h-12 w-auto"
+                                        />
+                                    ) : (
+                                        <span className={`text-2xl lg:text-3xl font-bold ${isDarkTheme ? 'text-white' : 'text-gray-900'}`}>
+                                            {siteName}
+                                        </span>
+                                    )}
                                 </Link>
                             </div>
 
