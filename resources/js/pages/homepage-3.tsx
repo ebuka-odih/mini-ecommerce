@@ -69,7 +69,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
 
     // Auto-advance banner slider
     useEffect(() => {
-        if (bannerSlides.length === 0) return;
+        if (!bannerSlides || bannerSlides.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentBannerSlide((prev) => (prev + 1) % bannerSlides.length);
@@ -80,7 +80,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
 
     // Auto-advance product slider (slower than banner)
     useEffect(() => {
-        if (products.length === 0) return;
+        if (!products || products.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentProductSlide((prev) => (prev + 1) % products.length);
@@ -150,15 +150,17 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
     };
 
     const nextBannerSlide = () => {
+        if (!bannerSlides || bannerSlides.length === 0) return;
         setCurrentBannerSlide((prev) => (prev + 1) % bannerSlides.length);
     };
 
     const prevBannerSlide = () => {
+        if (!bannerSlides || bannerSlides.length === 0) return;
         setCurrentBannerSlide((prev) => (prev - 1 + bannerSlides.length) % bannerSlides.length);
     };
 
     // Get active banner slides
-    const activeBannerSlides = bannerSlides.filter(slide => slide.is_active);
+    const activeBannerSlides = bannerSlides ? bannerSlides.filter(slide => slide.is_active) : [];
 
     return (
         <div className="overscroll-none">
@@ -324,7 +326,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
                         </p>
                     </div>
 
-                    {products.length > 0 ? (
+                    {products && products.length > 0 ? (
                         <div className="relative max-w-4xl mx-auto">
                             {/* Product Navigation Arrows */}
                             {products.length > 1 && (
@@ -356,7 +358,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
                                                     {/* Product Image - Click to view product details */}
                                                     <Link href={`/product/${product.slug}`} className="block">
                                                         <div className="aspect-square relative overflow-hidden">
-                                                            {product.images_data && product.images_data.length > 0 ? (
+                                                            {product.images_data && Array.isArray(product.images_data) && product.images_data.length > 0 ? (
                                                                 <img
                                                                     src={product.images_data[0].url || `/storage/${product.images_data[0].path}`}
                                                                     alt={product.name}
