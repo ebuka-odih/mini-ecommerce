@@ -8,7 +8,7 @@ import { CheckCircle, AlertCircle, Image as ImageIcon, Check, X, Eye } from 'luc
 import AdminLayout from '@/layouts/admin-layout';
 
 interface MediaImage {
-  id: number;
+  id: string;
   url: string;
   thumbnail_url: string;
   original_name: string;
@@ -21,7 +21,7 @@ interface MediaImage {
 
 interface SliderSettingsPageProps {
   images: MediaImage[];
-  selectedImages: number[];
+  selectedImages: string[];
   flash?: {
     success?: string;
     error?: string;
@@ -41,7 +41,7 @@ export default function SliderSettingsPage({ images, selectedImages, flash, site
     selectedImages: selectedImages,
   });
 
-  const handleImageToggle = (imageId: number) => {
+  const handleImageToggle = (imageId: string) => {
     const currentSelected = data.selectedImages;
     const isSelected = currentSelected.includes(imageId);
     
