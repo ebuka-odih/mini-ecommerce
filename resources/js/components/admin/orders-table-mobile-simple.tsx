@@ -167,12 +167,12 @@ const OrdersTableMobileSimple: React.FC<OrdersTableMobileSimpleProps> = ({ order
                             <div className="flex items-center gap-3">
                                 <Avatar className="h-10 w-10">
                                     <AvatarFallback className="bg-gray-600 text-white">
-                                        {order.customer.name.charAt(0).toUpperCase()}
+                                        {order.customer?.name ? order.customer.name.charAt(0).toUpperCase() : '?'}
                                     </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1">
-                                    <div className="font-medium text-white">{order.customer.name}</div>
-                                    <div className="text-sm text-gray-400">{order.customer.email}</div>
+                                    <div className="font-medium text-white">{order.customer?.name || 'N/A'}</div>
+                                    <div className="text-sm text-gray-400">{order.customer?.email || 'N/A'}</div>
                                 </div>
                             </div>
 
@@ -221,16 +221,20 @@ const OrdersTableMobileSimple: React.FC<OrdersTableMobileSimpleProps> = ({ order
                                         <div className="space-y-2">
                                             <h4 className="font-medium text-white text-sm">Order Items</h4>
                                             <div className="space-y-2">
-                                                {order.items.map((item, index) => (
-                                                    <div key={index} className="flex gap-3 p-2 bg-gray-600 rounded">
-                                                        <div className="w-10 h-10 bg-gray-500 rounded flex-shrink-0"></div>
-                                                        <div className="flex-1">
-                                                            <div className="font-medium text-white text-sm">{item.name}</div>
-                                                            <div className="text-xs text-gray-400">Qty: {item.quantity}</div>
-                                                            <div className="text-xs font-medium text-white">{formatCurrency(item.price)}</div>
+                                                {order.items && Array.isArray(order.items) && order.items.length > 0 ? (
+                                                    order.items.map((item, index) => (
+                                                        <div key={index} className="flex gap-3 p-2 bg-gray-600 rounded">
+                                                            <div className="w-10 h-10 bg-gray-500 rounded flex-shrink-0"></div>
+                                                            <div className="flex-1">
+                                                                <div className="font-medium text-white text-sm">{item?.name || 'Unknown Item'}</div>
+                                                                <div className="text-xs text-gray-400">Qty: {item?.quantity || 0}</div>
+                                                                <div className="text-xs font-medium text-white">{formatCurrency(item?.price || 0)}</div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                ))}
+                                                    ))
+                                                ) : (
+                                                    <div className="text-gray-400 text-xs text-center py-2">No items found</div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

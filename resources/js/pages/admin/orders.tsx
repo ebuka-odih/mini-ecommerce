@@ -461,17 +461,17 @@ const Orders: React.FC<OrdersPageProps> = ({
                                     <div className="flex items-center gap-3">
                                         <Avatar className="h-10 w-10">
                                             <AvatarFallback className="bg-gray-600 text-white">
-                                                {selectedOrder.customer.name.charAt(0).toUpperCase()}
+                                                {selectedOrder.customer?.name ? selectedOrder.customer.name.charAt(0).toUpperCase() : '?'}
                                             </AvatarFallback>
                                         </Avatar>
                                         <div>
-                                            <div className="font-medium text-white">{selectedOrder.customer.name}</div>
-                                            <div className="text-sm text-gray-400">{selectedOrder.customer.email}</div>
+                                            <div className="font-medium text-white">{selectedOrder.customer?.name || 'N/A'}</div>
+                                            <div className="text-sm text-gray-400">{selectedOrder.customer?.email || 'N/A'}</div>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-2 text-gray-400">
                                         <Phone className="h-4 w-4" />
-                                        <span className="text-sm">{selectedOrder.customer.phone}</span>
+                                        <span className="text-sm">{selectedOrder.customer?.phone || 'N/A'}</span>
                                     </div>
                                 </div>
                             </div>
@@ -479,15 +479,19 @@ const Orders: React.FC<OrdersPageProps> = ({
                             {/* Shipping Address */}
                             <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-white">Shipping Address</h3>
-                                <div className="space-y-1 text-sm">
-                                    <div className="text-white">{selectedOrder.shipping_address.street}</div>
-                                    <div className="text-gray-400">
-                                        {selectedOrder.shipping_address.city}, {selectedOrder.shipping_address.state}
+                                {selectedOrder.shipping_address ? (
+                                    <div className="space-y-1 text-sm">
+                                        <div className="text-white">{selectedOrder.shipping_address.street || 'N/A'}</div>
+                                        <div className="text-gray-400">
+                                            {selectedOrder.shipping_address.city || 'N/A'}, {selectedOrder.shipping_address.state || 'N/A'}
+                                        </div>
+                                        <div className="text-gray-400">
+                                            {selectedOrder.shipping_address.zip_code || 'N/A'}, {selectedOrder.shipping_address.country || 'N/A'}
+                                        </div>
                                     </div>
-                                    <div className="text-gray-400">
-                                        {selectedOrder.shipping_address.zip_code}, {selectedOrder.shipping_address.country}
-                                    </div>
-                                </div>
+                                ) : (
+                                    <div className="text-gray-400 text-sm">No shipping address available</div>
+                                )}
                             </div>
 
                             {/* Order Items */}
@@ -499,9 +503,9 @@ const Orders: React.FC<OrdersPageProps> = ({
                                             <div key={index} className="flex gap-3 p-3 bg-gray-700 rounded-lg">
                                                 <div className="w-12 h-12 bg-gray-600 rounded flex-shrink-0"></div>
                                                 <div className="flex-1">
-                                                    <div className="font-medium text-white">{item.name}</div>
-                                                    <div className="text-sm text-gray-400">Qty: {item.quantity}</div>
-                                                    <div className="text-sm font-medium text-white">{formatCurrency(item.price)}</div>
+                                                    <div className="font-medium text-white">{item?.name || 'Unknown Item'}</div>
+                                                    <div className="text-sm text-gray-400">Qty: {item?.quantity || 0}</div>
+                                                    <div className="text-sm font-medium text-white">{formatCurrency(item?.price || 0)}</div>
                                                 </div>
                                             </div>
                                         ))
