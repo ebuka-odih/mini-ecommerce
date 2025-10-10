@@ -69,12 +69,12 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
 
     // Auto-advance slider
     useEffect(() => {
-        if (featuredProducts.length === 0) return;
+        if (!featuredProducts || featuredProducts.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentImageIndex((prev) => {
                 const currentProduct = featuredProducts[currentSlide];
-                if (currentProduct && currentProduct.images_data.length > 1) {
+                if (currentProduct && currentProduct.images_data && Array.isArray(currentProduct.images_data) && currentProduct.images_data.length > 1) {
                     return (prev + 1) % currentProduct.images_data.length;
                 }
                 return prev;
@@ -86,7 +86,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
 
     // Auto-advance to next product
     useEffect(() => {
-        if (featuredProducts.length === 0) return;
+        if (!featuredProducts || featuredProducts.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
@@ -97,11 +97,13 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
     }, [featuredProducts]);
 
     const nextSlide = () => {
+        if (!featuredProducts || featuredProducts.length === 0) return;
         setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
         setCurrentImageIndex(0);
     };
 
     const prevSlide = () => {
+        if (!featuredProducts || featuredProducts.length === 0) return;
         setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length);
         setCurrentImageIndex(0);
     };
@@ -182,7 +184,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
             <section className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     {/* Hero Slider - Featured Products */}
-                    {featuredProducts.length > 0 ? (
+                    {featuredProducts && featuredProducts.length > 0 ? (
                         <div className="relative overflow-hidden rounded-xl fashion-shadow h-[80vh] lg:h-[85vh]">
                             {featuredProducts.map((product, index) => (
                                 <div
@@ -193,7 +195,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                 >
                                     {/* Product Images Slider */}
                                     <div className="relative w-full h-full">
-                                        {product.images_data.map((image, imgIndex) => (
+                                        {product.images_data && Array.isArray(product.images_data) && product.images_data.map((image, imgIndex) => (
                                             <div
                                                 key={image.id}
                                                 className={`absolute inset-0 transition-opacity duration-500 ${
@@ -257,7 +259,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                     </div>
 
                                     {/* Image indicators */}
-                                    {product.images_data.length > 1 && (
+                                    {product.images_data && Array.isArray(product.images_data) && product.images_data.length > 1 && (
                                         <div className="absolute top-8 right-8 z-20 flex gap-2">
                                             {product.images_data.map((_, imgIndex) => (
                                                 <button

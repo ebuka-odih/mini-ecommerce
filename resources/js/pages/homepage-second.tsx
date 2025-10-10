@@ -250,9 +250,9 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
   };
 
   // Create hero images from slider settings or fallback to featured products
-  const heroImages = sliderImages.length > 0 
+  const heroImages = (sliderImages && sliderImages.length > 0)
     ? sliderImages.map(img => img.url)
-    : featuredProducts.length > 0 
+    : (featuredProducts && featuredProducts.length > 0)
       ? featuredProducts.slice(0, 3).map(product => {
           // Get the first image from the product's images array
           const firstImage = product.images && product.images.length > 0 
