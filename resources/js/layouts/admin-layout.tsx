@@ -56,6 +56,7 @@ interface NavItem {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dashboard', stats, site_settings }) => {
     const { auth, flash } = usePage().props as any;
+    const page = usePage();
     
     // Get site settings from props or use defaults
     const siteName = site_settings?.site_name || 'GNOSIS';
@@ -103,6 +104,25 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
             return () => clearTimeout(timer);
         }
     }, [flash]);
+
+    // Helper function to check if a navigation item is active
+    const isActiveRoute = (href: string) => {
+        const currentUrl = page.url;
+        
+        // Exact match
+        if (currentUrl === href) {
+            return true;
+        }
+        
+        // For parent routes, check if current URL starts with the href
+        // But avoid matching /admin with /admin/products (should only match exact)
+        if (href === '/admin' && currentUrl !== '/admin') {
+            return false;
+        }
+        
+        // For other routes, check if current URL starts with the href
+        return currentUrl.startsWith(href);
+    };
 
     const navigationItems: NavItem[] = [
         {
@@ -179,7 +199,11 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                 )}
                                 <Link
                                     href={item.href}
-                                    className="flex items-center gap-3 rounded-lg px-3 py-3 text-gray-300 transition-all hover:text-white hover:bg-gray-700 font-medium"
+                                    className={`flex items-center gap-3 rounded-lg px-3 py-3 transition-all font-medium ${
+                                        isActiveRoute(item.href) 
+                                            ? 'text-white bg-blue-600 hover:bg-blue-700' 
+                                            : 'text-gray-300 hover:text-white hover:bg-gray-700'
+                                    }`}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                 >
                                     <item.icon className="h-5 w-5" />
@@ -196,9 +220,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                             <Link
                                                 key={child.title}
                                                 href={child.href}
-                                                className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-400 transition-all hover:text-gray-200 hover:bg-gray-700"
+                                                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+                                                    isActiveRoute(child.href)
+                                                        ? 'text-white bg-blue-500 hover:bg-blue-600'
+                                                        : 'text-gray-400 hover:text-gray-200 hover:bg-gray-700'
+                                                }`}
                                                 onClick={() => setIsMobileMenuOpen(false)}
                                             >
+                                                <child.icon className="h-4 w-4" />
                                                 <span>{child.title}</span>
                                             </Link>
                                         ))}
