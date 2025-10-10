@@ -64,6 +64,7 @@ interface ProductForm {
     short_description: string;
     price: string;
     sale_price: string;
+    cost_price: string;
     sku: string;
     stock_quantity: string;
     category_id: string;
@@ -79,6 +80,7 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         short_description: product.short_description || '',
         price: product.price?.toString() || '',
         sale_price: product.sale_price?.toString() || '',
+        cost_price: product.cost_price?.toString() || '',
         sku: product.sku || '',
         stock_quantity: product.stock_quantity?.toString() || '',
         category_id: product.category_id?.toString() || '',
@@ -275,6 +277,7 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
                     </CardHeader>
                     <CardContent>
                         <form onSubmit={handleSubmit} className="space-y-4">
+                            {/* Product Name, SKU, and Price Row */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {/* Product Name */}
                                 <div className="space-y-2">
@@ -334,7 +337,10 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
                                     />
                                     {errors.price && <p className="text-red-400 text-sm">{errors.price}</p>}
                                 </div>
+                            </div>
 
+                            {/* Sale Price and Cost Price Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Sale Price */}
                                 <div className="space-y-2">
                                     <Label htmlFor="sale_price" className="text-gray-300">Sale Price (₦)</Label>
@@ -350,6 +356,24 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
                                     {errors.sale_price && <p className="text-red-400 text-sm">{errors.sale_price}</p>}
                                 </div>
 
+                                {/* Cost Price */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="cost_price" className="text-gray-300">Cost Price (₦)</Label>
+                                    <Input
+                                        id="cost_price"
+                                        type="number"
+                                        step="0.01"
+                                        value={data.cost_price}
+                                        onChange={(e) => setData('cost_price', e.target.value)}
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                        placeholder="Purchase/market price (optional)"
+                                    />
+                                    {errors.cost_price && <p className="text-red-400 text-sm">{errors.cost_price}</p>}
+                                </div>
+                            </div>
+
+                            {/* Stock Quantity and Category Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Stock Quantity */}
                                 <div className="space-y-2">
                                     <Label htmlFor="stock_quantity" className="text-gray-300">Stock Quantity</Label>

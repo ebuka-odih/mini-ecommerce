@@ -169,6 +169,10 @@
                                             <input type="number" step="0.01" min="0" class="form-control" id="price" name="price" required>
                                         </div>
                                         <div class="mb-3">
+                                            <label for="cost_price" class="form-label">Cost Price (Optional)</label>
+                                            <input type="number" step="0.01" min="0" class="form-control" id="cost_price" name="cost_price">
+                                        </div>
+                                        <div class="mb-3">
                                             <label for="category_id" class="form-label">Category *</label>
                                             <select class="form-select" id="category_id" name="category_id" required>
                                                 <option value="">Select Category</option>

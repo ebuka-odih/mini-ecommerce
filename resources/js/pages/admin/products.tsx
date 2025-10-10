@@ -99,6 +99,7 @@ interface Product {
     description: string;
     price: number;
     sale_price?: number;
+    cost_price?: number;
     stock: number;
     stock_quantity: number;
     sku: string;
@@ -145,6 +146,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
         short_description: '',
         price: '',
         sale_price: '',
+        cost_price: '',
         sku: '',
         stock_quantity: '',
         category_id: '',
@@ -315,11 +317,13 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                     short_description: '',
                     price: '',
                     sale_price: '',
+                    cost_price: '',
                     sku: '',
                     stock_quantity: '',
                     category_id: '',
                     is_active: true,
                     is_featured: false,
+                    has_variations: false,
                 });
                 setProductImages([]);
                 setImagePreviews([]);
@@ -474,6 +478,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                         </DialogHeader>
                         
                         <form onSubmit={handleAddProduct} className="space-y-4">
+                            {/* Product Name, SKU, and Price Row */}
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                 {/* Product Name */}
                                 <div className="space-y-2">
@@ -530,7 +535,10 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                         required
                                     />
                                 </div>
+                            </div>
 
+                            {/* Sale Price and Cost Price Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Sale Price */}
                                 <div className="space-y-2">
                                     <Label htmlFor="sale_price" className="text-gray-300">Sale Price (₦)</Label>
@@ -545,6 +553,23 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                     />
                                 </div>
 
+                                {/* Cost Price */}
+                                <div className="space-y-2">
+                                    <Label htmlFor="cost_price" className="text-gray-300">Cost Price (₦)</Label>
+                                    <Input
+                                        id="cost_price"
+                                        type="number"
+                                        step="0.01"
+                                        value={newProduct.cost_price}
+                                        onChange={(e) => setNewProduct({...newProduct, cost_price: e.target.value})}
+                                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                                        placeholder="Purchase/market price (optional)"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Stock Quantity and Category Row */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {/* Stock Quantity */}
                                 <div className="space-y-2">
                                     <Label htmlFor="stock_quantity" className="text-gray-300">Stock Quantity</Label>

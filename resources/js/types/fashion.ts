@@ -52,6 +52,7 @@ export interface Product {
     short_description?: string;
     price: number;
     sale_price?: number;
+    cost_price?: number;
     sku: string;
     stock_quantity: number;
     is_active: boolean;
