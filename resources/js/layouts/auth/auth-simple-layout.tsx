@@ -20,15 +20,17 @@ export default function AuthSimpleLayout({ children, title, description, setting
                     <div className="flex flex-col items-center gap-4">
                         <Link href="/" className="flex flex-col items-center gap-2 font-medium">
                             <div className="mb-1 flex h-12 w-auto items-center justify-center">
-                                <img 
-                                    src={settings?.site_logo || '/brand/GNOSIS3.png'} 
-                                    alt={settings?.site_name || 'GNOSIS'} 
-                                    className="h-10 w-auto object-contain"
-                                    onError={(e) => {
-                                        e.currentTarget.src = '/brand/GNOSIS3.png';
-                                        e.currentTarget.alt = 'GNOSIS';
-                                    }}
-                                />
+                                {settings?.site_logo ? (
+                                    <img 
+                                        src={settings.site_logo} 
+                                        alt={settings?.site_name || 'Logo'} 
+                                        className="h-10 w-auto object-contain"
+                                    />
+                                ) : (
+                                    <span className="text-2xl font-bold text-white">
+                                        {settings?.site_name || 'GNOSIS'}
+                                    </span>
+                                )}
                             </div>
                             <span className="sr-only">{title}</span>
                         </Link>

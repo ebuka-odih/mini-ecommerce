@@ -75,11 +75,17 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
       <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 py-16 overflow-hidden overscroll-none">
         {/* Logo */}
         <div className="absolute top-8 left-8">
-          <img 
-            src="/img/paperview.png" 
-            alt="PAPERVIEW Logo" 
-            className="h-24 w-auto"
-          />
+          {settings?.site_logo ? (
+            <img 
+              src={settings.site_logo} 
+              alt={settings?.site_name || 'Logo'} 
+              className="h-24 w-auto"
+            />
+          ) : (
+            <span className="text-3xl font-bold text-white">
+              {settings?.site_name || 'GNOSIS'}
+            </span>
+          )}
         </div>
 
         {/* Main Content */}
