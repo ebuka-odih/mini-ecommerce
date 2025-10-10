@@ -63,47 +63,26 @@ interface HomePageProps {
 }
 
 const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], homepageLayouts = [], settings }) => {
-    // Hero slider state
+    // Hero slider state - 1 slide per product
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-    // Auto-advance slider
-    useEffect(() => {
-        if (featuredProducts.length === 0) return;
-
-        const interval = setInterval(() => {
-            setCurrentImageIndex((prev) => {
-                const currentProduct = featuredProducts[currentSlide];
-                if (currentProduct && currentProduct.images_data.length > 1) {
-                    return (prev + 1) % currentProduct.images_data.length;
-                }
-                return prev;
-            });
-        }, 3000); // Change image every 3 seconds
-
-        return () => clearInterval(interval);
-    }, [currentSlide, featuredProducts]);
-
-    // Auto-advance to next product
+    // Auto-advance to next product (1 slide = 1 product)
     useEffect(() => {
         if (featuredProducts.length === 0) return;
 
         const interval = setInterval(() => {
             setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
-            setCurrentImageIndex(0); // Reset to first image when changing products
-        }, 6000); // Change product every 6 seconds
+        }, 5000); // Change product every 5 seconds
 
         return () => clearInterval(interval);
     }, [featuredProducts]);
 
     const nextSlide = () => {
         setCurrentSlide((prev) => (prev + 1) % featuredProducts.length);
-        setCurrentImageIndex(0);
     };
 
     const prevSlide = () => {
         setCurrentSlide((prev) => (prev - 1 + featuredProducts.length) % featuredProducts.length);
-        setCurrentImageIndex(0);
     };
 
     // Helper function to get layout background
@@ -191,22 +170,17 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                         index === currentSlide ? 'opacity-100' : 'opacity-0'
                                     }`}
                                 >
-                                    {/* Product Images Slider */}
-                                    <div className="relative w-full h-full">
-                                        {product.images_data.map((image, imgIndex) => (
-                                            <div
-                                                key={image.id}
-                                                className={`absolute inset-0 transition-opacity duration-500 ${
-                                                    imgIndex === currentImageIndex ? 'opacity-100' : 'opacity-0'
-                                                }`}
-                                                style={{
-                                                    backgroundImage: `url(${image.url || `/storage/${image.path}`})`,
-                                                    backgroundSize: 'cover',
-                                                    backgroundPosition: 'center',
-                                                }}
-                                            />
-                                        ))}
-                                        
+                                    {/* Product Image - 1 image per product */}
+                                    <div 
+                                        className="absolute inset-0"
+                                        style={{
+                                            backgroundImage: product.images_data.length > 0 
+                                                ? `url(${product.images_data[0].url || `/storage/${product.images_data[0].path}`})`
+                                                : 'none',
+                                            backgroundSize: 'cover',
+                                            backgroundPosition: 'center',
+                                        }}
+                                    >
                                         {/* Fallback if no images */}
                                         {product.images_data.length === 0 && (
                                             <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800" />
@@ -255,23 +229,6 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                             </Button>
                                         </Link>
                                     </div>
-
-                                    {/* Image indicators */}
-                                    {product.images_data.length > 1 && (
-                                        <div className="absolute top-8 right-8 z-20 flex gap-2">
-                                            {product.images_data.map((_, imgIndex) => (
-                                                <button
-                                                    key={imgIndex}
-                                                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                                                        imgIndex === currentImageIndex 
-                                                            ? 'bg-white' 
-                                                            : 'bg-white/50 hover:bg-white/75'
-                                                    }`}
-                                                    onClick={() => setCurrentImageIndex(imgIndex)}
-                                                />
-                                            ))}
-                                        </div>
-                                    )}
                                 </div>
                             ))}
 
@@ -304,10 +261,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
                                                     ? 'bg-white' 
                                                     : 'bg-white/50 hover:bg-white/75'
                                             }`}
-                                            onClick={() => {
-                                                setCurrentSlide(index);
-                                                setCurrentImageIndex(0);
-                                            }}
+                                            onClick={() => setCurrentSlide(index)}
                                         />
                                     ))}
                                 </div>

@@ -47,7 +47,7 @@ class HomeController extends Controller
             $images = \App\Models\Image::where('imageable_type', 'App\Models\Product')
                 ->where('imageable_id', $product->id)
                 ->orderBy('sort_order')
-                ->take(2) // Only get first 2 images
+                ->take(1) // Only get first image - 1 slide per product
                 ->get();
             // Add images as a custom attribute
             $product->images_data = $images;
