@@ -37,6 +37,23 @@ class SliderSettingsController extends Controller
         // Get current slider images setting
         $selectedImages = Setting::getValue('homepage_slider_images', []);
         
+        // Clean up orphaned image references (images that no longer exist in database)
+        $existingImageIds = Image::pluck('id')->toArray();
+        $originalSelectedCount = count($selectedImages);
+        $selectedImages = array_values(array_filter($selectedImages, function($id) use ($existingImageIds) {
+            return in_array($id, $existingImageIds);
+        }));
+        
+        // If we removed any orphaned images, update the setting
+        if (count($selectedImages) !== $originalSelectedCount) {
+            Log::warning('Cleaned up orphaned slider images', [
+                'original_count' => $originalSelectedCount,
+                'cleaned_count' => count($selectedImages),
+                'removed_count' => $originalSelectedCount - count($selectedImages)
+            ]);
+            Setting::setValue('homepage_slider_images', json_encode($selectedImages), 'json', 'frontend', 'Homepage slider images');
+        }
+        
         Log::info('Slider settings page loaded', [
             'selectedImages' => $selectedImages,
             'count' => count($selectedImages),
@@ -68,10 +85,32 @@ class SliderSettingsController extends Controller
             'content_type' => $request->header('Content-Type')
         ]);
 
+        // Debug: Check what IDs exist in the database
+        $allImageIds = Image::pluck('id')->toArray();
+        Log::info('Database image IDs', [
+            'count' => count($allImageIds),
+            'sample_ids' => array_slice($allImageIds, 0, 5),
+            'all_ids' => $allImageIds
+        ]);
+
         Log::info('About to validate request data', [
             'selectedImages' => $request->selectedImages,
-            'selectedImages_count' => count($request->selectedImages ?? [])
+            'selectedImages_count' => count($request->selectedImages ?? []),
+            'selectedImages_types' => array_map('gettype', $request->selectedImages ?? [])
         ]);
+
+        // Debug: Check each selected image
+        if (!empty($request->selectedImages)) {
+            foreach ($request->selectedImages as $index => $imageId) {
+                $exists = Image::where('id', $imageId)->exists();
+                Log::info("Checking image {$index}", [
+                    'id' => $imageId,
+                    'type' => gettype($imageId),
+                    'exists_in_db' => $exists,
+                    'id_length' => strlen($imageId)
+                ]);
+            }
+        }
 
         try {
             $request->validate([
@@ -82,7 +121,8 @@ class SliderSettingsController extends Controller
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation failed', [
                 'errors' => $e->errors(),
-                'request_data' => $request->all()
+                'request_data' => $request->all(),
+                'database_ids_sample' => array_slice($allImageIds, 0, 5)
             ]);
             throw $e;
         }
