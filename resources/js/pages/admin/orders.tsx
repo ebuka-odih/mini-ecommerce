@@ -171,9 +171,9 @@ const Orders: React.FC<OrdersPageProps> = ({
     };
 
     const filteredOrders = orders.filter(order => {
-        const matchesSearch = order.order_number.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            order.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                            order.customer.email.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch = order.order_number?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            order.customer?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            order.customer?.email?.toLowerCase().includes(searchQuery.toLowerCase());
         const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
         const matchesPayment = paymentFilter === 'all' || order.payment_status === paymentFilter;
         
@@ -318,19 +318,25 @@ const Orders: React.FC<OrdersPageProps> = ({
                                                     <TableCell className="font-medium text-white">
                                                         <div>
                                                             <div className="font-semibold">#{order.order_number}</div>
-                                                            <div className="text-sm text-gray-400">{order.items.length} item{order.items.length !== 1 ? 's' : ''}</div>
+                                                            <div className="text-sm text-gray-400">
+                                                                {order.items && Array.isArray(order.items) ? (
+                                                                    `${order.items.length} item${order.items.length !== 1 ? 's' : ''}`
+                                                                ) : (
+                                                                    '0 items'
+                                                                )}
+                                                            </div>
                                                         </div>
                                                     </TableCell>
                                                     <TableCell>
                                                         <div className="flex items-center gap-3">
                                                             <Avatar className="h-8 w-8">
                                                                 <AvatarFallback className="bg-gray-600 text-white text-xs">
-                                                                    {order.customer.name.charAt(0).toUpperCase()}
+                                                                    {order.customer?.name ? order.customer.name.charAt(0).toUpperCase() : '?'}
                                                                 </AvatarFallback>
                                                             </Avatar>
                                                             <div>
-                                                                <div className="font-medium text-white">{order.customer.name}</div>
-                                                                <div className="text-sm text-gray-400">{order.customer.email}</div>
+                                                                <div className="font-medium text-white">{order.customer?.name || 'N/A'}</div>
+                                                                <div className="text-sm text-gray-400">{order.customer?.email || 'N/A'}</div>
                                                             </div>
                                                         </div>
                                                     </TableCell>
@@ -488,16 +494,20 @@ const Orders: React.FC<OrdersPageProps> = ({
                             <div className="space-y-4">
                                 <h3 className="text-lg font-semibold text-white">Order Items</h3>
                                 <div className="space-y-3">
-                                    {selectedOrder.items.map((item, index) => (
-                                        <div key={index} className="flex gap-3 p-3 bg-gray-700 rounded-lg">
-                                            <div className="w-12 h-12 bg-gray-600 rounded flex-shrink-0"></div>
-                                            <div className="flex-1">
-                                                <div className="font-medium text-white">{item.name}</div>
-                                                <div className="text-sm text-gray-400">Qty: {item.quantity}</div>
-                                                <div className="text-sm font-medium text-white">{formatCurrency(item.price)}</div>
+                                    {selectedOrder.items && Array.isArray(selectedOrder.items) && selectedOrder.items.length > 0 ? (
+                                        selectedOrder.items.map((item, index) => (
+                                            <div key={index} className="flex gap-3 p-3 bg-gray-700 rounded-lg">
+                                                <div className="w-12 h-12 bg-gray-600 rounded flex-shrink-0"></div>
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-white">{item.name}</div>
+                                                    <div className="text-sm text-gray-400">Qty: {item.quantity}</div>
+                                                    <div className="text-sm font-medium text-white">{formatCurrency(item.price)}</div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        ))
+                                    ) : (
+                                        <div className="text-gray-400 text-center py-4">No items found</div>
+                                    )}
                                 </div>
                             </div>
 
