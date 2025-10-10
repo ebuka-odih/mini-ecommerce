@@ -361,29 +361,84 @@ class HomeController extends Controller
                 return $product;
             });
         
-        // Mock banner slides data (you can create a BannerSlide model later)
+        // Get slider images from admin settings
+        $bannerSlides = [];
+        $selectedImageIds = Setting::getValue('homepage_slider_images', []);
+        
+        if (!empty($selectedImageIds)) {
+            $images = \App\Models\Image::whereIn('id', $selectedImageIds)->get();
+            
+            // Sort by the order they appear in selectedImageIds array
+            $bannerSlides = collect($selectedImageIds)
+                ->map(function ($id) use ($images) {
+                    return $images->firstWhere('id', $id);
+                })
+                ->filter() // Remove null values
+                ->map(function ($image, $index) {
+                    // Define specific slide content for first 3 slides
+                    $slideContent = [
+                        [
+                            'title' => 'MARO DESIGNS',
+                            'subtitle' => 'Where artistry meets innovation, creating timeless expressions of personal style.',
+                            'button_text' => 'Shop Now',
+                        ],
+                        [
+                            'title' => 'FRESH PERSPECTIVES',
+                            'button_text' => 'Explore Collection',
+                        ],
+                        [
+                            'title' => 'CRAFTED TO PERFECTION',
+                            'button_text' => 'Discover More',
+                        ],
+                    ];
+                    
+                    // Use specific content for first 3 slides, default for others
+                    if ($index < 3) {
+                        $content = $slideContent[$index];
+                    } else {
+                        $content = [
+                            'title' => 'DISCOVER EXCELLENCE',
+                            'button_text' => 'Shop Collection',
+                        ];
+                    }
+                    
+                    return [
+                        'id' => $image->id,
+                        'title' => $content['title'],
+                        'subtitle' => $content['subtitle'] ?? null,
+                        'image_url' => $image->url,
+                        'alt_text' => $image->alt_text ?: $image->original_name,
+                        'button_text' => $content['button_text'],
+                        'button_link' => '/shop',
+                        'is_active' => true,
+                    ];
+                })
+                ->values()
+                ->toArray();
+        }
+
+        // Fallback banner slides if no slider images are configured
+        if (empty($bannerSlides)) {
         $bannerSlides = [
+                [
+                    'id' => 'fallback-1',
+                    'title' => 'MARO DESIGNS',
+                    'subtitle' => 'Where artistry meets innovation, creating timeless expressions of personal style.',
+                    'image_url' => '/images/banner-1.jpg',
+                    'button_text' => 'Shop Now',
+                    'button_link' => '/shop',
+                    'is_active' => true,
+                ],
             [
-                'id' => '1',
-                'title' => 'Welcome to Our Store',
-                'subtitle' => 'Discover Amazing Products',
-                'description' => 'Explore our curated collection of premium products designed for modern living.',
-                'image_url' => '/images/banner-1.jpg',
-                'button_text' => 'Shop Now',
-                'button_link' => '/shop',
-                'is_active' => true,
-            ],
-            [
-                'id' => '2',
-                'title' => 'New Collection',
-                'subtitle' => 'Latest Arrivals',
-                'description' => 'Be the first to experience our newest products with exclusive early access.',
+                    'id' => 'fallback-2',
+                    'title' => 'FRESH PERSPECTIVES',
                 'image_url' => '/images/banner-2.jpg',
                 'button_text' => 'Explore Collection',
                 'button_link' => '/shop',
                 'is_active' => true,
             ],
         ];
+        }
         
         // Get settings for the homepage
         $settings = [

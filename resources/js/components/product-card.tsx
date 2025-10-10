@@ -29,6 +29,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', sett
     const onSale = isOnSale(product);
     const discountPercent = onSale ? calculateDiscount(product.price, product.sale_price!) : 0;
 
+    // Load favorites from localStorage on component mount
+    React.useEffect(() => {
+        const savedFavorites = localStorage.getItem('favoriteProducts');
+        if (savedFavorites) {
+            try {
+                const favoritesArray = JSON.parse(savedFavorites);
+                setIsWishlisted(favoritesArray.includes(product.id));
+            } catch (error) {
+                console.error('Error loading favorites from localStorage:', error);
+            }
+        }
+    }, [product.id]);
+
     const handleAddToCart = async (e: React.MouseEvent) => {
         e.preventDefault();
         
@@ -90,8 +103,36 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, className = '', sett
 
     const handleToggleWishlist = (e: React.MouseEvent) => {
         e.preventDefault();
-        setIsWishlisted(!isWishlisted);
-        // TODO: Implement wishlist functionality
+        
+        // Get current favorites from localStorage
+        const savedFavorites = localStorage.getItem('favoriteProducts');
+        let favoritesArray = savedFavorites ? JSON.parse(savedFavorites) : [];
+        
+        // Toggle the product in favorites
+        const newIsWishlisted = !isWishlisted;
+        if (newIsWishlisted) {
+            // Add to favorites
+            if (!favoritesArray.includes(product.id)) {
+                favoritesArray.push(product.id);
+            }
+        } else {
+            // Remove from favorites
+            favoritesArray = favoritesArray.filter((id: string) => id !== product.id);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('favoriteProducts', JSON.stringify(favoritesArray));
+        
+        // Update local state
+        setIsWishlisted(newIsWishlisted);
+        
+        // Show feedback toast
+        addToast({
+            title: newIsWishlisted ? 'Added to Favorites!' : 'Removed from Favorites!',
+            description: `${product.name} has been ${newIsWishlisted ? 'added to' : 'removed from'} your favorites.`,
+            type: 'success',
+            duration: 3000,
+        });
     };
 
     return (
