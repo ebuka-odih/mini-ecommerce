@@ -12,6 +12,8 @@ import AdminLayout from '@/layouts/admin-layout';
 import PageHeader from '@/components/admin/page-header';
 import { Product, Category } from '@/types/fashion';
 import ImagePicker from '@/components/admin/image-picker';
+import DraggableImageGallery, { useImageOrder } from '@/components/admin/draggable-image-gallery';
+import DraggableNewImages, { useNewImageUploads } from '@/components/admin/draggable-new-images';
 
 interface Size {
     id: number;
@@ -93,10 +95,40 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         product.variations || []
     );
 
-    const [productImages, setProductImages] = React.useState<File[]>([]);
-    const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
     const [imagesToDelete, setImagesToDelete] = React.useState<string[]>([]);
     const [selectedLibraryImages, setSelectedLibraryImages] = React.useState<MediaFile[]>([]);
+    
+    // Use the new image uploads hook
+    const {
+        images: newImages,
+        primaryImageId: newPrimaryImageId,
+        addImages,
+        removeImage: removeNewImage,
+        setPrimary: setNewPrimary,
+        reorderImages: reorderNewImages,
+        clearImages: clearNewImages
+    } = useNewImageUploads();
+    
+    // Convert product images to draggable format
+    const initialDraggableImages = React.useMemo(() => 
+        product.images?.map((img, index) => ({
+            id: img.id.toString(),
+            url: img.url || `/storage/${img.path}`,
+            thumbnail_url: img.thumbnail_url || img.url || `/storage/${img.path}`,
+            alt_text: img.alt_text,
+            is_featured: img.is_featured,
+            sort_order: img.sort_order ?? index,
+            original_name: img.original_name
+        })) || []
+    , [product.images]);
+
+    const {
+        images: draggableImages,
+        handleReorder,
+        handleRemove: handleRemoveDraggableImage,
+        handleSetPrimary
+    } = useImageOrder(initialDraggableImages);
+
     const [primaryImageId, setPrimaryImageId] = React.useState<string | null>(
         product.images?.find(img => img.is_featured)?.id.toString() || null
     );
@@ -105,21 +137,9 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
-        setProductImages(prevImages => [...prevImages, ...files]);
-
-        // Create preview URLs
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImagePreviews(prev => [...prev, e.target?.result as string]);
-            };
-            reader.readAsDataURL(file);
-        });
-    };
-
-    const removeNewImage = (index: number) => {
-        setProductImages(prev => prev.filter((_, i) => i !== index));
-        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        addImages(files);
+        // Clear the input so the same file can be selected again
+        e.target.value = '';
     };
 
     const removeExistingImage = (imageId: string) => {
@@ -133,6 +153,26 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
     const setPrimaryImage = (imageId: string) => {
         setPrimaryImageId(imageId);
     };
+
+    // Handle draggable image operations
+    const handleDraggableImageRemove = (imageId: string) => {
+        removeExistingImage(imageId);
+        handleRemoveDraggableImage(imageId);
+    };
+
+    const handleDraggableImageSetPrimary = (imageId: string) => {
+        setPrimaryImage(imageId);
+        handleSetPrimary(imageId);
+    };
+
+    // Cleanup function to prevent memory leaks
+    React.useEffect(() => {
+        return () => {
+            newImages.forEach(img => {
+                URL.revokeObjectURL(img.preview);
+            });
+        };
+    }, [newImages]);
 
     // Library image management functions
     const removeLibraryImage = (imageId: string) => {
@@ -180,8 +220,8 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         });
 
         // Add new images
-        productImages.forEach((file, index) => {
-            formData.append(`images[${index}]`, file);
+        newImages.forEach((imagePreview, index) => {
+            formData.append(`images[${index}]`, imagePreview.file);
         });
 
         // Add images to delete
@@ -198,6 +238,11 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
         if (primaryImageId) {
             formData.append('primary_image_id', primaryImageId);
         }
+
+        // Add image order data
+        draggableImages.forEach((image, index) => {
+            formData.append(`image_order[${image.id}]`, index.toString());
+        });
 
         // Add variations data
         if (data.has_variations && variations.length > 0) {
@@ -434,44 +479,20 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
                                 {errors.description && <p className="text-red-400 text-sm">{errors.description}</p>}
                             </div>
 
-                            {/* Existing Images */}
-                            {product.images && product.images.length > 0 && (
+                            {/* Existing Images - Draggable Gallery */}
+                            {draggableImages.length > 0 && (
                                 <div className="space-y-3">
                                     <Label className="text-gray-300">Current Images</Label>
-                                    <p className="text-xs text-gray-400">Click on an image to set it as the primary image</p>
-                                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                                        {product.images
-                                            .filter(image => !imagesToDelete.includes(image.id.toString()))
-                                            .map((image, index) => (
-                                                <div key={image.id} className="relative group">
-                                                    <img
-                                                        src={image.url || `/storage/${image.path}`}
-                                                        alt={image.alt_text || `Product image ${index + 1}`}
-                                                        className={`w-full h-16 object-cover rounded border cursor-pointer transition-all ${
-                                                            primaryImageId === image.id.toString() 
-                                                                ? 'border-blue-500 border-2' 
-                                                                : 'border-gray-600 hover:border-blue-400'
-                                                        }`}
-                                                        onClick={() => setPrimaryImage(image.id.toString())}
-                                                        title="Click to set as primary image"
-                                                    />
-                                                    <Button
-                                                        type="button"
-                                                        variant="destructive"
-                                                        size="icon"
-                                                        className="absolute -top-1 -right-1 h-4 w-4 rounded-full opacity-80 group-hover:opacity-100 transition-opacity bg-red-600 hover:bg-red-700 border-0"
-                                                        onClick={() => removeExistingImage(image.id.toString())}
-                                                    >
-                                                        <X className="h-2 w-2 text-white" />
-                                                    </Button>
-                                                    {primaryImageId === image.id.toString() && (
-                                                        <Badge className="absolute bottom-0 left-0 bg-blue-500 text-white text-xs px-1 py-0">
-                                                            Primary
-                                                        </Badge>
-                                                    )}
-                                                </div>
-                                            ))}
-                                    </div>
+                                    <DraggableImageGallery
+                                        images={draggableImages}
+                                        onReorder={handleReorder}
+                                        onRemove={handleDraggableImageRemove}
+                                        onSetPrimary={handleDraggableImageSetPrimary}
+                                        primaryImageId={primaryImageId}
+                                        showRemoveButton={true}
+                                        showPrimaryButton={true}
+                                        layout="grid"
+                                    />
                                     {imagesToDelete.length > 0 && (
                                         <p className="text-sm text-red-400">
                                             {imagesToDelete.length} image{imagesToDelete.length > 1 ? 's' : ''} will be deleted when you save
@@ -563,28 +584,15 @@ export default function EditProduct({ product, categories, sizes, colors }: Edit
                                     </label>
                                 </div>
 
-                                {/* New Image Previews */}
-                                {imagePreviews.length > 0 && (
-                                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mt-3">
-                                        {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative group">
-                                                <img
-                                                    src={preview}
-                                                    alt={`New preview ${index + 1}`}
-                                                    className="w-full h-16 object-cover rounded border border-gray-600"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full opacity-80 group-hover:opacity-100 transition-opacity bg-red-600 hover:bg-red-700 border-0"
-                                                    onClick={() => removeNewImage(index)}
-                                                >
-                                                    <X className="h-2 w-2 text-white" />
-                                                </Button>
-                                            </div>
-                                        ))}
-                                    </div>
+                                {/* New Image Previews - Draggable */}
+                                {newImages.length > 0 && (
+                                    <DraggableNewImages
+                                        images={newImages}
+                                        onReorder={reorderNewImages}
+                                        onRemove={removeNewImage}
+                                        onSetPrimary={setNewPrimary}
+                                        primaryImageId={newPrimaryImageId}
+                                    />
                                 )}
                             </div>
 

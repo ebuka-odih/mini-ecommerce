@@ -6,6 +6,8 @@ use App\Models\Image;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class ImageService
 {
@@ -208,5 +210,161 @@ class ImageService
         Storage::disk($image->disk)->copy($image->path, $mediumPath);
         
         return $mediumPath;
+    }
+
+    /**
+     * Optimize an image after upload
+     * Generates thumbnails, medium sizes, and WebP versions
+     */
+    public function optimizeImage(Image $image)
+    {
+        try {
+            // Check if GD extension is loaded
+            if (!extension_loaded('gd')) {
+                \Log::warning('GD extension not loaded, skipping image optimization');
+                return false;
+            }
+
+            $manager = new ImageManager(new Driver());
+            $disk = Storage::disk($image->disk);
+            
+            if (!$disk->exists($image->path)) {
+                \Log::error("Image file not found for optimization: {$image->path}");
+                return false;
+            }
+
+            $fullPath = $disk->path($image->path);
+            $pathInfo = pathinfo($image->path);
+            $directory = $pathInfo['dirname'];
+            $filename = $pathInfo['filename'];
+            $extension = $pathInfo['extension'];
+
+            // Load the image to get dimensions
+            $img = $manager->read($fullPath);
+            $originalWidth = $img->width();
+            $originalHeight = $img->height();
+
+            // Update image dimensions
+            $image->width = $originalWidth;
+            $image->height = $originalHeight;
+
+            // Optimize original if it's too large
+            $maxOriginalWidth = 2000;
+            $maxOriginalHeight = 2000;
+
+            if ($originalWidth > $maxOriginalWidth || $originalHeight > $maxOriginalHeight) {
+                $img->scale(width: $maxOriginalWidth, height: $maxOriginalHeight);
+                
+                if (strtolower($extension) === 'jpg' || strtolower($extension) === 'jpeg') {
+                    $img->toJpeg(quality: 85)->save($fullPath);
+                } elseif (strtolower($extension) === 'png') {
+                    $img->toPng()->save($fullPath);
+                }
+                
+                $image->size = filesize($fullPath);
+            }
+
+            // Generate thumbnail
+            $this->generateOptimizedThumbnail($image, $fullPath, $directory, $filename, $extension, $manager);
+
+            // Generate medium size
+            $this->generateOptimizedMedium($image, $fullPath, $directory, $filename, $extension, $manager);
+
+            // Generate WebP if supported
+            if (function_exists('imagewebp')) {
+                $this->generateOptimizedWebP($image, $fullPath, $directory, $filename, $manager);
+            }
+
+            // Mark as optimized
+            $image->is_optimized = true;
+            $image->metadata = array_merge($image->metadata ?? [], [
+                'optimized_at' => now()->toISOString(),
+                'auto_optimized' => true,
+            ]);
+            
+            $image->save();
+
+            return true;
+
+        } catch (\Exception $e) {
+            \Log::error('Image optimization failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function generateOptimizedThumbnail(Image $image, string $fullPath, string $directory, string $filename, string $extension, ImageManager $manager)
+    {
+        $disk = Storage::disk($image->disk);
+        $thumbnailDir = $directory . '/thumbnails';
+        
+        if (!$disk->exists($thumbnailDir)) {
+            $disk->makeDirectory($thumbnailDir);
+        }
+
+        $thumbnailPath = $thumbnailDir . '/' . $filename . '.' . $extension;
+        $thumbnailFullPath = $disk->path($thumbnailPath);
+
+        $thumbnail = $manager->read($fullPath);
+        $thumbnail->cover(300, 400); // 3:4 aspect ratio to match product card container
+
+        if (strtolower($extension) === 'jpg' || strtolower($extension) === 'jpeg') {
+            $thumbnail->toJpeg(quality: 80)->save($thumbnailFullPath);
+        } elseif (strtolower($extension) === 'png') {
+            $thumbnail->toPng()->save($thumbnailFullPath);
+        } else {
+            $thumbnail->save($thumbnailFullPath);
+        }
+    }
+
+    protected function generateOptimizedMedium(Image $image, string $fullPath, string $directory, string $filename, string $extension, ImageManager $manager)
+    {
+        $disk = Storage::disk($image->disk);
+        $mediumDir = $directory . '/medium';
+        
+        if (!$disk->exists($mediumDir)) {
+            $disk->makeDirectory($mediumDir);
+        }
+
+        $mediumPath = $mediumDir . '/' . $filename . '.' . $extension;
+        $mediumFullPath = $disk->path($mediumPath);
+
+        $medium = $manager->read($fullPath);
+        $medium->scale(width: 800, height: 800);
+
+        if (strtolower($extension) === 'jpg' || strtolower($extension) === 'jpeg') {
+            $medium->toJpeg(quality: 85)->save($mediumFullPath);
+        } elseif (strtolower($extension) === 'png') {
+            $medium->toPng()->save($mediumFullPath);
+        } else {
+            $medium->save($mediumFullPath);
+        }
+    }
+
+    protected function generateOptimizedWebP(Image $image, string $fullPath, string $directory, string $filename, ImageManager $manager)
+    {
+        $disk = Storage::disk($image->disk);
+        $webpDir = $directory . '/webp';
+        
+        if (!$disk->exists($webpDir)) {
+            $disk->makeDirectory($webpDir);
+        }
+
+        // Original WebP
+        $webpPath = $webpDir . '/' . $filename . '.webp';
+        $webpFullPath = $disk->path($webpPath);
+        $webp = $manager->read($fullPath);
+        $webp->toWebp(quality: 85)->save($webpFullPath);
+
+        // Thumbnail WebP
+        $webpThumbPath = $webpDir . '/' . $filename . '_thumb.webp';
+        $webpThumbFullPath = $disk->path($webpThumbPath);
+        $webpThumb = $manager->read($fullPath);
+        $webpThumb->cover(300, 400)->toWebp(quality: 80)->save($webpThumbFullPath);
+
+        // Medium WebP
+        $webpMediumPath = $webpDir . '/' . $filename . '_medium.webp';
+        $webpMediumFullPath = $disk->path($webpMediumPath);
+        $webpMedium = $manager->read($fullPath);
+        $webpMedium->scale(width: 800, height: 800)->toWebp(quality: 85)->save($webpMediumFullPath);
     }
 } 

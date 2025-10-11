@@ -20,6 +20,7 @@ import {
 import AdminLayout from '@/layouts/admin-layout';
 import PageHeader from '@/components/admin/page-header';
 import ImagePicker from '@/components/admin/image-picker';
+import DraggableNewImages, { useNewImageUploads } from '@/components/admin/draggable-new-images';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -155,12 +156,21 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
         has_variations: false,
     });
     const [variations, setVariations] = React.useState<ProductVariation[]>([]);
-    const [productImages, setProductImages] = React.useState<File[]>([]);
     const { addToast } = useToast();
-    const [imagePreviews, setImagePreviews] = React.useState<string[]>([]);
     const [selectedLibraryImages, setSelectedLibraryImages] = React.useState<any[]>([]);
     const [imageUploadMode, setImageUploadMode] = React.useState<'file' | 'url'>('file');
     const [imageUrls, setImageUrls] = React.useState<string[]>(['']);
+    
+    // Use the new image uploads hook
+    const {
+        images: newImages,
+        primaryImageId: newPrimaryImageId,
+        addImages,
+        removeImage: removeNewImage,
+        setPrimary: setNewPrimary,
+        reorderImages: reorderNewImages,
+        clearImages: clearNewImages
+    } = useNewImageUploads();
 
     const handleSearch = (e: React.FormEvent) => {
         e.preventDefault();
@@ -172,25 +182,22 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
         });
     };
 
+    // Cleanup function to prevent memory leaks
+    React.useEffect(() => {
+        return () => {
+            newImages.forEach(img => {
+                URL.revokeObjectURL(img.preview);
+            });
+        };
+    }, [newImages]);
+
     const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = Array.from(e.target.files || []);
         if (files.length === 0) return;
 
-        setProductImages(prevImages => [...prevImages, ...files]);
-
-        // Create preview URLs
-        files.forEach(file => {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setImagePreviews(prev => [...prev, e.target?.result as string]);
-            };
-            reader.readAsDataURL(file);
-        });
-    };
-
-    const removeImage = (index: number) => {
-        setProductImages(prev => prev.filter((_, i) => i !== index));
-        setImagePreviews(prev => prev.filter((_, i) => i !== index));
+        addImages(files);
+        // Clear the input so the same file can be selected again
+        e.target.value = '';
     };
 
     const removeLibraryImage = (imageId: string) => {
@@ -279,8 +286,8 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
         });
 
         // Add new uploaded images
-        productImages.forEach((file, index) => {
-            formData.append(`images[${index}]`, file);
+        newImages.forEach((imagePreview, index) => {
+            formData.append(`images[${index}]`, imagePreview.file);
         });
 
         // Add selected library images
@@ -788,33 +795,15 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                                     </div>
                                 )}
 
-                                {/* Image Previews */}
-                                {imagePreviews.length > 0 && (
-                                    <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mt-3">
-                                        {imagePreviews.map((preview, index) => (
-                                            <div key={index} className="relative group">
-                                                <img
-                                                    src={preview}
-                                                    alt={`Preview ${index + 1}`}
-                                                    className="w-full h-16 object-cover rounded border border-gray-600"
-                                                />
-                                                <Button
-                                                    type="button"
-                                                    variant="destructive"
-                                                    size="icon"
-                                                    className="absolute -top-1 -right-1 h-4 w-4 rounded-full opacity-80 group-hover:opacity-100 transition-opacity bg-red-600 hover:bg-red-700 border-0"
-                                                    onClick={() => removeImage(index)}
-                                                >
-                                                    <X className="h-2 w-2 text-white" />
-                                                </Button>
-                                                {index === 0 && (
-                                                    <Badge className="absolute bottom-0 left-0 bg-blue-500 text-white text-xs px-1 py-0">
-                                                        1st
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
+                                {/* Image Previews - Draggable */}
+                                {newImages.length > 0 && (
+                                    <DraggableNewImages
+                                        images={newImages}
+                                        onReorder={reorderNewImages}
+                                        onRemove={removeNewImage}
+                                        onSetPrimary={setNewPrimary}
+                                        primaryImageId={newPrimaryImageId}
+                                    />
                                 )}
                             </div>
 

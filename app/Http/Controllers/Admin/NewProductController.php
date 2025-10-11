@@ -374,6 +374,17 @@ class NewProductController extends Controller
                 ->update(['is_featured' => true]);
         }
 
+        // Handle image reordering
+        if ($request->has('image_order')) {
+            $imageOrder = $request->input('image_order');
+            foreach ($imageOrder as $imageId => $sortOrder) {
+                Image::where('id', $imageId)
+                    ->where('imageable_type', Product::class)
+                    ->where('imageable_id', $product->id)
+                    ->update(['sort_order' => $sortOrder]);
+            }
+        }
+
         // Handle product variations
         // First, delete existing variations
         $product->variations()->delete();
