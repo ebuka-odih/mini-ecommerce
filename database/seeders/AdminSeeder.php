@@ -16,8 +16,8 @@ class AdminSeeder extends Seeder
     {
         User::create([
             'name' => 'Admin User',
-            'email' => 'admin@site.com',
-            'password' => Hash::make('password'),
+            'email' => 'admin@gnosisbrand.com',
+            'password' => Hash::make('ADMIN123456'),
             'role' => 'admin',
             'phone' => '+1234567890',
             'is_active' => true,
@@ -27,8 +27,8 @@ class AdminSeeder extends Seeder
         // Create additional admin users if needed
         User::create([
             'name' => 'Super Admin',
-            'email' => 'superadmin@site.com',
-            'password' => Hash::make('password'),
+            'email' => 'superadmin@gnosisbrand.com',
+            'password' => Hash::make('ADMIN123456'),
             'role' => 'admin',
             'phone' => '+1987654321',
             'is_active' => true,
