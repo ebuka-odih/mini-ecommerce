@@ -78,7 +78,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
     const activeBannerSlides = bannerSlides.filter(slide => slide.is_active);
 
     return (
-        <MainLayout title={`${settings?.site_name || 'GNOSIS'} - Home`} settings={settings}>
+        <MainLayout title={`${settings?.site_name || ''} - Home`} settings={settings}>
             {/* Banner Slider Section */}
             <section className="relative h-screen w-full overflow-hidden">
                 {activeBannerSlides.length > 0 ? (
@@ -169,7 +169,7 @@ const HomePage3: React.FC<HomePage3Props> = ({ products = [], bannerSlides = [],
                     <div className="absolute inset-0 bg-gradient-to-br from-gray-600 to-gray-800 flex items-center justify-center">
                         <div className="text-center text-white">
                             <h1 className="text-4xl lg:text-6xl font-light tracking-wider mb-4">
-                                Welcome to {settings?.site_name || 'GNOSIS'}
+                                Welcome to {settings?.site_name || ''}
                             </h1>
                             <p className="text-xl mb-8">Discover our amazing collection</p>
                             <Link href="/shop">

@@ -319,7 +319,7 @@ export default function BlackTheme({ featuredProducts, categories, sliderImages 
             <Link href="/" className="flex items-center">
               <img 
                 src="/img/paperview.png" 
-                alt="Gnosis Logo" 
+                alt="Logo" 
                 className="h-24 md:h-28 w-auto"
                 onError={(e) => {
                   console.log('Logo failed to load, using fallback');
