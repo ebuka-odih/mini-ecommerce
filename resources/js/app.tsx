@@ -10,7 +10,13 @@ import { CartProvider } from './contexts/cart-context';
 const appName = import.meta.env.VITE_APP_NAME || 'GNOSIS';
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    title: (title) => {
+        // Don't add app name suffix for coming soon page
+        if (title === 'Coming Soon') {
+            return title;
+        }
+        return `${title} - ${appName}`;
+    },
     resolve: (name) => {
         const pages = import.meta.glob('./pages/**/*.{jsx,tsx}', { eager: true });
         const normalizedName = name.replace(/\./g, '/');
