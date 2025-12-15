@@ -6,8 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { CheckCircle, AlertCircle, ArrowRight, ChevronDown, ChevronUp } from 'lucide-react';
 
-const appName = import.meta.env.VITE_APP_NAME || '';
-
 interface ComingSoonPageProps {
   settings: {
     enabled: boolean;
@@ -60,7 +58,7 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
 
   return (
     <>
-      <Head title={`Coming Soon${appName ? ` - ${appName}` : ''}`} />
+      <Head title="Coming Soon" />
       <style>
         {`
           html, body {
