@@ -283,7 +283,7 @@ export default function HomepageLayoutPage({ layouts, categories, gridPositions,
 
     return (
         <AdminLayout>
-            <Head title="Homepage Layout - GNOSIS Admin" />
+            <Head title={`Homepage Layout${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} />
 
             <PageHeader
                 title="Homepage Layout"

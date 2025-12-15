@@ -198,9 +198,11 @@ const CartSidebar: React.FC<{ settings?: { currency: string } }> = ({ settings }
     );
 };
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, title = 'GNOSISBRAND', settings }) => {
+const appName = import.meta.env.VITE_APP_NAME || '';
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children, title = appName || 'Home', settings }) => {
     const isDarkTheme = settings?.theme === 'dark';
-    const siteName = settings?.site_name || 'GNOSIS';
+    const siteName = settings?.site_name || appName || '';
     const siteLogo = settings?.site_logo || '/img/paperview.png';
     const currency = settings?.currency || 'NGN';
 

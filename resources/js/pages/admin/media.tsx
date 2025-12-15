@@ -452,7 +452,7 @@ export default function MediaPage({ media, folders, tags, stats, filters }: Medi
 
     return (
         <AdminLayout>
-            <Head title="Media Library - GNOSIS Admin" />
+            <Head title={`Media Library${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} />
 
             <PageHeader
                 title="Media Library"

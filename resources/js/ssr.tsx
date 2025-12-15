@@ -13,10 +13,11 @@ createServer((page) =>
         page,
         render: ReactDOMServer.renderToString,
         title: (title) => {
-            // Don't add app name suffix for coming soon page
-            if (title === 'Coming Soon') {
+            // If title already includes app name, return as is
+            if (title.includes(` - ${appName}`) || title.endsWith(` - ${appName}`)) {
                 return title;
             }
+            // Add app name suffix to all titles
             return `${title} - ${appName}`;
         },
         resolve: (name) => {

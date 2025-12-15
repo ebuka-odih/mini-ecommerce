@@ -115,7 +115,7 @@ export default function CustomersPage({ customers, stats, filters }: CustomersPa
 
     return (
         <AdminLayout>
-            <Head title="Customers - GNOSIS Admin" />
+            <Head title={`Customers${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} />
 
             <PageHeader
                 title="Customers"

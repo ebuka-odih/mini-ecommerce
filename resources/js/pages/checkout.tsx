@@ -148,7 +148,7 @@ const CheckoutPage: React.FC<CheckoutPageProps> = ({ cart, settings }) => {
     ];
 
     return (
-        <MainLayout title="Checkout - GNOSIS" settings={settings}>
+        <MainLayout title={`Checkout${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME}` : ''}`} settings={settings}>
             <Head title="Checkout" />
             
             <div className="container mx-auto px-4 py-8">

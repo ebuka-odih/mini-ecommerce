@@ -302,7 +302,7 @@ const ProductPage: React.FC<ProductPageProps> = ({ product, settings }) => {
     };
 
     return (
-        <MainLayout title={`${product.name} - GNOSIS`} settings={settings}>
+        <MainLayout title={`${product.name}${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME}` : ''}`} settings={settings}>
             <Head title={product.name} />
 
             <div className="container mx-auto px-4 py-8">

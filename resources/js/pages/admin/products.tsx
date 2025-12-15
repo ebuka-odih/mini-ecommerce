@@ -461,7 +461,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
     };
 
     return (
-        <AdminLayout title="Products - GNOSIS Admin" site_settings={site_settings}>
+        <AdminLayout title={`Products${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} site_settings={site_settings}>
             <Head title="Products" />
             
             <PageHeader 
@@ -480,7 +480,7 @@ const ProductsPage: React.FC<ProductsPageProps> = ({
                         <DialogHeader>
                             <DialogTitle className="text-white">Add New Product</DialogTitle>
                             <DialogDescription className="text-gray-400">
-                                Create a new product for your GNOSIS collection
+                                Create a new product for your {import.meta.env.VITE_APP_NAME || 'store'} collection
                             </DialogDescription>
                         </DialogHeader>
                         

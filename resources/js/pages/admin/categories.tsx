@@ -138,7 +138,7 @@ export default function CategoriesPage({ categories, filters }: CategoriesPagePr
 
     return (
         <AdminLayout>
-            <Head title="Categories - GNOSIS Admin" />
+            <Head title={`Categories${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} />
 
             <PageHeader
                 title="Categories"

@@ -181,7 +181,7 @@ const Orders: React.FC<OrdersPageProps> = ({
     });
 
     return (
-        <AdminLayout title="Orders - GNOSIS Admin" stats={layout_stats} site_settings={site_settings}>
+        <AdminLayout title={`Orders${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} stats={layout_stats} site_settings={site_settings}>
             <Head title="Orders Management" />
             
             <PageHeader 

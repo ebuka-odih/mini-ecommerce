@@ -222,7 +222,7 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
 
     if (cart.items.length === 0) {
         return (
-            <MainLayout title="Shopping Cart - GNOSIS" settings={settings}>
+            <MainLayout title={`Shopping Cart${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME}` : ''}`} settings={settings}>
                 <Head title="Shopping Cart" />
                 
                 <div className="container mx-auto px-4 py-16">

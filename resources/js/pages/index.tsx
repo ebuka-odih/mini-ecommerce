@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { formatPriceWithCurrency } from '@/lib/fashion-utils';
 
+const appName = import.meta.env.VITE_APP_NAME || '';
+
 interface HomepageLayout {
     id: string;
     title: string;
@@ -156,7 +158,7 @@ const Index: React.FC<HomePageProps> = ({ products = [], featuredProducts = [], 
 
 
     return (
-        <MainLayout title="Home - GNOSIS" settings={settings}>
+        <MainLayout title={`Home${appName ? ` - ${appName}` : ''}`} settings={settings}>
             {/* Featured Products Hero Slider */}
             <section className="container mx-auto px-4 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

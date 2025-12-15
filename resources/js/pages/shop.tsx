@@ -17,7 +17,7 @@ const Shop: React.FC<ShopPageProps> = ({
 }) => {
 
     const isDarkTheme = settings?.theme === 'dark';
-    const siteName = settings?.site_name || 'GNOSIS';
+    const siteName = settings?.site_name || import.meta.env.VITE_APP_NAME || '';
 
 
     return (

@@ -117,7 +117,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({
     };
 
     return (
-        <AdminLayout title="Dashboard - GNOSIS Admin" stats={layout_stats} site_settings={site_settings}>
+        <AdminLayout title={`Dashboard${import.meta.env.VITE_APP_NAME ? ` - ${import.meta.env.VITE_APP_NAME} Admin` : ' Admin'}`} stats={layout_stats} site_settings={site_settings}>
             <Head title="Dashboard" />
             
             <PageHeader 

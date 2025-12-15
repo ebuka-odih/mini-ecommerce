@@ -54,11 +54,13 @@ interface NavItem {
     children?: NavItem[];
 }
 
+const appName = import.meta.env.VITE_APP_NAME || '';
+
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dashboard', stats, site_settings }) => {
     const { auth, flash } = usePage().props as any;
     
     // Get site settings from props or use defaults
-    const siteName = site_settings?.site_name || 'GNOSIS';
+    const siteName = site_settings?.site_name || appName || '';
     const siteLogo = site_settings?.site_logo || '/brand/GNOSIS4.png';
     const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
     const [showFlash, setShowFlash] = React.useState(true);
