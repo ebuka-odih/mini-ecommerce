@@ -158,12 +158,14 @@ export const generateCategoryUrl = (categorySlug: string): string => {
 };
 
 export const generateProductSEOTitle = (product: Product): string => {
-    return `${product.name} - ${product.category.name} | GNOSIS`;
+    const appName = import.meta.env.VITE_APP_NAME || '';
+    return `${product.name} - ${product.category.name}${appName ? ` | ${appName}` : ''}`;
 };
 
 export const generateProductSEODescription = (product: Product): string => {
     const price = formatPrice(getProductPrice(product));
-    return `${product.short_description || product.description.substring(0, 150)} - Starting at ${price}. Shop now at GNOSIS.`;
+    const appName = import.meta.env.VITE_APP_NAME || '';
+    return `${product.short_description || product.description.substring(0, 150)} - Starting at ${price}.${appName ? ` Shop now at ${appName}.` : ''}`;
 };
 
 // Validation Utilities

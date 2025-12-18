@@ -90,7 +90,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ canResetPassword = true, status }
                         <span className="text-2xl font-bold text-white">G</span>
                     </div>
                     <h2 className="text-3xl font-extrabold text-white">
-                        Welcome to GNOSIS
+                        Welcome to {import.meta.env.VITE_APP_NAME || 'Admin'}
                     </h2>
                     <p className="mt-2 text-sm text-gray-400">
                         Sign in to your admin account
@@ -245,7 +245,7 @@ const LoginPage: React.FC<LoginPageProps> = ({ canResetPassword = true, status }
                 {/* Footer */}
                 <div className="text-center">
                     <p className="text-xs text-gray-500">
-                        © 2025 GNOSIS Brand. All rights reserved.
+                        © 2025 {import.meta.env.VITE_APP_NAME || 'Brand'}. All rights reserved.
                     </p>
                 </div>
             </div>

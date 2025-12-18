@@ -16,7 +16,8 @@ class HomeController extends Controller
         
         if ($settings['enabled'] && !session('coming-soon-bypassed')) {
             return Inertia::render('coming-soon', [
-                'settings' => $settings
+                'settings' => $settings,
+                'appName' => env('APP_NAME', ''),
             ]);
         }
         
@@ -75,7 +76,7 @@ class HomeController extends Controller
         
         // Get settings for the homepage
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
             'currency' => Setting::getValue('currency', 'NGN'),
             'theme' => Setting::getValue('theme', 'dark'),
@@ -110,7 +111,7 @@ class HomeController extends Controller
         
         // Get settings for the product page
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
             'currency' => Setting::getValue('currency', 'NGN'),
             'theme' => Setting::getValue('theme', 'dark'),
@@ -222,7 +223,7 @@ class HomeController extends Controller
 
         // Get settings for the shop page
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
             'currency' => Setting::getValue('currency', 'NGN'),
             'theme' => Setting::getValue('theme', 'dark'),
@@ -310,7 +311,7 @@ class HomeController extends Controller
 
         // Get settings for the homepage
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS3.png'),
             'currency' => Setting::getValue('currency', 'NGN'),
             'theme' => Setting::getValue('theme', 'dark'),
@@ -387,7 +388,7 @@ class HomeController extends Controller
         
         // Get settings for the homepage
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
             'currency' => Setting::getValue('currency', 'NGN'),
             'theme' => Setting::getValue('theme', 'dark'),

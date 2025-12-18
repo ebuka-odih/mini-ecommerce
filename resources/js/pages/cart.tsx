@@ -243,8 +243,11 @@ const CartPage: React.FC<CartPageProps> = ({ cart, settings }) => {
         );
     }
 
+    const appName = import.meta.env.VITE_APP_NAME || '';
+    const siteName = settings?.site_name || appName || '';
+    
     return (
-        <MainLayout title="Shopping Cart - GNOSIS" settings={settings}>
+        <MainLayout title={`Shopping Cart${siteName ? ` - ${siteName}` : ''}`} settings={settings}>
             <Head title="Shopping Cart" />
             
             <div className="container mx-auto px-4 py-8">

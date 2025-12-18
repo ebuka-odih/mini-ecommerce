@@ -19,7 +19,7 @@ class AuthenticatedSessionController extends Controller
     public function create(): Response
     {
         $settings = [
-            'site_name' => \App\Models\Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => \App\Models\Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => \App\Models\Setting::getValue('site_logo', '/brand/GNOSIS3.png'),
         ];
 

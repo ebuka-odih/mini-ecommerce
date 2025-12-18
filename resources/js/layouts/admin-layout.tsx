@@ -398,7 +398,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, title = 'Admin Dash
                                                     {auth?.user?.name || 'Admin User'}
                                                 </p>
                                                 <p className="text-xs leading-none text-gray-400">
-                                                    {auth?.user?.email || 'admin@gnosis.com'}
+                                                    {auth?.user?.email || 'admin@example.com'}
                                                 </p>
                                             </div>
                                         </div>

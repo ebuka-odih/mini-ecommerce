@@ -7,10 +7,14 @@ import { createRoot } from 'react-dom/client';
 import { ToastProvider } from './components/ui/toast';
 import { CartProvider } from './contexts/cart-context';
 
-const appName = import.meta.env.VITE_APP_NAME || 'GNOSIS';
+const appName = import.meta.env.VITE_APP_NAME || '';
 
 createInertiaApp({
     title: (title) => {
+        // If no app name, return title as is
+        if (!appName) {
+            return title;
+        }
         // If title already includes app name, return as is
         if (title.includes(` - ${appName}`) || title.endsWith(` - ${appName}`)) {
             return title;

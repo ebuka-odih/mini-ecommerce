@@ -72,7 +72,7 @@ class CheckoutController extends Controller
 
         // Get settings for the checkout page
         $settings = [
-            'site_name' => \App\Models\Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => \App\Models\Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => \App\Models\Setting::getValue('site_logo', '/img/paperview.png'),
             'currency' => \App\Models\Setting::getValue('currency', 'NGN'),
             'theme' => \App\Models\Setting::getValue('theme', 'dark'),

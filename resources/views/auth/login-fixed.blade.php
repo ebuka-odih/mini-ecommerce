@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Login - GNOSIS Brand</title>
+    <title>Login - {{ env('APP_NAME', 'Brand') }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -56,7 +56,7 @@
             <div class="mx-auto w-20 h-20 bg-gradient-to-br from-gnosis-blue to-blue-700 rounded-2xl flex items-center justify-center mb-6 shadow-2xl">
                 <span class="text-3xl font-bold text-white">G</span>
             </div>
-            <h1 class="text-3xl font-bold text-white mb-2">Welcome to GNOSIS</h1>
+            <h1 class="text-3xl font-bold text-white mb-2">Welcome to {{ env('APP_NAME', 'Admin') }}</h1>
             <p class="text-gray-400">Sign in to your admin account</p>
         </div>
 
@@ -191,7 +191,7 @@
         <!-- Footer -->
         <div class="text-center mt-8">
             <p class="text-xs text-gray-500">
-                © 2025 GNOSIS Brand. All rights reserved.
+                © 2025 {{ env('APP_NAME', 'Brand') }}. All rights reserved.
             </p>
         </div>
     </div>

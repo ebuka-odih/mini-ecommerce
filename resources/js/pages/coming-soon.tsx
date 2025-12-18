@@ -12,10 +12,12 @@ interface ComingSoonPageProps {
     message: string;
     password: string;
   };
+  appName?: string;
   error?: string;
 }
 
-export default function ComingSoonPage({ settings, error }: ComingSoonPageProps) {
+export default function ComingSoonPage({ settings, appName, error }: ComingSoonPageProps) {
+  const appNameValue = appName || import.meta.env.VITE_APP_NAME || '';
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [passwordError, setPasswordError] = useState('');
 
@@ -58,7 +60,7 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
 
   return (
     <>
-      <Head title="Coming Soon" />
+      <Head title={`Coming Soon${appNameValue ? ` - ${appNameValue}` : ''}`} />
       <style>
         {`
           html, body {
@@ -143,7 +145,7 @@ export default function ComingSoonPage({ settings, error }: ComingSoonPageProps)
           {/* Email Subscription Section */}
           <div className="mb-16">
             <p className="text-base font-medium mb-6">
-              BE THE FIRST TO RECEIVE THE PASSWORD WHEN 'PAPERVIEW' DROPS
+              BE THE FIRST TO RECEIVE THE PASSWORD WHEN '{appNameValue || 'PAPERVIEW'}' DROPS
             </p>
             
             <form onSubmit={handleEmailSubmit} className="max-w-sm mx-auto">

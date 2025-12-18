@@ -13,6 +13,10 @@ interface AuthLayoutProps {
 }
 
 export default function AuthSimpleLayout({ children, title, description, settings }: PropsWithChildren<AuthLayoutProps>) {
+    const appName = import.meta.env.VITE_APP_NAME || '';
+    const siteName = settings?.site_name || appName || '';
+    const defaultLogo = '/brand/GNOSIS3.png';
+    
     return (
         <div className="flex min-h-svh flex-col items-center justify-center gap-6 bg-gray-900 p-6 md:p-10">
             <div className="w-full max-w-sm">
@@ -21,12 +25,12 @@ export default function AuthSimpleLayout({ children, title, description, setting
                         <Link href="/" className="flex flex-col items-center gap-2 font-medium">
                             <div className="mb-1 flex h-12 w-auto items-center justify-center">
                                 <img 
-                                    src={settings?.site_logo || '/brand/GNOSIS3.png'} 
-                                    alt={settings?.site_name || 'GNOSIS'} 
+                                    src={settings?.site_logo || defaultLogo} 
+                                    alt={siteName} 
                                     className="h-10 w-auto object-contain"
                                     onError={(e) => {
-                                        e.currentTarget.src = '/brand/GNOSIS3.png';
-                                        e.currentTarget.alt = 'GNOSIS';
+                                        e.currentTarget.src = defaultLogo;
+                                        e.currentTarget.alt = siteName;
                                     }}
                                 />
                             </div>

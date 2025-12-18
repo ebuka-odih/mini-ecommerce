@@ -6,13 +6,17 @@ import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
 
-const appName = import.meta.env.VITE_APP_NAME || 'GNOSIS';
+const appName = import.meta.env.VITE_APP_NAME || '';
 
 createServer((page) =>
     createInertiaApp({
         page,
         render: ReactDOMServer.renderToString,
         title: (title) => {
+            // If no app name, return title as is
+            if (!appName) {
+                return title;
+            }
             // If title already includes app name, return as is
             if (title.includes(` - ${appName}`) || title.endsWith(` - ${appName}`)) {
                 return title;

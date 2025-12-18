@@ -33,7 +33,7 @@ class MediaController extends Controller
 
         // Get site settings for layout
         $siteSettings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
         ];
 
@@ -99,7 +99,7 @@ class MediaController extends Controller
         
         // Get site settings for layout
         $siteSettings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/brand/GNOSIS4.png'),
         ];
 

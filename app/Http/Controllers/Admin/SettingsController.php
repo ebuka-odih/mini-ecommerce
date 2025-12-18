@@ -15,7 +15,7 @@ class SettingsController extends Controller
     public function index()
     {
         $settings = [
-            'site_name' => Setting::getValue('site_name', 'GNOSIS'),
+            'site_name' => Setting::getValue('site_name', env('APP_NAME', '')),
             'site_logo' => Setting::getValue('site_logo', '/img/paperview.png'),
             'currency' => Setting::getValue('currency', 'USD'),
             'theme' => Setting::getValue('theme', 'dark'),
